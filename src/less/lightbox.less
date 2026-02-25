@@ -293,7 +293,7 @@
     position: absolute !important;
 
     border-width: 0 !important;
-    clip: rect(0, 0, 0, 0) !important;
+    clip-path: rect(0 0 0 0) !important;
     margin: -1px !important;
     overflow: hidden !important;
     padding: 0 !important;
@@ -309,10 +309,7 @@
    */
   &-container {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: 1;
 
     user-select: none;
@@ -756,10 +753,7 @@
     width: var(--fs-lightbox-loading-size);
 
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
 
     animation: fs-lightbox-loading-spin var(--fs-lightbox-loading-duration) linear infinite;
     border: var(--fs-lightbox-loading-spread) solid transparent;

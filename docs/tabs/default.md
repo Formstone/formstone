@@ -37,37 +37,37 @@ Create a set of tabs using links.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<nav class="demo_tabs_menu">
-  <a href="#tab-1" class="demo_tabs_link js-tabs"
-    data-tabs-group="demo_tabs"
+<nav class="tabs_menu">
+  <a href="#tab-1" class="tabs_link js-tabs"
+    data-tabs-group="tabs"
     data-tabs-active="true"
   >
     Tab One
   </a>
-  <a href="#tab-2" class="demo_tabs_link js-tabs"
-    data-tabs-group="demo_tabs"
+  <a href="#tab-2" class="tabs_link js-tabs"
+    data-tabs-group="tabs"
   >
     Tab Two
   </a>
-  <a href="#tab-3" class="demo_tabs_link js-tabs"
-    data-tabs-group="demo_tabs"
+  <a href="#tab-3" class="tabs_link js-tabs"
+    data-tabs-group="tabs"
   >
     Tab Three
   </a>
 </nav>
-<div class="demo_tabs_item" id="tab-1">
+<div class="tabs_item" id="tab-1">
   Target One
 </div>
-<div class="demo_tabs_item" id="tab-2">
-  Target two
+<div class="tabs_item" id="tab-2">
+  Target Two
 </div>
-<div class="demo_tabs_item" id="tab-3">
+<div class="tabs_item" id="tab-3">
   Target Three
 </div>
 ```
 
 ```js
-import { Tabs, Utils } from 'Formstone';
+import { Tabs, Utils } from 'formstone';
 
 Utils.ready(() => {
   Tabs.construct('.js-tabs', {
@@ -77,20 +77,18 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
 body {
   padding: 10vh;
 }
 
-.demo_tabs_menu {
+.tabs_menu {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.demo_tabs_link,
+.tabs_link,
 .fs-tabs-tab_mobile {
-  display: block;
   background: var(--color-blue);
   border: var(--border-size) solid var(--color-black);
   border-radius: var(--border-size);
@@ -99,33 +97,27 @@ body {
   padding: 10px 15px;
   text-decoration: none;
 }
+
 .fs-tabs-tab_mobile {
   width: 100%;
   margin-bottom: 10px;
 }
-.demo_tabs_item.fs-tabs-active + .fs-tabs-tab_mobile {
+
+.tabs_item.fs-tabs-active + .fs-tabs-tab_mobile {
   margin-top: 10px;
 }
 
-.demo_tabs_link.fs-tabs-active,
+.tabs_link.fs-tabs-active,
 .fs-tabs-tab_mobile.fs-tabs-active {
   background: var(--color-yellow);
 }
 
-.demo_tabs_item.fs-tabs-enabled:not(.fs-tabs-active) {
-  display: none;
-}
-.fs-tabs-tab_mobile:not(.fs-tabs-enabled) {
-  display: none;
-}
-
-.demo_tabs_item {
+.tabs_item {
   background: var(--color-gray-5);
   border: var(--border-size) solid var(--color-black);
   border-radius: var(--border-size);
   padding: 20px;
 }
-/* playground-hide-end */
 ```
 
 </figure>

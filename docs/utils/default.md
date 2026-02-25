@@ -227,8 +227,8 @@ Selects all elements matching a CSS selector.
 
 <figure class="example js-example" markdown="1">
 ```js
-const buttons = Utils.select('.btn');
-const inputs = Utils.select('input', form);
+let buttons = Utils.select('.btn');
+let inputs = Utils.select('input', form);
 ```
 </figure>
 
@@ -252,7 +252,7 @@ Creates a new DOM element.
 
 <figure class="example js-example" markdown="1">
 ```js
-const div = Utils.element('div');
+let div = Utils.element('div');
 ```
 </figure>
 

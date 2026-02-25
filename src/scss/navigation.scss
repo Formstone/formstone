@@ -1,4 +1,4 @@
-/*! formstone v2.1.9 [navigation.scss] 2026-02-12 | GPL-3.0 License | formstone.it */
+/*! formstone v2.1.9 [navigation.scss] 2026-02-25 | GPL-3.0 License | formstone.it */
 /**
  * $module navigation
  * $description Responsive navigation menus
@@ -189,7 +189,7 @@ $fs-navigation-push-content-zindex: 1;
   &-reveal-nav &-enabled,
   &-overlay-nav &-enabled {
     width: var(--fs-navigation-offscreen-width);
-    height: calc(100% + 60px); // ??
+    height: calc(100vh + 60px);
 
     position: fixed;
     top: 0;
@@ -332,10 +332,7 @@ $fs-navigation-push-content-zindex: 1;
     height: unquote("calc(100% + 60px)");
 
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: var(--fs-navigation-overlay-content-zindex);
 
     background: var(--fs-navigation-overlay-content-background);

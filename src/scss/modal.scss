@@ -1,4 +1,4 @@
-/*! formstone v2.1.9 [modal.scss] 2026-02-12 | GPL-3.0 License | formstone.it */
+/*! formstone v2.1.9 [modal.scss] 2026-02-25 | GPL-3.0 License | formstone.it */
 /**
  * $module Modal
  * $description Styles for simple modal dialog component with native dialog element.
@@ -99,8 +99,6 @@ $fs-modal-button-color: #000;
 
     & {
       --fs-modal-duration: 0s;
-      --fs-modal-loading-duration: 0s;
-      --fs-modal-item-duration: 0s;
     }
   }
 
@@ -182,7 +180,7 @@ $fs-modal-button-color: #000;
     position: absolute !important;
 
     border-width: 0 !important;
-    clip: rect(0, 0, 0, 0) !important;
+    clip-path: rect(0 0 0 0) !important;
     margin: -1px !important;
     overflow: hidden !important;
     padding: 0 !important;
@@ -198,10 +196,7 @@ $fs-modal-button-color: #000;
    */
   &-container {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: 1;
 
     display: flex;

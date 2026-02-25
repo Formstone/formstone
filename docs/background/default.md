@@ -40,19 +40,17 @@ Create a new Background by passing the source image URL at initialization.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<div class="demo_background js-background"
+<div class="background js-background"
 data-background-options='{
   "source": "//spaceholder.dev/1600x900/1.jpg",
   "alt": "Background Image"
 }'>
-  <!-- playground-hide -->
-  <h1>Sem Dolor</h1>
-  <!-- playground-hide-end -->
+  <h1>Lorem Ipsum</h1>
 </div>
 ```
 
 ```js
-import { Background, Utils } from 'Formstone';
+import { Background, Utils } from 'formstone';
 
 Utils.ready(() => {
   Background.construct('.js-background');
@@ -60,14 +58,14 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
-.demo_background {
+.background {
   aspect-ratio: 16/9;
   display: grid;
   align-items: center;
   justify-content: center;
 }
-.demo_background h1 {
+
+.background h1 {
   z-index: 1;
   color: white;
   background: rgba(0, 0, 0, 0.7);
@@ -75,7 +73,7 @@ Utils.ready(() => {
   line-height: 1;
   padding: 20px 30px;
   text-transform: uppercase;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
@@ -88,7 +86,7 @@ Create a responsive-friendly Background by defining key/value pairs containing t
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<div class="demo_background js-background"
+<div class="background js-background"
 data-background-options='{
   "source": {
     "0": "//spaceholder.dev/800x450/1.jpg",
@@ -96,14 +94,12 @@ data-background-options='{
   },
   "alt": "Background Image"
 }'>
-  <!-- playground-hide -->
-  <h1>Sem Dolor</h1>
-  <!-- playground-hide-end -->
+  <h1>Lorem Ipsum</h1>
 </div>
 ```
 
 ```js
-import { Background, Utils } from 'Formstone';
+import { Background, Utils } from 'formstone';
 
 Utils.ready(() => {
   Background.construct('.js-background');
@@ -111,14 +107,14 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
-.demo_background {
+.background {
   aspect-ratio: 16/9;
   display: grid;
   align-items: center;
   justify-content: center;
 }
-.demo_background h1 {
+
+.background h1 {
   z-index: 1;
   color: white;
   background: rgba(0, 0, 0, 0.7);
@@ -126,7 +122,7 @@ Utils.ready(() => {
   line-height: 1;
   padding: 20px 30px;
   text-transform: uppercase;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
@@ -139,7 +135,7 @@ Create a video Background by defining proper browser-specific source video URLs,
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<div class="demo_background js-background"
+<div class="background js-background"
 data-background-options='{
   "source": {
     "webm": "//spaceholder.dev/video/video.webm",
@@ -149,14 +145,12 @@ data-background-options='{
   },
   "alt": "Background Video"
 }'>
-  <!-- playground-hide -->
-  <h1>Sem Dolor</h1>
-  <!-- playground-hide-end -->
+  <h1>Lorem Ipsum</h1>
 </div>
 ```
 
 ```js
-import { Background, Utils } from 'Formstone';
+import { Background, Utils } from 'formstone';
 
 Utils.ready(() => {
   Background.construct('.js-background');
@@ -164,14 +158,14 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
-.demo_background {
+.background {
   aspect-ratio: 16/9;
   display: grid;
   align-items: center;
   justify-content: center;
 }
-.demo_background h1 {
+
+.background h1 {
   z-index: 1;
   color: white;
   background: rgba(0, 0, 0, 0.7);
@@ -179,7 +173,7 @@ Utils.ready(() => {
   line-height: 1;
   padding: 20px 30px;
   text-transform: uppercase;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
@@ -198,14 +192,12 @@ data-background-options='{
     "youtube": "https://www.youtube.com/watch?v=ScMzIvxBSi4"
   }
 }'>
-  <!-- playground-hide -->
-  <h1>Sem Dolor</h1>
-  <!-- playground-hide-end -->
+  <h1>Lorem Ipsum</h1>
 </div>
 ```
 
 ```js
-import { Background, Utils } from 'Formstone';
+import { Background, Utils } from 'formstone';
 
 Utils.ready(() => {
   Background.construct('.js-background');
@@ -213,13 +205,13 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
 .demo_background {
   aspect-ratio: 16/9;
   display: grid;
   align-items: center;
   justify-content: center;
 }
+
 .demo_background h1 {
   z-index: 1;
   color: white;
@@ -228,24 +220,10 @@ Utils.ready(() => {
   line-height: 1;
   padding: 20px 30px;
   text-transform: uppercase;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
-
-
-<!-- LOCAL STYLES -->
-
-<style>
-  .demo playground-preview {
-    aspect-ratio: 3/2;
-  }
-
-  .demo.fs-swap-active playground-preview {
-    aspect-ratio: unset;
-    height: 70vh;
-  }
-</style>
 
 
 <hr class="divider">

@@ -2,6 +2,12 @@
 
 <!-- -->
 
+### 2.2.0
+
+* Accessibility improvements by @nhall
+* Added more robust documentation
+* Fixed various regressions and typos
+
 ### 2.1.9
 
 * Fixed issue with links in Lightbox
@@ -33,7 +39,7 @@
 
 ### 2.1.2
 
-* Ally work
+* Accessibility work
 
 ### 2.1.1
 

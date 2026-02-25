@@ -1,4 +1,4 @@
-/*! formstone v2.1.9 [lightbox.css] 2026-02-12 | GPL-3.0 License | formstone.it */
+/*! formstone v2.1.9 [lightbox.css] 2026-02-25 | GPL-3.0 License | formstone.it */
 .fs-lightbox {
   --fs-lightbox-duration: 0.25s;
   --fs-lightbox-timing: linear;
@@ -75,7 +75,7 @@
   height: 1px !important;
   position: absolute !important;
   border-width: 0 !important;
-  clip: rect(0, 0, 0, 0) !important;
+  clip-path: rect(0 0 0 0) !important;
   margin: -1px !important;
   overflow: hidden !important;
   padding: 0 !important;
@@ -84,10 +84,7 @@
 
 .fs-lightbox-container {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   z-index: 1;
   user-select: none;
 }
@@ -317,10 +314,7 @@
   height: var(--fs-lightbox-loading-size);
   width: var(--fs-lightbox-loading-size);
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   animation: fs-lightbox-loading-spin var(--fs-lightbox-loading-duration) linear infinite;
   border: var(--fs-lightbox-loading-spread) solid transparent;
   border-top-color: var(--fs-lightbox-loading-color);

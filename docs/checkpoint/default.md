@@ -154,13 +154,13 @@ Use the built-in animations.
   data-checkpoint-animation="flip-right"
 >
   flip-right
-</div><!-- playground-hide -->
-<div class="scroll_trigger"></div>
-<!-- playground-hide-end -->
+</div>
+
+<div class="marker"></div>
 ```
 
 ```js
-import { CheckPoint, Utils } from 'Formstone';
+import { CheckPoint, Utils } from 'formstone';
 
 Utils.ready(() => {
   CheckPoint.construct('.js-checkpoint', {
@@ -171,7 +171,20 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
+
+body {
+  padding-bottom: 30vh;
+}
+
+body::before {
+  align-items: center;
+  content: 'Scroll Down\A\21E3';
+  display: flex;
+  height: 105vh;
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+}
 
 .box {
   background: var(--color-yellow);
@@ -183,26 +196,15 @@ Utils.ready(() => {
   text-align: center;
 }
 
-body {
-  padding-bottom: 30vh;
-}
-body::before {
-  align-items: center;
-  content: 'Scroll Down\A\21E3';
-  display: flex;
-  height: 105vh;
-  justify-content: center;
-  text-align: center;
-  white-space: pre-wrap;
-}
-.scroll_trigger {
+.marker {
   width: 100%;
   height: 0;
   position: fixed;
   bottom: 25vh;
   border: 1px dashed var(--color-blue);
 }
-.scroll_trigger::before {
+
+.marker::before {
   position: absolute;
   bottom: calc(100% + 10px);
   left: 10px;
@@ -211,7 +213,7 @@ body::before {
   text-transform: uppercase;
   font-size: 14px;
   line-height: 1;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
@@ -228,13 +230,13 @@ Define a custom animation.
   data-checkpoint-animation="spinner"
 >
   spinner
-</div><!-- playground-hide -->
-<div class="scroll_trigger"></div>
-<!-- playground-hide-end -->
+</div>
+
+<div class="marker"></div>
 ```
 
 ```js
-import { CheckPoint, Utils } from 'Formstone';
+import { CheckPoint, Utils } from 'formstone';
 
 Utils.ready(() => {
   CheckPoint.construct('.js-checkpoint', {
@@ -245,8 +247,6 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';
-
 [data-checkpoint-animation="spinner"] {
   --opacity: 0;
   --transform: translate(0, 100%) scale(0.5) rotate(300deg);
@@ -263,7 +263,21 @@ Utils.ready(() => {
 [data-checkpoint-animation="spinner"].fs-checkpoint-active {
   --opacity: 1;
   --transform: translate(0, 0) scale(1) rotate(0deg);
-}/* playground-hide */
+}
+
+body {
+  padding-bottom: 30vh;
+}
+
+body::before {
+  align-items: center;
+  content: 'Scroll Down\A\21E3';
+  display: flex;
+  height: 105vh;
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+}
 
 .box {
   background: var(--color-yellow);
@@ -275,26 +289,15 @@ Utils.ready(() => {
   text-align: center;
 }
 
-body {
-  padding-bottom: 30vh;
-}
-body::before {
-  align-items: center;
-  content: 'Scroll Down\A\21E3';
-  display: flex;
-  height: 105vh;
-  justify-content: center;
-  text-align: center;
-  white-space: pre-wrap;
-}
-.scroll_trigger {
+.marker {
   width: 100%;
   height: 0;
   position: fixed;
   bottom: 25vh;
   border: 1px dashed var(--color-blue);
 }
-.scroll_trigger::before {
+
+.marker::before {
   position: absolute;
   bottom: calc(100% + 10px);
   left: 10px;
@@ -303,7 +306,7 @@ body::before {
   text-transform: uppercase;
   font-size: 14px;
   line-height: 1;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
@@ -316,23 +319,23 @@ Set an element to act as the animation trigger.
 <figure class="demo js-editor checkpoint_demo" markdown="1">
 
 ```html
-<div class="checkpoint_container">
+<div class="container">
   <div class="box js-checkpoint"
-    data-checkpoint-trigger=".checkpoint_trigger"
+    data-checkpoint-trigger=".trigger"
     data-checkpoint-animation="trigger"
   >
-    fade-up
+    trigger
   </div>
-  <div class="checkpoint_trigger">
-    Trigger
+  <div class="trigger">
+    Scroll Trigger
   </div>
-</div><!-- playground-hide -->
-<div class="scroll_trigger"></div>
-<!-- playground-hide-end -->
+</div>
+
+<div class="marker"></div>
 ```
 
 ```js
-import { CheckPoint, Utils } from 'Formstone';
+import { CheckPoint, Utils } from 'formstone';
 
 Utils.ready(() => {
   CheckPoint.construct('.js-checkpoint', {
@@ -343,21 +346,35 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
+body {
+  background: var(--color-gray-5);
+}
 
-.checkpoint_container {
+body::before {
+  align-items: center;
+  content: 'Scroll Down\A\21E3';
+  display: flex;
+  height: 85vh;
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   border-radius: var(--border-size);
   padding: 10vh;
 }
 
-.checkpoint_trigger {
+.trigger {
   align-self: flex-end;
   background: var(--color-blue);
   border: var(--border-size) solid var(--color-black);
   border-radius: var(--border-size);
   margin: 80vh auto;
+  padding: 5px 10px;
+  text-align: center;
   width: 200px;
 }
 
@@ -379,26 +396,15 @@ Utils.ready(() => {
   background: var(--color-yellow);
 }
 
-body {
-  background: var(--color-gray-5);
-}
-body::before {
-  align-items: center;
-  content: 'Scroll Down\A\21E3';
-  display: flex;
-  height: 85vh;
-  justify-content: center;
-  text-align: center;
-  white-space: pre-wrap;
-}
-.scroll_trigger {
+.marker {
   width: 100%;
   height: 0;
   position: fixed;
   bottom: 25vh;
   border: 1px dashed var(--color-blue);
 }
-.scroll_trigger::before {
+
+.marker::before {
   position: absolute;
   bottom: calc(100% + 10px);
   left: 10px;
@@ -408,7 +414,6 @@ body::before {
   font-size: 14px;
   line-height: 1;
 }
-/* playground-hide-end */
 ```
 
 </figure>
@@ -421,20 +426,20 @@ Set a container to animate elements inside a parent.
 <figure class="demo js-editor checkpoint_demo" markdown="1">
 
 ```html
-<div class="checkpoint_container">
+<div class="container">
   <div class="box js-checkpoint"
-    data-checkpoint-container=".checkpoint_container"
+    data-checkpoint-container=".container"
     data-checkpoint-animation="fade-in"
   >
     fade-up
   </div>
-</div><!-- playground-hide -->
-<div class="scroll_trigger"></div>
-<!-- playground-hide-end -->
+</div>
+
+<div class="marker"></div>
 ```
 
 ```js
-import { CheckPoint, Utils } from 'Formstone';
+import { CheckPoint, Utils } from 'formstone';
 
 Utils.ready(() => {
   CheckPoint.construct('.js-checkpoint', {
@@ -445,9 +450,22 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';/* playground-hide */
+body {
+  background: var(--color-gray-5);
+  padding-bottom: 60vh;
+}
 
-.checkpoint_container {
+body::before {
+  align-items: center;
+  content: 'Scroll Down\A\21E3';
+  display: flex;
+  height: 85vh;
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.container {
   display: flex;
   align-items: flex-end;
   height: 50vh;
@@ -467,28 +485,15 @@ Utils.ready(() => {
   text-align: center;
 }
 
-body {
-  background: var(--color-gray-5);
-  padding-bottom: 60vh;
-}
-
-body::before {
-  align-items: center;
-  content: 'Scroll Down\A\21E3';
-  display: flex;
-  height: 85vh;
-  justify-content: center;
-  text-align: center;
-  white-space: pre-wrap;
-}
-.scroll_trigger {
+.marker {
   width: 100%;
   height: 0;
   position: fixed;
   bottom: 75vh;
   border: 1px dashed var(--color-blue);
 }
-.scroll_trigger::before {
+
+.marker::before {
   position: absolute;
   bottom: calc(100% + 10px);
   left: 10px;
@@ -497,7 +502,7 @@ body::before {
   text-transform: uppercase;
   font-size: 14px;
   line-height: 1;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
@@ -510,25 +515,24 @@ Set a container to animate elements inside a scrollable parent.
 <figure class="demo js-editor checkpoint_demo" markdown="1">
 
 ```html
-<!-- playground-hide -->
-<div class="checkpoint_parent_wrapper">
-<!-- playground-hide-end -->
-<div class="checkpoint_parent">
-  <div class="box js-checkpoint"
-    data-checkpoint-parent=".checkpoint_parent"
-    data-checkpoint-animation="fade-in"
-  >
-    fade-up
-  </div><!-- playground-hide -->
-  <div class="scroll_trigger"></div>
-</div>
-<!-- playground-hide-end -->
+<div class="parent_wrapper">
+  <div class="parent">
 
+    <div class="box js-checkpoint"
+      data-checkpoint-parent=".parent"
+      data-checkpoint-animation="fade-in"
+    >
+      fade-up
+    </div>
+
+    <div class="marker"></div>
+
+  </div>
 </div>
 ```
 
 ```js
-import { CheckPoint, Utils } from 'Formstone';
+import { CheckPoint, Utils } from 'formstone';
 
 Utils.ready(() => {
   CheckPoint.construct('.js-checkpoint', {
@@ -539,27 +543,38 @@ Utils.ready(() => {
 ```
 
 ```css
-@import 'path/to/formstone/dist/formstone.css';
+body {
+  background: var(--color-gray-5);
+  padding-bottom: 30vh;
+}
 
-.checkpoint_parent {
+body::before,
+.parent::before {
+  align-items: center;
+  content: 'Scroll Down\A\21E3';
+  display: flex;
+  height: 85vh;
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+body::before {
+  height: 75vh;
+}
+
+.parent {
   overflow-y: scroll;
-  /* playground-hide */
   height: 80vh;
   margin: 10vh;
   background: var(--color-white);
   border: var(--border-size) solid var(--color-black);
   border-radius: var(--border-size);
   padding-bottom: 30vh;
-  /* playground-hide-end */
-}/* playground-hide */
-
-.checkpoint_parent_wrapper {
-  position: relative;
 }
 
-body {
-  background: var(--color-gray-5);
-  padding-bottom: 30vh;
+.parent_wrapper {
+  position: relative;
 }
 
 .box {
@@ -572,27 +587,15 @@ body {
   text-align: center;
 }
 
-body::before,
-.checkpoint_parent::before {
-  align-items: center;
-  content: 'Scroll Down\A\21E3';
-  display: flex;
-  height: 85vh;
-  justify-content: center;
-  text-align: center;
-  white-space: pre-wrap;
-}
-body::before {
-  height: 75vh;
-}
-.scroll_trigger {
+.marker {
   width: calc(100% - 20vh - 4px);
   height: 0;
   position: absolute;
   bottom: 25%;
   border: 1px dashed var(--color-blue);
 }
-.scroll_trigger::before {
+
+.marker::before {
   position: absolute;
   bottom: calc(100% + 10px);
   left: 10px;
@@ -601,21 +604,10 @@ body::before {
   text-transform: uppercase;
   font-size: 14px;
   line-height: 1;
-}/* playground-hide-end */
+}
 ```
 
 </figure>
-
-<!-- LOCAL STYLES -->
-
-<style>
-  .demo playground-preview {
-    height: 500px;
-  }
-  .demo.fs-swap-active playground-preview {
-    height: 70vh;
-  }
-</style>
 
 
 <hr class="divider">
