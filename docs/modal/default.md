@@ -81,9 +81,9 @@ Methods are publicly available to all active instances, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | [`.close()`](#method-close) | Closes active modal instance |
-| [`.construct()`](#method-construct) | Initializes Modal plugin on target elements |
+| [`.construct()`](#method-construct) | Initializes Modal on target elements |
 | [`.defaults()`](#method-defaults) | Sets default options for future Modal instances |
-| [`.destroy()`](#method-destroy) | Removes plugin and all related data |
+| [`.destroy()`](#method-destroy) | Removes instance and all related data |
 | [`.open()`](#method-open) | Opens modal instance |
 
 
@@ -108,7 +108,7 @@ el.Modal.close();
 
 ### .construct() {#method-construct}
 
-Initializes Modal plugin on target elements.
+Initializes Modal on target elements.
 
 #### Parameters
 
@@ -164,7 +164,7 @@ Modal.defaults({
 
 ### .destroy() {#method-destroy}
 
-Removes plugin and all related data.
+Removes instance and all related data.
 
 #### Examples
 

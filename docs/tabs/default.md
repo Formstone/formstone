@@ -179,10 +179,10 @@ Methods are publicly available to all active instances, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | [`.activate()`](#method-activate) | Activates instance |
-| [`.construct()`](#method-construct) | Initializes plugin on target elements |
+| [`.construct()`](#method-construct) | Initializes Tabs on target elements |
 | [`.deactivate()`](#method-deactivate) | Deactivates instance |
 | [`.defaults()`](#method-defaults) | Sets default options for future initialization |
-| [`.destroy()`](#method-destroy) | Removes plugin and all related data |
+| [`.destroy()`](#method-destroy) | Removes instance and all related data |
 | [`.disable()`](#method-disable) | Disables instance |
 | [`.enable()`](#method-enable) | Enables instance |
 
@@ -202,7 +202,7 @@ el.Tabs.activate();
 
 ### .construct() {#method-construct}
 
-Initializes plugin on target elements.
+Initializes Tabs on target elements.
 
 #### Parameters
 
@@ -272,7 +272,7 @@ Tabs.defaults({
 
 ### .destroy() {#method-destroy}
 
-Removes plugin and all related data.
+Removes instance and all related data.
 
 #### Examples
 

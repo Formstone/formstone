@@ -66,13 +66,13 @@ Set instance options by passing a valid object at initialization, or to the publ
 
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
-| `classes` | `object` | `...` | State classes applied by the plugin |
+| `classes` | `object` | `...` | State classes applied by the instance |
 | `classes.enabled` | `string` | `'fs-swap-enabled'` | Class applied when instance is enabled |
 | `classes.active` | `string` | `'fs-swap-active'` | Class applied when instance is active |
 | `classes.inactive` | `string` | `'fs-swap-inactive'` | Class applied when instance is inactive |
 | `collapse` | `boolean` | `true` | Allow instance to collapse |
-| `maxWidth` | `string | number` | `Infinity` | Maximum viewport width to enable plugin |
-| `minWidth` | `string` | `'0px'` | Width to auto-enable plugin |
+| `maxWidth` | `string | number` | `Infinity` | Maximum viewport width to enable instance |
+| `minWidth` | `string` | `'0px'` | Width to auto-enable instance |
 
 Data attributes can be used for instance setup.
 
@@ -95,10 +95,10 @@ Methods are publicly available to all active instances, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | [`.activate()`](#method-activate) | Activates instance |
-| [`.construct()`](#method-construct) | Initializes plugin on target elements |
+| [`.construct()`](#method-construct) | Initializes Swap on target elements |
 | [`.deactivate()`](#method-deactivate) | Deactivates instance |
 | [`.defaults()`](#method-defaults) | Sets default options for future initialization |
-| [`.destroy()`](#method-destroy) | Removes plugin and all related data |
+| [`.destroy()`](#method-destroy) | Removes instance and all related data |
 | [`.disable()`](#method-disable) | Disables instance |
 | [`.enable()`](#method-enable) | Enables instance |
 
@@ -124,7 +124,7 @@ el.Swap.activate();
 
 ### .construct() {#method-construct}
 
-Initializes plugin on target elements.
+Initializes Swap on target elements.
 
 #### Returns
 
@@ -191,7 +191,7 @@ Swap.defaults({
 
 ### .destroy() {#method-destroy}
 
-Removes plugin and all related data.
+Removes instance and all related data.
 
 #### Examples
 

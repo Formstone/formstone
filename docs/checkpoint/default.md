@@ -645,9 +645,9 @@ Methods are publicly available to all active instances, unless otherwise stated.
 
 | Name | Description |
 | -- | -- |
-| [`.construct()`](#method-construct) | Initializes CheckPoint plugin on target elements |
+| [`.construct()`](#method-construct) | Initializes CheckPoint on target elements |
 | [`.defaults()`](#method-defaults) | Sets default options for future CheckPoint instances |
-| [`.destroy()`](#method-destroy) | Removes plugin and all related data |
+| [`.destroy()`](#method-destroy) | Removes instance and all related data |
 | [`.enable()`](#method-enable) | Enables the CheckPoint instance |
 | [`.disable()`](#method-disable) | Disables the CheckPoint instance |
 | [`.activate()`](#method-activate) | Activates the checkpoint animation |
@@ -656,7 +656,7 @@ Methods are publicly available to all active instances, unless otherwise stated.
 
 ### .construct() {#method-construct}
 
-Initializes CheckPoint plugin on target elements.
+Initializes CheckPoint on target elements.
 
 #### Parameters
 
@@ -711,7 +711,7 @@ CheckPoint.defaults({
 
 ### .destroy() {#method-destroy}
 
-Removes plugin and all related data.
+Removes instance and all related data.
 
 #### Examples
 

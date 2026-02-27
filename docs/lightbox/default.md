@@ -95,9 +95,9 @@ Methods are publicly available to all active instances, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | [`.close()`](#method-close) | Closes active lightbox instance |
-| [`.construct()`](#method-construct) | Initializes Lightbox plugin on target elements |
+| [`.construct()`](#method-construct) | Initializes Lightbox on target elements |
 | [`.defaults()`](#method-defaults) | Sets default options for future Lightbox instances |
-| [`.destroy()`](#method-destroy) | Removes plugin and all related data |
+| [`.destroy()`](#method-destroy) | Removes instance and all related data |
 | [`.jump()`](#method-jump) | Jumps to specific gallery index |
 | [`.next()`](#method-next) | Advances to next gallery item |
 | [`.open()`](#method-open) | Opens lightbox at specified index |
@@ -125,7 +125,7 @@ el.Lightbox.close();
 
 ### .construct() {#method-construct}
 
-Initializes Lightbox plugin on target elements.
+Initializes Lightbox on target elements.
 
 #### Parameters
 
@@ -182,7 +182,7 @@ Lightbox.defaults({
 
 ### .destroy() {#method-destroy}
 
-Removes plugin and all related data.
+Removes instance and all related data.
 
 #### Examples
 

@@ -68,7 +68,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | -- | -- | -- | -- |
 | `gravity` | `string` | `'left'` | Navigation gravity (left, right) |
 | `label` | `string` | `'Menu'` | Accessibility label |
-| `maxWidth` | `string` | `'980px'` | Width to auto-disable plugin |
+| `maxWidth` | `string` | `'980px'` | Width to auto-disable instance |
 | `type` | `string` | `'toggle'` | Navigation type (toggle, push, reveal, overlay) |
 | `focusables` | `string` | `'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'` | Focusable elements |
 
@@ -91,9 +91,9 @@ Methods are publicly available to all active instances, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | [`.close()`](#method-close) | Closes navigation instance |
-| [`.construct()`](#method-construct) | Initializes plugin on target elements |
+| [`.construct()`](#method-construct) | Initializes Navigation on target elements |
 | [`.defaults()`](#method-defaults) | Sets default options for future instances |
-| [`.destroy()`](#method-destroy) | Removes plugin and all related data |
+| [`.destroy()`](#method-destroy) | Removes instance and all related data |
 | [`.disable()`](#method-disable) | Disables navigation instance |
 | [`.enable()`](#method-enable) | Enables navigation instance |
 | [`.open()`](#method-open) | Opens navigation instance |
@@ -114,7 +114,7 @@ el.Navigation.close();
 
 ### .construct() {#method-construct}
 
-Initializes plugin on target elements.
+Initializes Navigation on target elements.
 
 #### Returns
 
@@ -162,7 +162,7 @@ Navigation.defaults({
 
 ### .destroy() {#method-destroy}
 
-Removes plugin and all related data.
+Removes instance and all related data.
 
 #### Examples
 
