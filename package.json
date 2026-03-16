@@ -7,7 +7,7 @@
   "description": "Library of modular front end components.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Formstone/Formstone/"
+    "url": "git+https://github.com/Formstone/Formstone.git"
   },
   "scripts": {
     "gulp": "NODE_ENV='development' gulp",
