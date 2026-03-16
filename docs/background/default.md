@@ -186,7 +186,7 @@ Create a YouTube Background by defining the `youtube` URL.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<div class="demo_background js-background"
+<div class="background js-background"
 data-background-options='{
   "source": {
     "youtube": "https://www.youtube.com/watch?v=ScMzIvxBSi4"
@@ -205,14 +205,14 @@ Utils.ready(() => {
 ```
 
 ```css
-.demo_background {
+.background {
   aspect-ratio: 16/9;
   display: grid;
   align-items: center;
   justify-content: center;
 }
 
-.demo_background h1 {
+.background h1 {
   z-index: 1;
   color: white;
   background: rgba(0, 0, 0, 0.7);

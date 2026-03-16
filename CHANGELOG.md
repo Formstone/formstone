@@ -2,6 +2,10 @@
 
 <!-- -->
 
+### 2.2.1
+
+* Adding new prepend, append, before, and after utiliy methods
+
 ### 2.2.0
 
 * Accessibility improvements by @nhall

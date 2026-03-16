@@ -177,6 +177,46 @@ export function siblings(node) {
   });
 }
 
+//
+
+/**
+ * Inserts HTML at the beginning of a node
+ * @param {Element} node - The element to insert into
+ * @param {String} string - The HTML content to insert
+ */
+export function prepend(node, string) {
+  node.insertAdjacentHTML('afterbegin', string);
+}
+
+/**
+ * Inserts HTML at the end of a node
+ * @param {Element} node - The element to insert into
+ * @param {String} string - The HTML content to insert
+ */
+export function append(node, string) {
+  node.insertAdjacentHTML('beforeend', string);
+}
+
+/**
+ * Inserts HTML before a node
+ * @param {Element} node - The element to insert before
+ * @param {String} string - The HTML content to insert
+ */
+export function before(node, string) {
+  node.insertAdjacentHTML('beforebegin', string);
+}
+
+/**
+ * Inserts HTML after a node
+ * @param {Element} node - The element to insert after
+ * @param {String} string - The HTML content to insert
+ */
+export function after(node, string) {
+  node.insertAdjacentHTML('afterend', string);
+}
+
+//
+
 /**
  * Converts a value to an iterable array
  * @param {*} target - The target to convert (Element, NodeList, Array, or any value)

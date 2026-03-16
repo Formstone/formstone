@@ -27,6 +27,9 @@ Methods are publicly available as static methods on the `Utils` class.
 | Name | Description |
 | -- | -- |
 | [`.addClass()`](#method-addclass) | Adds class(es) to target(s) |
+| [`.after()`](#method-after) | Inserts HTML after a target |
+| [`.append()`](#method-append) | Inserts HTML at the end of a target |
+| [`.before()`](#method-before) | Inserts HTML before a target |
 | [`.camelCase()`](#method-camelcase) | Converts a string to camelCase |
 | [`.element()`](#method-element) | Creates a new element |
 | [`.extend()`](#method-extend) | Deep or shallow merge of objects |
@@ -42,6 +45,7 @@ Methods are publicly available as static methods on the `Utils` class.
 | [`.off()`](#method-off) | Removes event listener(s) |
 | [`.on()`](#method-on) | Adds event listener(s) |
 | [`.once()`](#method-once) | Adds a one-time event listener |
+| [`.prepend()`](#method-prepend) | Inserts HTML at the beginning of a target |
 | [`.ready()`](#method-ready) | Executes callback when DOM is ready |
 | [`.removeAttr()`](#method-removeattr) | Removes attribute(s) |
 | [`.removeClass()`](#method-removeclass) | Removes class(es) from target(s) |
@@ -271,6 +275,88 @@ Gets all sibling elements of a node.
 | Type | Description |
 | -- | -- |
 | `array` | Array of sibling elements |
+
+
+<hr class="divider">
+
+
+## Insertion {#insertion}
+
+### .prepend() {#method-prepend}
+
+Inserts HTML at the beginning of a node.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `node` | `element` | The element to insert into |
+| `string` | `string` | The HTML content to insert |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.prepend(container, '<span class="first">First</span>');
+```
+</figure>
+
+### .append() {#method-append}
+
+Inserts HTML at the end of a node.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `node` | `element` | The element to insert into |
+| `string` | `string` | The HTML content to insert |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.append(container, '<span class="last">Last</span>');
+```
+</figure>
+
+### .before() {#method-before}
+
+Inserts HTML before a node.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `node` | `element` | The element to insert before |
+| `string` | `string` | The HTML content to insert |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.before(item, '<li class="label">Start</li>');
+```
+</figure>
+
+### .after() {#method-after}
+
+Inserts HTML after a node.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `node` | `element` | The element to insert after |
+| `string` | `string` | The HTML content to insert |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.after(item, '<li class="label">End</li>');
+```
+</figure>
 
 
 <hr class="divider">

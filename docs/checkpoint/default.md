@@ -191,9 +191,9 @@ body::before {
   border: var(--border-size) solid var(--color-black);
   border-radius: var(--border-size);
   margin: 0 auto 30vh;
-  width: 200px;
   padding: 20px 10px;
   text-align: center;
+  width: 200px;
 }
 
 .marker {

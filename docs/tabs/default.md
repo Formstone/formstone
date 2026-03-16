@@ -103,8 +103,8 @@ body {
   margin-bottom: 10px;
 }
 
-.tabs_item.fs-tabs-active + .fs-tabs-tab_mobile {
-  margin-top: 10px;
+.tabs_item {
+  margin: 10px 0;
 }
 
 .tabs_link.fs-tabs-active,

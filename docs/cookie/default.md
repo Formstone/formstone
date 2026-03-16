@@ -35,15 +35,74 @@ Create, read and delete cookies.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -->
+<form action="#" medthod="GET" class="form">
+  <div class="">
+      <h2>Set Cookie</h2>
+      <label class="label" for="set_key">Key</label>
+      <input type="text" name="set_key" id="set_key" value="foo" class="input js-set_key">
+      <label class="label" for="set_value">Value</label>
+      <input type="text" name="set_value" id="set_value" value="bar" class="input js-set_value">
+      <button type="button" class="button js-set_cookie">
+        Set
+      </button>
+  </div>
+  <div class="">
+      <h2>Get Cookie</h2>
+      <label class="label" for="get_key">Key</label>
+      <input type="text" name="get_key" id="get_key" value="foo" class="input js-get_key">
+      <button type="button" class="button js-get_cookie">
+        Get
+      </button>
+  </div>
+  <div class="fs-cell fs-xs-full fs-sm-third fs-md-third fs-lg-third">
+      <h2>Delete Cookie</h2>
+      <label class="label" for="delete_key">Key</label>
+      <input type="text" name="delete_key" id="delete_key" value="foo" class="input js-delete_key">
+      <button type="button" class="button js-delete_cookie">
+        Delete
+      </button>
+  </div>
+</form>
+<div class="output js-output"></div>
 ```
 
 ```js
-import { Cookie, Utils } from 'Formstone';
+import { Cookie, Utils } from 'formstone';
 
 Utils.ready(() => {
-  // Demo coming soon
+  Utils.on(Utils.select('.js-set_cookie'), 'click', () => {
+    let key = Utils.select('.js-set_key')[0].value;
+    let value = Utils.select('.js-set_value')[0].value;
+
+    Cookie.set(key, value);
+
+    log('Set', `${key} = ${value}`);
+
+    console.log(document.cookie);
+  });
+
+  Utils.on(Utils.select('.js-get_cookie'), 'click', () => {
+    let key = Utils.select('.js-get_key')[0].value;
+    let value = Cookie.get(key);
+
+    log('Get', `${key} = ${value}`);
+  });
+
+  Utils.on(Utils.select('.js-delete_cookie'), 'click', () => {
+    let key = Utils.select('.js-delete_key')[0].value;
+
+    Cookie.delete(key);
+
+    log('Delete', `${key}`);
+  });
 });
+
+function log(label, value) {
+  let output = Utils.select('.js-output');
+
+  output[0].insertAdjacentHTML('afterbegin', `<strong>${label}:</strong> ${value}<br>`);
+}
+
 ```
 
 ```css

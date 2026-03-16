@@ -27,6 +27,8 @@ Simple element classname swapping.
 <div class="docs_menu" markdown="1">
 
 * [Basic](#demo-basic)
+* [Accordion](#demo-accordion)
+* [Linked](#demo-linked)
 
 </div>
 
@@ -37,19 +39,258 @@ Swap classes on a target element.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -->
+<a href="#swap_1" class="handle js-swap"
+  data-swap-target="#swap_1"
+>
+  Handle Element
+</a>
+
+<div id="swap_1" class="target">
+  Target Element
+</div>
 ```
 
 ```js
-import { Swap, Utils } from 'Formstone';
+import { Swap, Utils } from 'formstone';
 
 Utils.ready(() => {
-  // Demo coming soon
+  Swap.construct('.js-swap');
 });
 ```
 
 ```css
-/* Demo coming soon */
+.handle,
+.target {
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin: 20px 10vw;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.15s linear;
+  min-width: 60%;
+}
+
+.handle {
+  background: var(--color-blue);
+}
+
+.handle.fs-swap-active {
+  background: var(--color-yellow);
+}
+
+.target {
+  background: var(--color-gray-20);
+}
+
+.target.fs-swap-active {
+  background: var(--color-gray-10);
+}
+
+.fs-swap-enabled::after {
+  content: ' (Enabled)';
+}
+
+.fs-swap-active::after {
+  content: ' (Active)';
+}
+```
+
+</figure>
+
+### Accordion {#demo-accordion}
+
+Swap classes on a group of elements.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<a href="#swap_1" class="handle js-swap"
+  data-swap-target="#swap_1"
+  data-swap-group="#group_1"
+  data-swap-options='{
+  "collapse": true
+}'
+>
+  Handle Element 1
+</a>
+
+<div id="swap_1" class="target">
+  Target Element 1
+</div>
+
+<a href="#swap_2" class="handle js-swap"
+  data-swap-target="#swap_2"
+  data-swap-group="#group_1"
+  data-swap-options='{
+  "collapse": true
+}'
+>
+  Handle Element 2
+</a>
+
+<div id="swap_2" class="target">
+  Target Element 2
+</div>
+
+<a href="#swap_3" class="handle js-swap"
+  data-swap-target="#swap_3"
+  data-swap-group="#group_1"
+  data-swap-options='{
+  "collapse": true
+}'
+>
+  Handle Element 3
+</a>
+
+<div id="swap_3" class="target">
+  Target Element 3
+</div>
+```
+
+```js
+import { Swap, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Swap.construct('.js-swap');
+});
+```
+
+```css
+.handle,
+.target {
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin: 20px 10vw;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.15s linear;
+  min-width: 60%;
+}
+
+.handle {
+  background: var(--color-blue);
+}
+
+.handle.fs-swap-active {
+  background: var(--color-yellow);
+}
+
+.target {
+  background: var(--color-gray-10);
+}
+
+.target.fs-swap-enabled {
+  display: none;
+}
+
+.target.fs-swap-active {
+  display: block;
+}
+
+.fs-swap-enabled::after {
+  content: ' (Enabled)';
+}
+
+.fs-swap-active::after {
+  content: ' (Active)';
+}
+```
+
+</figure>
+
+### Linked {#demo-linked}
+
+Swap classes on a set of elements.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<a href="#swap_1" class="handle js-swap"
+  data-swap-target="#swap_1"
+  data-swap-linked="#set_1"
+  data-swap-options='{
+  "collapse": true
+}'
+>
+  Handle Element
+</a>
+
+<a href="#swap_1" class="handle action js-swap"
+  data-swap-target="#swap_1"
+  data-swap-linked="#set_1"
+  data-swap-options='{
+  "collapse": true
+}'
+>
+  Handle Element
+</a>
+
+<div id="swap_1" class="target">
+  Target Element
+</div>
+```
+
+```js
+import { Swap, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Swap.construct('.js-swap');
+});
+```
+
+```css
+.handle,
+.target {
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin: 20px 10vw;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.15s linear;
+  min-width: 60%;
+}
+
+.handle.action {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1;
+  margin: 0;
+  min-width: unset;
+}
+
+.handle {
+  background: var(--color-blue);
+}
+
+.handle.fs-swap-active {
+  background: var(--color-yellow);
+}
+
+.target {
+  background: var(--color-gray-20);
+}
+
+.target.fs-swap-active {
+  background: var(--color-gray-10);
+}
+
+.fs-swap-enabled::after {
+  content: ' (Enabled)';
+}
+
+.fs-swap-active::after {
+  content: ' (Active)';
+}
 ```
 
 </figure>
