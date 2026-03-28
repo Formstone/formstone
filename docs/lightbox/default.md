@@ -24,7 +24,9 @@ Accessible lightbox for images, videos, and elements.
 
 ## Demos {#demo}
 
-<div class="docs_menu" markdown="1">
+Demos coming soon.
+
+<!-- <div class="docs_menu" markdown="1">
 
 * [Basic](#demo-basic)
 
@@ -37,7 +39,7 @@ Open an image in a lightbox.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -->
+<!-- Demo coming soon -- >
 ```
 
 ```js
@@ -52,7 +54,7 @@ Utils.ready(() => {
 /* Demo coming soon */
 ```
 
-</figure>
+</figure> -->
 
 
 <hr class="divider">

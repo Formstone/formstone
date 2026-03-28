@@ -21,7 +21,9 @@ Responsive media query events.
 
 ## Demos {#demo}
 
-<div class="docs_menu" markdown="1">
+Demos coming soon.
+
+<!-- <div class="docs_menu" markdown="1">
 
 * [Basic](#demo-basic)
 
@@ -34,7 +36,7 @@ Bind to media query changes.
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -->
+<!-- Demo coming soon -- >
 ```
 
 ```js
@@ -49,7 +51,7 @@ Utils.ready(() => {
 /* Demo coming soon */
 ```
 
-</figure>
+</figure> -->
 
 
 <hr class="divider">

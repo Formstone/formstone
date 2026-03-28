@@ -30,9 +30,23 @@ Simple cookie management.
 
 ### Basic {#demo-basic}
 
-Create, read and delete cookies.
+Create, read, and remove cookies. Cookies are no longer support in CodePen embeds, but the following will work in your browser's console. Feel free to play around there.
 
-<figure class="demo js-editor" markdown="1">
+<figure class="example js-example" markdown="1">
+```js
+Cookie.set('foo', 'bar');
+Cookie.set('fizz', 'bat');
+
+console.log(Cookie.get('foo')); // bar
+console.log(Cookie.get('fizz')); // baz
+
+Cookie.delete('foo');
+
+console.log(Cookie.get('foo')); // null
+```
+</figure>
+
+<!-- <figure class="demo js-editor" markdown="1">
 
 ```html
 <form action="#" medthod="GET" class="form">
@@ -63,7 +77,7 @@ Create, read and delete cookies.
       </button>
   </div>
 </form>
-<div class="output js-output"></div>
+<div class="output js-output"><span></span></div>
 ```
 
 ```js
@@ -74,16 +88,16 @@ Utils.ready(() => {
     let key = Utils.select('.js-set_key')[0].value;
     let value = Utils.select('.js-set_value')[0].value;
 
-    Cookie.set(key, value);
+    Cookie.set(key, value, {});
 
     log('Set', `${key} = ${value}`);
-
-    console.log(document.cookie);
   });
 
   Utils.on(Utils.select('.js-get_cookie'), 'click', () => {
     let key = Utils.select('.js-get_key')[0].value;
     let value = Cookie.get(key);
+
+    console.log(key);
 
     log('Get', `${key} = ${value}`);
   });
@@ -100,16 +114,17 @@ Utils.ready(() => {
 function log(label, value) {
   let output = Utils.select('.js-output');
 
-  output[0].insertAdjacentHTML('afterbegin', `<strong>${label}:</strong> ${value}<br>`);
+  Utils.prepend(output[0], document.createElement('br').outerHTML); // Fix decoding issue in demo
+  Utils.prepend(output[0], `${label}: ${value}`);
 }
 
 ```
 
 ```css
-/* Demo coming soon */
+/* Demo */
 ```
 
-</figure>
+</figure> -->
 
 
 <hr class="divider">
