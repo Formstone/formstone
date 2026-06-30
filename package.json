@@ -3,7 +3,7 @@
   "id": "formstone",
   "codename": "formstone",
   "realname": "Formstone",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Library of modular front end components.",
   "repository": {
     "type": "git",
@@ -13,9 +13,9 @@
     "gulp": "NODE_ENV='development' gulp",
     "gulp-build": "NODE_ENV='production' gulp"
   },
-  "homepage": "https://formstone.it/",
-  "homepage_short": "formstone.it",
-  "demo": "https://formstone.it/demo/",
+  "homepage": "https://formstone.dev/",
+  "homepage_short": "formstone.dev",
+  "demo": "https://formstone.dev/demo/",
   "license": "GPL-3.0",
   "exports": {
     ".": {
@@ -55,6 +55,5 @@
   "files": [
     "dist",
     "src"
-  ],
-  "sideEffects": false
+  ]
 }

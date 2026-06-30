@@ -2,6 +2,10 @@
 
 <!-- -->
 
+### 2.2.2
+
+* Fixed issue with tree shaking
+
 ### 2.2.1
 
 * Adding new prepend, append, before, and after utiliy methods
