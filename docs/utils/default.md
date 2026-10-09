@@ -179,7 +179,7 @@ Checks if a value is undefined.
 
 ### .extend() {#method-extend}
 
-Extends objects by merging properties from one or more source objects.
+Extends objects by merging properties from one or more source objects into a new object; the arguments are never modified. A deep merge recurses into plain objects at any depth. Arrays, functions, regular expressions and other non-plain values are copied by reference, not merged. `__proto__` keys are ignored.
 
 #### Parameters
 
@@ -203,6 +203,7 @@ Utils.extend({a: 1}, {b: 2}); // {a: 1, b: 2}
 
 // Deep merge
 Utils.extend(true, {a: {x: 1}}, {a: {y: 2}}); // {a: {x: 1, y: 2}}
+Utils.extend(true, {a: {b: {x: 1}}}, {a: {b: {y: 2}}}); // {a: {b: {x: 1, y: 2}}}
 ```
 </figure>
 

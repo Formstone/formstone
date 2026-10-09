@@ -123,9 +123,10 @@ export function extend(...args) {
 
   let merge = (obj) => {
     for (let prop in obj) {
-      if (Object.hasOwn(obj, prop)) {
+      // Skip __proto__ (e.g. from JSON data options) so it can't replace the result's prototype
+      if (Object.hasOwn(obj, prop) && prop !== '__proto__') {
         if (deep && proto(obj[prop]) === '[object Object]') {
-          extended[prop] = extend(extended[prop], obj[prop]);
+          extended[prop] = extend(true, extended[prop], obj[prop]);
         } else {
           extended[prop] = obj[prop];
         }
