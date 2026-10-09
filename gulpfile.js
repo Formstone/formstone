@@ -7,12 +7,13 @@ let fs = require('fs');
 let gulp = require('gulp');
 let header = require('gulp-header');
 let less = require('gulp-less');
-let lessToScss = require('gulp-less-to-scss');
 let rename = require('gulp-rename');
 // let strip = require('gulp-strip-comments');
 let stripCssComments = require('gulp-strip-css-comments').default;
 var removeEmptyLines = require('gulp-remove-empty-lines');
 let webpack = require('webpack-stream');
+
+let scss = require('./tasks/scss.js');
 
 // Vars
 let pkg = require('./package.json');
@@ -141,10 +142,10 @@ gulp.task('convert-css', () => {
     .pipe(gulp.dest('./src/css'));
 });
 
-// Convert Less to SCSS
+// Convert Less to SCSS (see tasks/scss.js)
 gulp.task('convert-scss', () => {
   return gulp.src(['./src/less/**/*.less'])
-    .pipe(lessToScss())
+    .pipe(scss.convert())
     .pipe(beautify.css({
       indent_size: 2,
     }))
@@ -153,6 +154,11 @@ gulp.task('convert-scss', () => {
       date: date
     }))
     .pipe(gulp.dest('./src/scss'));
+});
+
+// Verify SCSS (see tasks/scss.js)
+gulp.task('verify-scss', () => {
+  return scss.verify('./src/less', './src/scss');
 });
 
 // License
@@ -182,6 +188,7 @@ gulp.task('default', gulp.series([
   //
   'convert-css',
   'convert-scss',
+  'verify-scss',
   'license',
 ]));
 

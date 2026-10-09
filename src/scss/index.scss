@@ -1,7 +1,7 @@
-/*! formstone v2.2.2 [index.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
-@import 'background.scss';
-@import 'checkpoint.scss';
-@import 'lightbox.scss';
-@import 'modal.scss';
-@import 'navigation.scss';
-@import 'tabs.scss';
+/*! formstone v2.2.2 [index.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+@forward 'background';
+@forward 'checkpoint';
+@forward 'lightbox';
+@forward 'modal';
+@forward 'navigation';
+@forward 'tabs';

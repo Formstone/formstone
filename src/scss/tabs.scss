@@ -1,77 +1,78 @@
-/*! formstone v2.2.2 [tabs.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
-/**
- * $module tabs
- * $description Simple, mobile-friendly tabs
- */
+/*! formstone v2.2.2 [tabs.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+// Variables
 
+
+
+/**
+ * @module tabs
+ * @description Simple, mobile-friendly tabs
+ */
 /**
  * Primary tabs component
  * Handles tab controls, content visibility, and mobile presentation states
  *
- * $selector .fs-tabs
- * $modifier .fs-tabs-enabled - Applied when tabs are enabled
- * $modifier .fs-tabs-active - Applied when a tab/content pair is active
- * $modifier .fs-tabs-mobile - Applied when mobile tab mode is active
+ * @selector .fs-tabs
+ * @modifier .fs-tabs-enabled - Applied when tabs are enabled
+ * @modifier .fs-tabs-active - Applied when a tab/content pair is active
+ * @modifier .fs-tabs-mobile - Applied when mobile tab mode is active
  */
 .fs-tabs {
-
   /**
    * Enabled state styles for desktop and mobile tab controls
-   * $selector .fs-tabs-tab.fs-tabs-enabled
-   * $selector .fs-tabs-tab_mobile.fs-tabs-enabled
+   * @selector .fs-tabs-tab.fs-tabs-enabled
+   * @selector .fs-tabs-tab_mobile.fs-tabs-enabled
    */
-  &-tab &-enabled,
-  &-tab_mobile &-enabled {
-    box-sizing: border-box;
-    cursor: pointer;
-  }
-
   /**
    * Enabled state styles for tab content panels
-   * $selector .fs-tabs-content.fs-tabs-enabled
+   * @selector .fs-tabs-content.fs-tabs-enabled
    */
-  &-content &-enabled {
-    box-sizing: border-box;
-    display: none;
-  }
-
   /**
    * Active state for visible tab content panel
-   * $selector .fs-tabs-content.fs-tabs-active
+   * @selector .fs-tabs-content.fs-tabs-active
    */
-  &-content &-active {
-    display: block;
-  }
-
-  //
-
   /**
    * Mobile-specific appearance reset for generated mobile tab button
-   * $selector .fs-tabs-tab_mobile.fs-tabs-mobile
+   * @selector .fs-tabs-tab_mobile.fs-tabs-mobile
    */
-  &-tab_mobile &-mobile {
-    appearance: none;
-  }
-
   /**
    * Hidden state for desktop tabs and inactive mobile controls in mobile mode
-   * $selector .fs-tabs-tab.fs-tabs-mobile
-   * $selector .fs-tabs-tab_mobile
-   * $selector .fs-tabs-tab_mobile.fs-tabs-active
+   * @selector .fs-tabs-tab.fs-tabs-mobile
+   * @selector .fs-tabs-tab_mobile
+   * @selector .fs-tabs-tab_mobile.fs-tabs-active
    */
-  &-tab &-mobile,
-  &-tab_mobile,
-  &-tab_mobile &-active {
-    display: none;
-  }
-
   /**
    * Visible state for mobile tab controls in mobile mode
-   * $selector .fs-tabs-tab_mobile.fs-tabs-mobile
-   * $selector .fs-tabs-tab_mobile.fs-tabs-mobile.fs-tabs-active
+   * @selector .fs-tabs-tab_mobile.fs-tabs-mobile
+   * @selector .fs-tabs-tab_mobile.fs-tabs-mobile.fs-tabs-active
    */
-  &-tab_mobile &-mobile,
-  &-tab_mobile &-mobile &-active {
-    display: block;
-  }
+}
+
+.fs-tabs-tab.fs-tabs-enabled,
+.fs-tabs-tab_mobile.fs-tabs-enabled {
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.fs-tabs-content.fs-tabs-enabled {
+  box-sizing: border-box;
+  display: none;
+}
+
+.fs-tabs-content.fs-tabs-active {
+  display: block;
+}
+
+.fs-tabs-tab_mobile.fs-tabs-mobile {
+  appearance: none;
+}
+
+.fs-tabs-tab.fs-tabs-mobile,
+.fs-tabs-tab_mobile,
+.fs-tabs-tab_mobile.fs-tabs-active {
+  display: none;
+}
+
+.fs-tabs-tab_mobile.fs-tabs-mobile,
+.fs-tabs-tab_mobile.fs-tabs-mobile.fs-tabs-active {
+  display: block;
 }

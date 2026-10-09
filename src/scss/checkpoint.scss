@@ -1,58 +1,54 @@
 /*! formstone v2.2.2 [checkpoint.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
-/**
- * $module checkpoint
- * $description Animate elements on scroll
- */
+// Variables
 
+$fs-checkpoint-duration: 0.5s !default;
+$fs-checkpoint-distance: 50px !default;
+$fs-checkpoint-perspective: 3000px !default;
+$fs-checkpoint-rotate: 90deg !default;
+$fs-checkpoint-scale-in: 0.5 !default;
+$fs-checkpoint-scale-out: 1.25 !default;
+
+/**
+ * @module checkpoint
+ * @description Animate elements on scroll
+ */
 /**
  * Default transition duration for checkpoint animations
- * $type {time}
- * $default 0.5s
+ * @type {time}
+ * @default 0.5s
  */
-$fs-checkpoint-duration: 0.5s;
-
 /**
  * Default translate distance for fade and zoom animations
- * $type {length}
- * $default 50px
+ * @type {length}
+ * @default 50px
  */
-$fs-checkpoint-distance: 50px;
-
 /**
  * Perspective value for flip animations
- * $type {length}
- * $default 3000px
+ * @type {length}
+ * @default 3000px
  */
-$fs-checkpoint-perspective: 3000px;
-
 /**
  * Rotation amount for flip animations
- * $type {angle}
- * $default 90deg
+ * @type {angle}
+ * @default 90deg
  */
-$fs-checkpoint-rotate: 90deg;
-
 /**
  * Scale amount for zoom-in animations
- * $type {number}
- * $default 0.5
+ * @type {number}
+ * @default 0.5
  */
-$fs-checkpoint-scale-in: 0.5;
-
 /**
  * Scale amount for zoom-out animations
- * $type {number}
- * $default 1.25
+ * @type {number}
+ * @default 1.25
  */
-$fs-checkpoint-scale-out: 1.25;
-
 /**
  * Primary checkpoint component
  * Enables scroll-based animations on elements
  *
- * $selector .fs-checkpoint
- * $modifier .fs-checkpoint-active - Applied when animation is activated
- * $example
+ * @selector .fs-checkpoint
+ * @modifier .fs-checkpoint-active - Applied when animation is activated
+ * @example
  *   <div class="fs-checkpoint" data-checkpoint-animation="fade-in">
  *     Content
  *   </div>
@@ -61,45 +57,39 @@ $fs-checkpoint-scale-out: 1.25;
   /**
    * Transition duration for all animations
    * Overridable via custom property
-   * $type {time}
+   * @type {time}
    */
-  --fs-checkpoint-duration: $fs-checkpoint-duration;
-
+  --fs-checkpoint-duration: #{$fs-checkpoint-duration};
   /**
    * Translate distance for fade and zoom animations
-   * $type {length}
+   * @type {length}
    */
-  --fs-checkpoint-distance: $fs-checkpoint-distance;
-
+  --fs-checkpoint-distance: #{$fs-checkpoint-distance};
   /**
    * Perspective value for flip animations
-   * $type {length}
+   * @type {length}
    */
-  --fs-checkpoint-perspective: $fs-checkpoint-perspective;
-
+  --fs-checkpoint-perspective: #{$fs-checkpoint-perspective};
   /**
    * Rotation amount for flip animations
-   * $type {angle}
+   * @type {angle}
    */
-  --fs-checkpoint-rotate: $fs-checkpoint-rotate;
-
+  --fs-checkpoint-rotate: #{$fs-checkpoint-rotate};
   /**
    * Scale amount for zoom-in animations
-   * $type {number}
+   * @type {number}
    */
-  --fs-checkpoint-scale-in: $fs-checkpoint-scale-in;
-
+  --fs-checkpoint-scale-in: #{$fs-checkpoint-scale-in};
   /**
    * Scale amount for zoom-out animations
-   * $type {number}
+   * @type {number}
    */
-  --fs-checkpoint-scale-out: $fs-checkpoint-scale-out;
+  --fs-checkpoint-scale-out: #{$fs-checkpoint-scale-out};
+}
 
-  @media (prefers-reduced-motion) {
-
-    & {
-      --fs-checkpoint-duration: 0s;
-    }
+@media (prefers-reduced-motion) {
+  .fs-checkpoint {
+    --fs-checkpoint-duration: 0s;
   }
 }
 
@@ -107,30 +97,31 @@ $fs-checkpoint-scale-out: 1.25;
  * Fade animations
  * Elements fade in from invisible state
  *
- * $animation fade-in - Fade in without movement
- * $animation fade-up - Fade in while moving up
- * $animation fade-down - Fade in while moving down
- * $animation fade-left - Fade in while moving from right to left
- * $animation fade-right - Fade in while moving from left to right
- * $example
+ * @animation fade-in - Fade in without movement
+ * @animation fade-up - Fade in while moving up
+ * @animation fade-down - Fade in while moving down
+ * @animation fade-left - Fade in while moving from right to left
+ * @animation fade-right - Fade in while moving from left to right
+ * @example
  *   <div class="fs-checkpoint" data-checkpoint-animation="fade-up">
  *     Content
  *   </div>
  */
-
 .fs-checkpoint[data-checkpoint-animation="fade-in"],
 .fs-checkpoint[data-checkpoint-animation="fade-up"],
 .fs-checkpoint[data-checkpoint-animation="fade-down"],
 .fs-checkpoint[data-checkpoint-animation="fade-left"],
 .fs-checkpoint[data-checkpoint-animation="fade-right"] {
   opacity: 0;
-  transition:
-    opacity var(--fs-checkpoint-duration) linear,
-    transform var(--fs-checkpoint-duration) ease;
+  transition: opacity var(--fs-checkpoint-duration) linear, transform var(--fs-checkpoint-duration) ease;
+}
 
-  &.fs-checkpoint-active {
-    opacity: 1;
-  }
+.fs-checkpoint[data-checkpoint-animation="fade-in"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="fade-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="fade-down"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="fade-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="fade-right"].fs-checkpoint-active {
+  opacity: 1;
 }
 
 .fs-checkpoint[data-checkpoint-animation="fade-up"] {
@@ -141,12 +132,9 @@ $fs-checkpoint-scale-out: 1.25;
   transform: translateY(calc(var(--fs-checkpoint-distance) * -1));
 }
 
-.fs-checkpoint[data-checkpoint-animation="fade-up"],
-.fs-checkpoint[data-checkpoint-animation="fade-down"] {
-
-  &.fs-checkpoint-active {
-    transform: translateY(0);
-  }
+.fs-checkpoint[data-checkpoint-animation="fade-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="fade-down"].fs-checkpoint-active {
+  transform: translateY(0);
 }
 
 .fs-checkpoint[data-checkpoint-animation="fade-left"] {
@@ -157,42 +145,40 @@ $fs-checkpoint-scale-out: 1.25;
   transform: translateX(var(--fs-checkpoint-distance));
 }
 
-.fs-checkpoint[data-checkpoint-animation="fade-left"],
-.fs-checkpoint[data-checkpoint-animation="fade-right"] {
-
-  &.fs-checkpoint-active {
-    transform: translateX(0);
-  }
+.fs-checkpoint[data-checkpoint-animation="fade-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="fade-right"].fs-checkpoint-active {
+  transform: translateX(0);
 }
 
 /**
  * Zoom-in animations
  * Elements scale up from smaller size while fading in
  *
- * $animation zoom-in - Zoom in without movement
- * $animation zoom-in-up - Zoom in while moving up
- * $animation zoom-in-down - Zoom in while moving down
- * $animation zoom-in-left - Zoom in while moving from right to left
- * $animation zoom-in-right - Zoom in while moving from left to right
- * $example
+ * @animation zoom-in - Zoom in without movement
+ * @animation zoom-in-up - Zoom in while moving up
+ * @animation zoom-in-down - Zoom in while moving down
+ * @animation zoom-in-left - Zoom in while moving from right to left
+ * @animation zoom-in-right - Zoom in while moving from left to right
+ * @example
  *   <div class="fs-checkpoint" data-checkpoint-animation="zoom-in-up">
  *     Content
  *   </div>
  */
-
 .fs-checkpoint[data-checkpoint-animation="zoom-in"],
 .fs-checkpoint[data-checkpoint-animation="zoom-in-up"],
 .fs-checkpoint[data-checkpoint-animation="zoom-in-down"],
 .fs-checkpoint[data-checkpoint-animation="zoom-in-left"],
 .fs-checkpoint[data-checkpoint-animation="zoom-in-right"] {
   opacity: 0;
-  transition:
-    opacity var(--fs-checkpoint-duration) linear,
-    transform var(--fs-checkpoint-duration) ease;
+  transition: opacity var(--fs-checkpoint-duration) linear, transform var(--fs-checkpoint-duration) ease;
+}
 
-  &.fs-checkpoint-active {
-    opacity: 1;
-  }
+.fs-checkpoint[data-checkpoint-animation="zoom-in"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-down"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-right"].fs-checkpoint-active {
+  opacity: 1;
 }
 
 .fs-checkpoint[data-checkpoint-animation="zoom-in"] {
@@ -207,13 +193,10 @@ $fs-checkpoint-scale-out: 1.25;
   transform: translateY(calc(var(--fs-checkpoint-distance) * -1)) scale(var(--fs-checkpoint-scale-in));
 }
 
-.fs-checkpoint[data-checkpoint-animation="zoom-in"],
-.fs-checkpoint[data-checkpoint-animation="zoom-in-up"],
-.fs-checkpoint[data-checkpoint-animation="zoom-in-down"] {
-
-  &.fs-checkpoint-active {
-    transform: translateY(0) scale(1);
-  }
+.fs-checkpoint[data-checkpoint-animation="zoom-in"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-down"].fs-checkpoint-active {
+  transform: translateY(0) scale(1);
 }
 
 .fs-checkpoint[data-checkpoint-animation="zoom-in-left"] {
@@ -224,42 +207,40 @@ $fs-checkpoint-scale-out: 1.25;
   transform: translateX(var(--fs-checkpoint-distance)) scale(var(--fs-checkpoint-scale-in));
 }
 
-.fs-checkpoint[data-checkpoint-animation="zoom-in-left"],
-.fs-checkpoint[data-checkpoint-animation="zoom-in-right"] {
-
-  &.fs-checkpoint-active {
-    transform: translateX(0) scale(1);
-  }
+.fs-checkpoint[data-checkpoint-animation="zoom-in-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-in-right"].fs-checkpoint-active {
+  transform: translateX(0) scale(1);
 }
 
 /**
  * Zoom-out animations
  * Elements scale down from larger size while fading in
  *
- * $animation zoom-out - Zoom out without movement
- * $animation zoom-out-up - Zoom out while moving up
- * $animation zoom-out-down - Zoom out while moving down
- * $animation zoom-out-left - Zoom out while moving from right to left
- * $animation zoom-out-right - Zoom out while moving from left to right
- * $example
+ * @animation zoom-out - Zoom out without movement
+ * @animation zoom-out-up - Zoom out while moving up
+ * @animation zoom-out-down - Zoom out while moving down
+ * @animation zoom-out-left - Zoom out while moving from right to left
+ * @animation zoom-out-right - Zoom out while moving from left to right
+ * @example
  *   <div class="fs-checkpoint" data-checkpoint-animation="zoom-out-up">
  *     Content
  *   </div>
  */
-
 .fs-checkpoint[data-checkpoint-animation="zoom-out"],
 .fs-checkpoint[data-checkpoint-animation="zoom-out-up"],
 .fs-checkpoint[data-checkpoint-animation="zoom-out-down"],
 .fs-checkpoint[data-checkpoint-animation="zoom-out-left"],
 .fs-checkpoint[data-checkpoint-animation="zoom-out-right"] {
   opacity: 0;
-  transition:
-    opacity var(--fs-checkpoint-duration) linear,
-    transform var(--fs-checkpoint-duration) ease;
+  transition: opacity var(--fs-checkpoint-duration) linear, transform var(--fs-checkpoint-duration) ease;
+}
 
-  &.fs-checkpoint-active {
-    opacity: 1;
-  }
+.fs-checkpoint[data-checkpoint-animation="zoom-out"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-down"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-right"].fs-checkpoint-active {
+  opacity: 1;
 }
 
 .fs-checkpoint[data-checkpoint-animation="zoom-out"] {
@@ -274,13 +255,10 @@ $fs-checkpoint-scale-out: 1.25;
   transform: translateY(calc(var(--fs-checkpoint-distance) * -1)) scale(var(--fs-checkpoint-scale-out));
 }
 
-.fs-checkpoint[data-checkpoint-animation="zoom-out"],
-.fs-checkpoint[data-checkpoint-animation="zoom-out-up"],
-.fs-checkpoint[data-checkpoint-animation="zoom-out-down"] {
-
-  &.fs-checkpoint-active {
-    transform: translateY(0) scale(1);
-  }
+.fs-checkpoint[data-checkpoint-animation="zoom-out"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-down"].fs-checkpoint-active {
+  transform: translateY(0) scale(1);
 }
 
 .fs-checkpoint[data-checkpoint-animation="zoom-out-left"] {
@@ -291,36 +269,30 @@ $fs-checkpoint-scale-out: 1.25;
   transform: translateX(var(--fs-checkpoint-distance)) scale(var(--fs-checkpoint-scale-out));
 }
 
-.fs-checkpoint[data-checkpoint-animation="zoom-out-left"],
-.fs-checkpoint[data-checkpoint-animation="zoom-out-right"] {
-
-  &.fs-checkpoint-active {
-    transform: translateX(0) scale(1);
-  }
+.fs-checkpoint[data-checkpoint-animation="zoom-out-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="zoom-out-right"].fs-checkpoint-active {
+  transform: translateX(0) scale(1);
 }
 
 /**
  * Flip animations
  * Elements rotate into view with 3D perspective
  *
- * $animation flip-up - Flip from bottom to top
- * $animation flip-down - Flip from top to bottom
- * $animation flip-left - Flip from right to left
- * $animation flip-right - Flip from left to right
- * $example
+ * @animation flip-up - Flip from bottom to top
+ * @animation flip-down - Flip from top to bottom
+ * @animation flip-left - Flip from right to left
+ * @animation flip-right - Flip from left to right
+ * @example
  *   <div class="fs-checkpoint" data-checkpoint-animation="flip-left">
  *     Content
  *   </div>
  */
-
 .fs-checkpoint[data-checkpoint-animation="flip-up"],
 .fs-checkpoint[data-checkpoint-animation="flip-down"],
 .fs-checkpoint[data-checkpoint-animation="flip-left"],
 .fs-checkpoint[data-checkpoint-animation="flip-right"] {
   backface-visibility: hidden;
-  transition:
-    opacity var(--fs-checkpoint-duration) linear,
-    transform var(--fs-checkpoint-duration) ease;
+  transition: opacity var(--fs-checkpoint-duration) linear, transform var(--fs-checkpoint-duration) ease;
 }
 
 .fs-checkpoint[data-checkpoint-animation="flip-up"] {
@@ -331,12 +303,9 @@ $fs-checkpoint-scale-out: 1.25;
   transform: perspective(var(--fs-checkpoint-perspective)) rotateX(var(--fs-checkpoint-rotate));
 }
 
-.fs-checkpoint[data-checkpoint-animation="flip-up"],
-.fs-checkpoint[data-checkpoint-animation="flip-down"] {
-
-  &.fs-checkpoint-active {
-    transform: perspective(var(--fs-checkpoint-perspective)) rotateX(0);
-  }
+.fs-checkpoint[data-checkpoint-animation="flip-up"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="flip-down"].fs-checkpoint-active {
+  transform: perspective(var(--fs-checkpoint-perspective)) rotateX(0);
 }
 
 .fs-checkpoint[data-checkpoint-animation="flip-left"] {
@@ -347,10 +316,7 @@ $fs-checkpoint-scale-out: 1.25;
   transform: perspective(var(--fs-checkpoint-perspective)) rotateY(calc(var(--fs-checkpoint-rotate) * -1));
 }
 
-.fs-checkpoint[data-checkpoint-animation="flip-left"],
-.fs-checkpoint[data-checkpoint-animation="flip-right"] {
-
-  &.fs-checkpoint-active {
-    transform: perspective(var(--fs-checkpoint-perspective)) rotateY(0);
-  }
+.fs-checkpoint[data-checkpoint-animation="flip-left"].fs-checkpoint-active,
+.fs-checkpoint[data-checkpoint-animation="flip-right"].fs-checkpoint-active {
+  transform: perspective(var(--fs-checkpoint-perspective)) rotateY(0);
 }

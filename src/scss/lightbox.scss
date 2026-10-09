@@ -1,785 +1,613 @@
-/*! formstone v2.2.2 [lightbox.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
-/**
- * $module Lightbox
- * $description Accessible lightbox for images, videos, and elements
- */
+/*! formstone v2.2.2 [lightbox.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+// Variables
 
+$fs-lightbox-mobile-max-width: 739px !default;
+$fs-lightbox-duration: 0.25s !default;
+$fs-lightbox-timing: linear !default;
+$fs-lightbox-overlay-bg: rgba(0, 0, 0, 0.9) !default;
+$fs-lightbox-loading-color: #fff !default;
+$fs-lightbox-loading-size: 40px !default;
+$fs-lightbox-loading-spread: 5px !default;
+$fs-lightbox-loading-duration: 0.75s !default;
+$fs-lightbox-item-duration: 0.25s !default;
+$fs-lightbox-item-timing: ease !default;
+$fs-lightbox-details-bg: rgba(0, 0, 0, 0.6) !default;
+$fs-lightbox-details-color: #fff !default;
+$fs-lightbox-details-font: 16px / 1.4 sans-serif !default;
+$fs-lightbox-details-padding: calc(env(safe-area-inset-top, 0px) + 40px) calc(env(safe-area-inset-right, 0px) + 60px) calc(env(safe-area-inset-bottom, 0px) + 40px) calc(env(safe-area-inset-left, 0px) + 60px) !default;
+$fs-lightbox-details-gap: 10px !default;
+$fs-lightbox-button-background: rgba(0, 0, 0, 0.8) !default;
+$fs-lightbox-button-color: #fff !default;
+
+/**
+ * @module Lightbox
+ * @description Accessible lightbox for images, videos, and elements
+ */
 /**
  * LESS Variables
- * $type {number}
- * $default 739px
- * $description Maximum viewport width considered mobile (affects button positioning)
+ * @type {number}
+ * @default 739px
+ * @description Maximum viewport width considered mobile (affects button positioning)
  */
-$fs-lightbox-mobile-max-width: 739px;
-
 /**
- * $type {number}
- * $default 0.25s
- * $description Lightbox open/close transition duration
+ * @type {number}
+ * @default 0.25s
+ * @description Lightbox open/close transition duration
  */
-$fs-lightbox-duration: 0.25s;
-
 /**
- * $type {string}
- * $default linear
- * $description Lightbox open/close transition timing function
+ * @type {string}
+ * @default linear
+ * @description Lightbox open/close transition timing function
  */
-$fs-lightbox-timing: linear;
-
 /**
- * $type {color}
- * $default rgba(0, 0, 0, 0.9)
- * $description Dialog backdrop overlay color
+ * @type {color}
+ * @default rgba(0, 0, 0, 0.9)
+ * @description Dialog backdrop overlay color
  */
-$fs-lightbox-overlay-bg: rgba(#000, 90);
-
 /**
- * $type {color}
- * $default #fff
- * $description Loading spinner color
+ * @type {color}
+ * @default #fff
+ * @description Loading spinner color
  */
-$fs-lightbox-loading-color: #fff;
-
 /**
- * $type {number}
- * $default 40px
- * $description Loading spinner diameter
+ * @type {number}
+ * @default 40px
+ * @description Loading spinner diameter
  */
-$fs-lightbox-loading-size: 40px;
-
 /**
- * $type {number}
- * $default 5px
- * $description Loading spinner border thickness
+ * @type {number}
+ * @default 5px
+ * @description Loading spinner border thickness
  */
-$fs-lightbox-loading-spread: 5px;
-
 /**
- * $type {number}
- * $default 0.75s
- * $description Loading spinner rotation animation duration
+ * @type {number}
+ * @default 0.75s
+ * @description Loading spinner rotation animation duration
  */
-$fs-lightbox-loading-duration: 0.75s;
-
 /**
- * $type {number}
- * $default 0.25s
- * $description Item transition duration when switching between gallery items
+ * @type {number}
+ * @default 0.25s
+ * @description Item transition duration when switching between gallery items
  */
-$fs-lightbox-item-duration: 0.25s;
-
 /**
- * $type {string}
- * $default ease
- * $description Item transition timing function
+ * @type {string}
+ * @default ease
+ * @description Item transition timing function
  */
-$fs-lightbox-item-timing: ease;
-
 /**
- * $type {color}
- * $default rgba(0, 0, 0, 0.6)
- * $description Details area (caption/ordinal) background color
+ * @type {color}
+ * @default rgba(0, 0, 0, 0.6)
+ * @description Details area (caption/ordinal) background color
  */
-$fs-lightbox-details-bg: rgba(#000, 60);
-
 /**
- * $type {color}
- * $default #fff
- * $description Details area text color
+ * @type {color}
+ * @default #fff
+ * @description Details area text color
  */
-$fs-lightbox-details-color: #fff;
-
 /**
- * $type {string}
- * $default 16px / 1.4 sans-serif
- * $description Details area font stack (size, line-height, family)
+ * @type {string}
+ * @default 16px / 1.4 sans-serif
+ * @description Details area font stack (size, line-height, family)
  */
-$fs-lightbox-details-font: 16px / 1.4 sans-serif;
-
 /**
- * $type {string}
- * $default ...
- * $description Details area padding with safe area insets for notched devices
+ * @type {string}
+ * @default ...
+ * @description Details area padding with safe area insets for notched devices
  */
-$fs-lightbox-details-padding: calc(env(safe-area-inset-top, 0px) + 40px) calc(env(safe-area-inset-right, 0px) + 60px) calc(env(safe-area-inset-bottom, 0px) + 40px) calc(env(safe-area-inset-left, 0px) + 60px);
-
 /**
- * $type {number}
- * $default 10px
- * $description Gap between caption and ordinal in details area
+ * @type {number}
+ * @default 10px
+ * @description Gap between caption and ordinal in details area
  */
-$fs-lightbox-details-gap: 10px;
-
 /**
- * $type {color}
- * $default rgba(0, 0, 0, 0.8)
- * $description Control button (close, next, previous) background color
+ * @type {color}
+ * @default rgba(0, 0, 0, 0.8)
+ * @description Control button (close, next, previous) background color
  */
-$fs-lightbox-button-background: rgba(#000, 80);
-
 /**
- * $type {color}
- * $default #fff
- * $description Control button icon/text color
+ * @type {color}
+ * @default #fff
+ * @description Control button icon/text color
  */
-$fs-lightbox-button-color: #fff;
-
 /**
- * $selector .fs-lightbox
- * $description Main lightbox dialog element. Uses native HTML dialog with custom properties
- * for theming. Supports $starting-style for entry animations and respects prefers-reduced-motion.
+ * @selector .fs-lightbox
+ * @description Main lightbox dialog element. Uses native HTML dialog with custom properties
+ * for theming. Supports @starting-style for entry animations and respects prefers-reduced-motion.
  */
 .fs-lightbox {
   /**
    * CSS Custom Properties - Timing
    * Override these properties to customize lightbox animation timing
    */
-
-  /** $property {time} --fs-lightbox-duration - Lightbox open/close transition duration */
-  --fs-lightbox-duration: $fs-lightbox-duration;
-
-  /** $property {keyword} --fs-lightbox-timing - Lightbox open/close transition timing function */
-  --fs-lightbox-timing: $fs-lightbox-timing;
-
+  /** @property {time} --fs-lightbox-duration - Lightbox open/close transition duration */
+  --fs-lightbox-duration: #{$fs-lightbox-duration};
+  /** @property {keyword} --fs-lightbox-timing - Lightbox open/close transition timing function */
+  --fs-lightbox-timing: #{$fs-lightbox-timing};
   /**
    * CSS Custom Properties - Overlay
    */
-
-  /** $property {color} --fs-lightbox-overlay-bg - Dialog backdrop overlay color */
-  --fs-lightbox-overlay-bg: $fs-lightbox-overlay-bg;
-
+  /** @property {color} --fs-lightbox-overlay-bg - Dialog backdrop overlay color */
+  --fs-lightbox-overlay-bg: #{$fs-lightbox-overlay-bg};
   /**
    * CSS Custom Properties - Loading Spinner
    */
-
-  /** $property {color} --fs-lightbox-loading-color - Loading spinner color */
-  --fs-lightbox-loading-color: $fs-lightbox-loading-color;
-
-  /** $property {length} --fs-lightbox-loading-size - Loading spinner diameter */
-  --fs-lightbox-loading-size: $fs-lightbox-loading-size;
-
-  /** $property {length} --fs-lightbox-loading-spread - Loading spinner border thickness */
-  --fs-lightbox-loading-spread: $fs-lightbox-loading-spread;
-
-  /** $property {time} --fs-lightbox-loading-duration - Loading spinner rotation animation duration */
-  --fs-lightbox-loading-duration: $fs-lightbox-loading-duration;
-
+  /** @property {color} --fs-lightbox-loading-color - Loading spinner color */
+  --fs-lightbox-loading-color: #{$fs-lightbox-loading-color};
+  /** @property {length} --fs-lightbox-loading-size - Loading spinner diameter */
+  --fs-lightbox-loading-size: #{$fs-lightbox-loading-size};
+  /** @property {length} --fs-lightbox-loading-spread - Loading spinner border thickness */
+  --fs-lightbox-loading-spread: #{$fs-lightbox-loading-spread};
+  /** @property {time} --fs-lightbox-loading-duration - Loading spinner rotation animation duration */
+  --fs-lightbox-loading-duration: #{$fs-lightbox-loading-duration};
   /**
    * CSS Custom Properties - Gallery Items
    */
-
-  /** $property {time} --fs-lightbox-item-duration - Item transition duration when switching between gallery items */
-  --fs-lightbox-item-duration: $fs-lightbox-item-duration;
-
-  /** $property {keyword} --fs-lightbox-item-timing - Item transition timing function */
-  --fs-lightbox-item-timing: $fs-lightbox-item-timing;
-
+  /** @property {time} --fs-lightbox-item-duration - Item transition duration when switching between gallery items */
+  --fs-lightbox-item-duration: #{$fs-lightbox-item-duration};
+  /** @property {keyword} --fs-lightbox-item-timing - Item transition timing function */
+  --fs-lightbox-item-timing: #{$fs-lightbox-item-timing};
   /**
    * CSS Custom Properties - Details Area (Caption/Ordinal)
    */
-
-  /** $property {color} --fs-lightbox-details-bg - Details area background color (gradient start) */
-  --fs-lightbox-details-bg: $fs-lightbox-details-bg;
-
-  /** $property {color} --fs-lightbox-details-color - Details area text color */
-  --fs-lightbox-details-color: $fs-lightbox-details-color;
-
-  /** $property {font} --fs-lightbox-details-font - Details area font stack (size, line-height, family) */
-  --fs-lightbox-details-font: $fs-lightbox-details-font;
-
-  /** $property {length} --fs-lightbox-details-padding - Details area padding with safe area insets */
-  --fs-lightbox-details-padding: $fs-lightbox-details-padding;
-
-  /** $property {length} --fs-lightbox-details-gap - Gap between caption and ordinal in details area */
-  --fs-lightbox-details-gap: $fs-lightbox-details-gap;
-
+  /** @property {color} --fs-lightbox-details-bg - Details area background color (gradient start) */
+  --fs-lightbox-details-bg: #{$fs-lightbox-details-bg};
+  /** @property {color} --fs-lightbox-details-color - Details area text color */
+  --fs-lightbox-details-color: #{$fs-lightbox-details-color};
+  /** @property {font} --fs-lightbox-details-font - Details area font stack (size, line-height, family) */
+  --fs-lightbox-details-font: #{$fs-lightbox-details-font};
+  /** @property {length} --fs-lightbox-details-padding - Details area padding with safe area insets */
+  --fs-lightbox-details-padding: #{$fs-lightbox-details-padding};
+  /** @property {length} --fs-lightbox-details-gap - Gap between caption and ordinal in details area */
+  --fs-lightbox-details-gap: #{$fs-lightbox-details-gap};
   /**
    * CSS Custom Properties - Control Buttons (Close, Previous, Next)
    */
-
-  /** $property {color} --fs-lightbox-button-background - Control button background color */
-  --fs-lightbox-button-background: $fs-lightbox-button-background;
-
-  /** $property {color} --fs-lightbox-button-color - Control button icon/text color */
-  --fs-lightbox-button-color: $fs-lightbox-button-color;
-
+  /** @property {color} --fs-lightbox-button-background - Control button background color */
+  --fs-lightbox-button-background: #{$fs-lightbox-button-background};
+  /** @property {color} --fs-lightbox-button-color - Control button icon/text color */
+  --fs-lightbox-button-color: #{$fs-lightbox-button-color};
   /**
    * Accessibility - Reduced Motion
    * Disables all animations when user prefers reduced motion
    */
-  @media (prefers-reduced-motion) {
-
-    & {
-      --fs-lightbox-duration: 0s;
-      --fs-lightbox-loading-duration: 0s;
-      --fs-lightbox-item-duration: 0s;
-    }
-  }
-
-  //
-
   height: 100vh;
   width: 100vw;
   max-height: 100vh;
   max-width: 100vw;
-
   position: fixed;
   inset: 0;
-
   background: transparent;
   border: none;
   margin: 0;
-
   opacity: 0;
   overflow: hidden;
   padding: 0;
-  transition: display var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete,
-  opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing),
-  overlay var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete;
-
-  $starting-style {
-    opacity: 0;
-  }
-
-  &[open] {
-    display: flex;
-  }
-
-  //
-
-  &,
-  & * {
-    box-sizing: border-box;
-  }
-
-  &::backdrop {
-    background: var(--fs-lightbox-overlay-bg);
-    opacity: 0;
-    transition:
-      display var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete,
-      opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing),
-      overlay var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete;
-  }
-
-  //
-
+  transition: display var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete, opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing), overlay var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete;
   /**
-   * $modifier .fs-lightbox-open
-   * $description Open state modifier. Applied after modal is shown to trigger transition.
+   * @modifier .fs-lightbox-open
+   * @description Open state modifier. Applied after modal is shown to trigger transition.
    * Dialog and backdrop fade to full opacity.
    */
-  &-open {
-    opacity: 1;
-
-    &::backdrop {
-      opacity: 1;
-
-      $starting-style {
-        opacity: 0;
-      }
-    }
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-sr
-   * $description Screen reader only content. Visually hidden but accessible to assistive tech.
+   * @selector .fs-lightbox-sr
+   * @description Screen reader only content. Visually hidden but accessible to assistive tech.
    * Used for accessible button labels and status announcements.
    */
-  &-sr {
-    width: 1px !important;
-    height: 1px !important;
-
-    position: absolute !important;
-
-    border-width: 0 !important;
-    clip-path: rect(0 0 0 0) !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    white-space: nowrap !important;
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-container
-   * $description Main content container that holds all gallery items. Positioned absolutely
+   * @selector .fs-lightbox-container
+   * @description Main content container that holds all gallery items. Positioned absolutely
    * to fill dialog and handle pointer events for swipe navigation.
    */
-  &-container {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-
-    user-select: none;
-  }
-
   /**
-   * $modifier .fs-lightbox-touching
-   * $description Applied to container during active touch/pointer drag. Changes cursor to
+   * @modifier .fs-lightbox-touching
+   * @description Applied to container during active touch/pointer drag. Changes cursor to
    * grabbing state.
    */
-  &-container &-touching {
-    cursor: grabbing;
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-item
-   * $description Individual gallery item element. Contains wrap, media, and details.
+   * @selector .fs-lightbox-item
+   * @description Individual gallery item element. Contains wrap, media, and details.
    * Positioned absolutely and uses transforms for slide transitions between items.
    */
-  &-item {
-    position: absolute;
-    top: env(safe-area-inset-top, 0px);
-    right: env(safe-area-inset-right, 0px);
-    bottom: env(safe-area-inset-bottom, 0px);
-    left: env(safe-area-inset-left, 0px);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    opacity: 0;
-    transition:
-      opacity var(--fs-lightbox-item-duration) var(--fs-lightbox-item-timing),
-      transform var(--fs-lightbox-item-duration) var(--fs-lightbox-item-timing);
-    transform: none;
-
-    /**
-     * $modifier .fs-lightbox-item_previous
-     * $description Previous item modifier. Item is translated -100% to the left (or right in RTL).
-     */
-    &_previous {
-      transform: translate(-100%, 0);
-    }
-
-    /**
-     * $modifier .fs-lightbox-item_next
-     * $description Next item modifier. Item is translated 100% to the right (or left in RTL).
-     */
-    &_next {
-      transform: translate(100%, 0);
-    }
-  }
-
   /**
-   * $modifier .fs-lightbox-active.fs-lightbox-loaded
-   * $description Combined state for active item that has finished loading. Fades to full opacity.
+   * @modifier .fs-lightbox-active.fs-lightbox-loaded
+   * @description Combined state for active item that has finished loading. Fades to full opacity.
    */
-  &-item &-active &-loaded {
-    opacity: 1;
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-rtl .fs-lightbox-item
-   * $description RTL direction overrides. Reverses previous/next transform directions.
+   * @selector .fs-lightbox-rtl .fs-lightbox-item
+   * @description RTL direction overrides. Reverses previous/next transform directions.
    */
-  &-rtl &-item {
-
-    &_previous {
-      transform: translate(100%, 0);
-    }
-
-    &_next {
-      transform: translate(-100%, 0);
-    }
-  }
-
-  //
-
-  // &-item &-zoomed img {
-  //   max-height: none;
-  //   max-width: none;
-  // }
-
   /**
-   * $selector .fs-lightbox-container.fs-lightbox-touching .fs-lightbox-item
-   * $description Disables transitions during touch drag for immediate transform feedback.
+   * @selector .fs-lightbox-container.fs-lightbox-touching .fs-lightbox-item
+   * @description Disables transitions during touch drag for immediate transform feedback.
    */
-  &-container &-touching &-item {
-    transition: none;
-  }
-
   /**
-   * $selector .fs-lightbox-wrap
-   * $description Inner wrapper for media content. Provides flexbox centering within item bounds.
+   * @selector .fs-lightbox-wrap
+   * @description Inner wrapper for media content. Provides flexbox centering within item bounds.
    */
-  &-wrap {
-    max-height: 100%;
-    max-width: 100%;
-
-    display: flex;
-    justify-content: center;
-
-    position: relative;
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-media
-   * $description Media container. Holds the actual content (image, video iframe, etc.).
+   * @selector .fs-lightbox-media
+   * @description Media container. Holds the actual content (image, video iframe, etc.).
    * Constrains to viewport dimensions.
    */
-  &-media {
-    height: auto;
-    width: auto;
-    max-height: 100%;
-    max-width: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   /**
-   * $modifier .fs-lightbox-media_video
-   * $description Video media type modifier. Sets max-width and allows growth for responsive embed.
+   * @modifier .fs-lightbox-media_video
+   * @description Video media type modifier. Sets max-width and allows growth for responsive embed.
    */
-  &-media_video {
-    max-width: 1200px;
-
-    flex-grow: 1;
-  }
-
   /**
-   * $modifier .fs-lightbox-media_image
-   * $description Image media type modifier. Constrains image dimensions and prevents user interaction.
+   * @modifier .fs-lightbox-media_image
+   * @description Image media type modifier. Constrains image dimensions and prevents user interaction.
    */
-  &-media_image {
-
-    img {
-      height: auto;
-      width: auto;
-
-      min-width: 200px;
-
-      max-height: 100%;
-      max-width: 100%;
-
-      border: none;
-      display: block;
-      margin: auto;
-
-      user-select: none;
-      touch-action: none;
-    }
-  }
-
   /**
-   * $selector .fs-lightbox-video
-   * $description Video iframe container. Maintains 16:9 aspect ratio via aspect-ratio property.
+   * @selector .fs-lightbox-video
+   * @description Video iframe container. Maintains 16:9 aspect ratio via aspect-ratio property.
    */
-  &-video {
-    position: relative;
-
-    width: 100%;
-
-    iframe {
-      aspect-ratio: 16 / 9;
-
-      width: 100%;
-
-      background: #000;
-    }
-  }
-
   /**
-   * $selector .fs-lightbox-iframe
-   * $description Generic iframe container. Sets iframe to full viewport dimensions minus safe areas.
+   * @selector .fs-lightbox-iframe
+   * @description Generic iframe container. Sets iframe to full viewport dimensions minus safe areas.
    */
-  &-iframe {
-
-    iframe {
-      height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-      width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-
-      background: #000;
-    }
-  }
-
-  &-iframe &-close {
-    // background: var(--fs-lightbox-button-background);
-    // color: var(--fs-lightbox-button-color);
-  }
-
   /**
-   * $selector .fs-lightbox-element
-   * $description Inline element container. Allows scrolling for content that exceeds viewport.
+   * @selector .fs-lightbox-element
+   * @description Inline element container. Allows scrolling for content that exceeds viewport.
    */
-  &-element {
-    max-width: 100%;
-    max-height: 100%;
-
-    overflow: auto;
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-details
-   * $description Details section at bottom of active item. Contains caption and ordinal position.
+   * @selector .fs-lightbox-details
+   * @description Details section at bottom of active item. Contains caption and ordinal position.
    * Gradient background and delayed fade-in on item change.
    */
-  &-details {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--fs-lightbox-details-gap);
-
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 2;
-
-    background: linear-gradient(to bottom, transparent, var(--fs-lightbox-details-bg));
-    color: var(--fs-lightbox-details-color);
-    font: var(--fs-lightbox-details-font);
-    opacity: 0;
-    padding: var(--fs-lightbox-details-padding);
-    transition: opacity 0.001s var(--fs-lightbox-item-timing) 0s;
-
-    pointer-events: none;
-
-    * {
-      pointer-events: all;
-    }
-  }
-
   /**
-   * $selector .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details
-   * $description Details visible state. Fades in with delay after item transition completes.
+   * @selector .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details
+   * @description Details visible state. Fades in with delay after item transition completes.
    */
-  &-item &-active &-details {
-    opacity: 1;
-    transition-delay: var(--fs-lightbox-item-duration);
-    transition-duration: var(--fs-lightbox-item-duration);
-  }
-
   /**
-   * $selector .fs-lightbox-container.fs-lightbox-touching .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details
-   * $description Details hidden during touch interaction. Improves visibility of content being swiped.
+   * @selector .fs-lightbox-container.fs-lightbox-touching .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details
+   * @description Details hidden during touch interaction. Improves visibility of content being swiped.
    */
-  &-container &-touching &-item &-active &-details {
-    opacity: 0;
-    transition-delay: 0.001s;
-    transition-duration: 0s;
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-close
-   * $description Close button. Fixed at top-right with safe area offset. Always visible.
+   * @selector .fs-lightbox-close
+   * @description Close button. Fixed at top-right with safe area offset. Always visible.
    */
-  &-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    height: 40px;
-    width: 40px;
-
-    position: absolute;
-    top: env(safe-area-inset-top, 0px);
-    right: env(safe-area-inset-right, 0px);
-    z-index: 2;
-
-    appearance: none;
-
-    background: var(--fs-lightbox-button-background);
-    border: none;
-    color: var(--fs-lightbox-button-color);
-    cursor: pointer;
-    padding: 0;
-
-    svg {
-      width: 30px;
-    }
-  }
-
-  //
-
-  &:not(&-gallery) &-control {
-    display: none;
-  }
-
   /**
-   * $selector .fs-lightbox-control
-   * $description Previous/next navigation buttons. Hidden for single-item lightboxes.
+   * @selector .fs-lightbox-control
+   * @description Previous/next navigation buttons. Hidden for single-item lightboxes.
    * Vertically centered on desktop, bottom-aligned on mobile.
    */
-  &-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    height: 40px;
-    width: 40px;
-
-    position: absolute;
-    top: env(safe-area-inset-top, 0px);
-    bottom: env(safe-area-inset-bottom, 0px);
-    z-index: 2;
-
-    appearance: none;
-
-    background: var(--fs-lightbox-button-background);
-    border: none;
-    color: var(--fs-lightbox-button-color);
-    margin: auto;
-    padding: 0;
-    opacity: 0.5;
-    transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
-
-    @media screen and (max-width: $fs-lightbox-mobile-max-width) {
-      top: auto;
-    }
-
-    /**
-     * $modifier .fs-lightbox-control_previous
-     * $description Previous button modifier. Positioned on left edge (or right in RTL).
-     */
-    &_previous {
-      left: 0;
-    }
-
-    /**
-     * $modifier .fs-lightbox-control_next
-     * $description Next button modifier. Positioned on right edge (or left in RTL).
-     */
-    &_next {
-      right: 0;
-    }
-
-    svg {
-      width: 28px;
-    }
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-rtl .fs-lightbox-control
-   * $description RTL overrides for navigation buttons. Swaps left/right positioning and flips icons.
+   * @selector .fs-lightbox-rtl .fs-lightbox-control
+   * @description RTL overrides for navigation buttons. Swaps left/right positioning and flips icons.
    */
-  &-rtl &-control {
-
-    svg {
-      transform: scale(-1);
-    }
-
-    &_previous {
-      left: unset;
-      right: 0;
-    }
-
-    &_next {
-      right: unset;
-      left: 0;
-    }
-  }
-
-  //
-
   /**
-   * $selector .fs-lightbox-control:not([disabled])
-   * $description Enabled control buttons. Full opacity and clickable cursor.
+   * @selector .fs-lightbox-control:not([disabled])
+   * @description Enabled control buttons. Full opacity and clickable cursor.
    */
-  &-control:not([disabled]) {
-    cursor: pointer;
-    opacity: 1;
-  }
-
-  //
-
-  // &-zoom {
-  //   display: flex;
-  //   align-items: center;
-  //   justify-content: center;
-
-  //   height: 40px;
-  //   width: 40px;
-
-  //   position: absolute;
-  //   bottom: env(safe-area-inset-bottom, 0px);
-  //   right: env(safe-area-inset-right, 0px);
-  //   z-index: 2;
-
-  //   appearance: none;
-
-  //   background: var(--fs-lightbox-button-background);
-  //   border: none;
-  //   color: var(--fs-lightbox-button-color);
-  //   display: none;
-  //   margin: auto;
-  //   padding: 0;
-  //   // opacity: 0.5;
-  //   // transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
-
-  //   &_in {
-  //     right: calc(env(safe-area-inset-right, 0px) + 40px);
-
-  //     display: block;
-  //   }
-
-  //   &_out {
-  //     display: block;
-  //   }
-
-  //   svg {
-  //     width: 28px;
-  //   }
-  // }
-
-  //
-
   /**
-   * $selector .fs-lightbox-loading
-   * $description Loading spinner. Centered in viewport, animated border-spin. Hidden by default,
+   * @selector .fs-lightbox-loading
+   * @description Loading spinner. Centered in viewport, animated border-spin. Hidden by default,
    * shown via .fs-lightbox-visible modifier during content load.
    */
-  &-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    height: var(--fs-lightbox-loading-size);
-    width: var(--fs-lightbox-loading-size);
-
-    position: fixed;
-    inset: 0;
-
-    animation: fs-lightbox-loading-spin var(--fs-lightbox-loading-duration) linear infinite;
-    border: var(--fs-lightbox-loading-spread) solid transparent;
-    border-top-color: var(--fs-lightbox-loading-color);
-    border-radius: 100%;
-    margin: auto;
-    opacity: 0;
-    transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
-  }
-
   /**
-   * $modifier .fs-lightbox-visible
-   * $description Visible state for loading spinner. Fades to full opacity.
+   * @modifier .fs-lightbox-visible
+   * @description Visible state for loading spinner. Fades to full opacity.
    */
-  &-loading &-visible {
-    opacity: 1;
+}
+
+@media (prefers-reduced-motion) {
+  .fs-lightbox {
+    --fs-lightbox-duration: 0s;
+    --fs-lightbox-loading-duration: 0s;
+    --fs-lightbox-item-duration: 0s;
   }
+}
+
+@starting-style {
+  opacity: 0;
+}
+
+.fs-lightbox[open] {
+  display: flex;
+}
+
+.fs-lightbox,
+.fs-lightbox * {
+  box-sizing: border-box;
+}
+
+.fs-lightbox::backdrop {
+  background: var(--fs-lightbox-overlay-bg);
+  opacity: 0;
+  transition: display var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete, opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing), overlay var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete;
+}
+
+.fs-lightbox-open {
+  opacity: 1;
+}
+
+.fs-lightbox-open::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  opacity: 0;
+}
+
+.fs-lightbox-sr {
+  width: 1px !important;
+  height: 1px !important;
+  position: absolute !important;
+  border-width: 0 !important;
+  clip-path: rect(0 0 0 0) !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+}
+
+.fs-lightbox-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  user-select: none;
+}
+
+.fs-lightbox-container.fs-lightbox-touching {
+  cursor: grabbing;
+}
+
+.fs-lightbox-item {
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  right: env(safe-area-inset-right, 0px);
+  bottom: env(safe-area-inset-bottom, 0px);
+  left: env(safe-area-inset-left, 0px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--fs-lightbox-item-duration) var(--fs-lightbox-item-timing), transform var(--fs-lightbox-item-duration) var(--fs-lightbox-item-timing);
+  transform: none;
+  /**
+     * @modifier .fs-lightbox-item_previous
+     * @description Previous item modifier. Item is translated -100% to the left (or right in RTL).
+     */
+  /**
+     * @modifier .fs-lightbox-item_next
+     * @description Next item modifier. Item is translated 100% to the right (or left in RTL).
+     */
+}
+
+.fs-lightbox-item_previous {
+  transform: translate(-100%, 0);
+}
+
+.fs-lightbox-item_next {
+  transform: translate(100%, 0);
+}
+
+.fs-lightbox-item.fs-lightbox-active.fs-lightbox-loaded {
+  opacity: 1;
+}
+
+.fs-lightbox-rtl .fs-lightbox-item_previous {
+  transform: translate(100%, 0);
+}
+
+.fs-lightbox-rtl .fs-lightbox-item_next {
+  transform: translate(-100%, 0);
+}
+
+.fs-lightbox-container.fs-lightbox-touching .fs-lightbox-item {
+  transition: none;
+}
+
+.fs-lightbox-wrap {
+  max-height: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.fs-lightbox-media {
+  height: auto;
+  width: auto;
+  max-height: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fs-lightbox-media_video {
+  max-width: 1200px;
+  flex-grow: 1;
+}
+
+.fs-lightbox-media_image img {
+  height: auto;
+  width: auto;
+  min-width: 200px;
+  max-height: 100%;
+  max-width: 100%;
+  border: none;
+  display: block;
+  margin: auto;
+  user-select: none;
+  touch-action: none;
+}
+
+.fs-lightbox-video {
+  position: relative;
+  width: 100%;
+}
+
+.fs-lightbox-video iframe {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background: #000;
+}
+
+.fs-lightbox-iframe iframe {
+  height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  background: #000;
+}
+
+.fs-lightbox-element {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+}
+
+.fs-lightbox-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fs-lightbox-details-gap);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  background: linear-gradient(to bottom, transparent, var(--fs-lightbox-details-bg));
+  color: var(--fs-lightbox-details-color);
+  font: var(--fs-lightbox-details-font);
+  opacity: 0;
+  padding: var(--fs-lightbox-details-padding);
+  transition: opacity 0.001s var(--fs-lightbox-item-timing) 0s;
+  pointer-events: none;
+}
+
+.fs-lightbox-details * {
+  pointer-events: all;
+}
+
+.fs-lightbox-item.fs-lightbox-active .fs-lightbox-details {
+  opacity: 1;
+  transition-delay: var(--fs-lightbox-item-duration);
+  transition-duration: var(--fs-lightbox-item-duration);
+}
+
+.fs-lightbox-container.fs-lightbox-touching .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details {
+  opacity: 0;
+  transition-delay: 0.001s;
+  transition-duration: 0s;
+}
+
+.fs-lightbox-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  right: env(safe-area-inset-right, 0px);
+  z-index: 2;
+  appearance: none;
+  background: var(--fs-lightbox-button-background);
+  border: none;
+  color: var(--fs-lightbox-button-color);
+  cursor: pointer;
+  padding: 0;
+}
+
+.fs-lightbox-close svg {
+  width: 30px;
+}
+
+.fs-lightbox:not(.fs-lightbox-gallery) .fs-lightbox-control {
+  display: none;
+}
+
+.fs-lightbox-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 2;
+  appearance: none;
+  background: var(--fs-lightbox-button-background);
+  border: none;
+  color: var(--fs-lightbox-button-color);
+  margin: auto;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
+  /**
+     * @modifier .fs-lightbox-control_previous
+     * @description Previous button modifier. Positioned on left edge (or right in RTL).
+     */
+  /**
+     * @modifier .fs-lightbox-control_next
+     * @description Next button modifier. Positioned on right edge (or left in RTL).
+     */
+}
+
+@media screen and (max-width: $fs-lightbox-mobile-max-width) {
+  .fs-lightbox-control {
+    top: auto;
+  }
+}
+
+.fs-lightbox-control_previous {
+  left: 0;
+}
+
+.fs-lightbox-control_next {
+  right: 0;
+}
+
+.fs-lightbox-control svg {
+  width: 28px;
+}
+
+.fs-lightbox-rtl .fs-lightbox-control svg {
+  transform: scale(-1);
+}
+
+.fs-lightbox-rtl .fs-lightbox-control_previous {
+  left: unset;
+  right: 0;
+}
+
+.fs-lightbox-rtl .fs-lightbox-control_next {
+  right: unset;
+  left: 0;
+}
+
+.fs-lightbox-control:not([disabled]) {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.fs-lightbox-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--fs-lightbox-loading-size);
+  width: var(--fs-lightbox-loading-size);
+  position: fixed;
+  inset: 0;
+  animation: fs-lightbox-loading-spin var(--fs-lightbox-loading-duration) linear infinite;
+  border: var(--fs-lightbox-loading-spread) solid transparent;
+  border-top-color: var(--fs-lightbox-loading-color);
+  border-radius: 100%;
+  margin: auto;
+  opacity: 0;
+  transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
+}
+
+.fs-lightbox-loading.fs-lightbox-visible {
+  opacity: 1;
 }
 
 /**
  * @keyframes fs-lightbox-loading-spin
- * $description Loading spinner rotation animation. Infinite 360-degree rotation.
+ * @description Loading spinner rotation animation. Infinite 360-degree rotation.
  */
 @keyframes fs-lightbox-loading-spin {
-
   from {
     transform: rotate(0deg);
   }

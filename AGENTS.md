@@ -14,12 +14,13 @@ Formstone is a library of modular front-end components written in dependency-fre
 | `src/jquery/*.js` | **Source.** Thin jQuery bridges, one per component; `adaptor.js` holds the shared bridge | Yes |
 | `src/less/*.less` | **Source.** Component styles; `index.less` imports them all | Yes |
 | `src/css/*.css` | Generated from `src/less` by gulp `convert-css` | **No** |
-| `src/scss/*.scss` | Generated from `src/less` by gulp `convert-scss` | **No** |
+| `src/scss/*.scss` | Generated from the compiled `src/less` output by gulp `convert-scss`, then checked by `verify-scss` | **No** |
 | `dist/` | Generated UMD bundles (`formstone.js`, `formstone.jquery.js`) and `formstone.css` | **No** |
 | `docs/<module>/default.md` | Documentation pages, one per module (front-matter + Markdown, rendered by the docs site) | Yes |
 | `demo/*.html` | Manual test pages for the four consumption modes (ES bundle, ES browser, jQuery bundle, jQuery browser) | Yes |
 | `gulpfile.js` | Build pipeline | Yes |
 | `tasks/gpl.txt` | License template; `license.txt` is generated from it | Template only |
+| `tasks/scss.js` | SCSS generation and verification used by the gulp `convert-scss` / `verify-scss` tasks | Yes |
 | `CHANGELOG.md` | Release notes, newest first | Yes |
 
 Components: `Background`, `CheckPoint`, `Cookie`, `Lightbox`, `MediaQuery`, `Modal`, `Navigation`, `Swap`, `Tabs`, plus the `Utils` namespace.
@@ -52,6 +53,7 @@ Notes:
 - `formstone/<module>` → `src/js/<module>.js`
 - `formstone/jquery` and `formstone/jquery/<module>` → `src/jquery/…`
 - `formstone/<name>.css|.less|.scss` → `src/css|less|scss/<name>.*`
+- Sass: the `sass` condition on `"."` points at `src/scss/index.scss`, so `@use 'pkg:formstone' with (…)` works with Sass's `NodePackageImporter`. Single modules must include the extension (`pkg:formstone/lightbox.scss`), because `lightbox` alone matches both the `.scss` and `.css` patterns.
 
 Consumers import `src/` directly, so **everything in `src/js` ships as-is**. Do not introduce syntax or APIs that need a transpile step beyond what `.browserslistrc` supports (`> 1%, last 2 versions`).
 
@@ -234,12 +236,11 @@ Adaptors must stay thin. All behavior belongs in `src/js`. When you add a compon
   - Document compound selectors with `@selector` and `@modifier` comments.
   - Don't leave empty rulesets.
 - **Reduced motion:** `@media (prefers-reduced-motion: reduce)` sets duration custom properties to `0s`. See the transition rule below; JavaScript must not depend on `transitionend` firing.
-- The Less → SCSS converter is not faithful:
-  - `@starting-style` becomes `$starting-style`.
-  - Custom-property values aren't interpolated (`#{$var}`).
-  - `fade()` becomes a wrong `rgba()`.
-
-  Until the pipeline is fixed, check `src/scss` output whenever you use those constructs.
+- **SCSS is generated from the compiled CSS, not by translating Less syntax** (`tasks/scss.js`). `convert-scss` compiles each Less file, emits one `$fs-*: <evaluated value> !default;` per Less variable, and points the custom property (or `@media` query) that used it at the Sass variable. `verify-scss` then fails the build unless:
+  - each SCSS file, and `index.scss`, compiles to the same CSS as its Less source;
+  - every used variable can be configured with `@use … with ()`, both directly and through the index;
+  - compiling produces no Sass warnings, deprecations included. Follow the Sass module system: `index.scss` uses `@forward`, never `@import`.
+- **Supported uses of Less variables:** the variable declaration, the root custom-property declaration and `@media` preludes. Anything else (selectors, other properties, mixins) makes `convert-scss` throw. Keep to the custom-property pattern above, and use Less functions freely, since SCSS gets lessc's evaluated values.
 
 ## Documentation
 

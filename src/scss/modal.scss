@@ -1,265 +1,215 @@
-/*! formstone v2.2.2 [modal.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
-/**
- * $module Modal
- * $description Styles for simple modal dialog component with native dialog element.
- */
+/*! formstone v2.2.2 [modal.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+// Variables
 
+$fs-modal-mobile-max-width: 739px !default;
+$fs-modal-duration: 0.25s !default;
+$fs-modal-timing: linear !default;
+$fs-modal-overlay-bg: rgba(0, 0, 0, 0.9) !default;
+$fs-modal-container-bg: #fff !default;
+$fs-modal-button-background: #fff !default;
+$fs-modal-button-color: #000 !default;
+
+/**
+ * @module Modal
+ * @description Styles for simple modal dialog component with native dialog element.
+ */
 /**
  * LESS Variables
- * $type {number}
- * $default 739px
- * $description Maximum viewport width considered mobile
+ * @type {number}
+ * @default 739px
+ * @description Maximum viewport width considered mobile
  */
-$fs-modal-mobile-max-width: 739px;
-
 /**
- * $type {number}
- * $default 0.25s
- * $description Modal open/close transition duration
+ * @type {number}
+ * @default 0.25s
+ * @description Modal open/close transition duration
  */
-$fs-modal-duration: 0.25s;
-
 /**
- * $type {string}
- * $default linear
- * $description Modal open/close transition timing function
+ * @type {string}
+ * @default linear
+ * @description Modal open/close transition timing function
  */
-$fs-modal-timing: linear;
-
 /**
- * $type {color}
- * $default rgba(0, 0, 0, 0.9)
- * $description Dialog backdrop overlay color
+ * @type {color}
+ * @default rgba(0, 0, 0, 0.9)
+ * @description Dialog backdrop overlay color
  */
-$fs-modal-overlay-bg: rgba(#000, 90);
-
 /**
- * $type {color}
- * $default #fff
- * $description Modal content container background color
+ * @type {color}
+ * @default #fff
+ * @description Modal content container background color
  */
-$fs-modal-container-bg: #fff;
-
 /**
- * $type {color}
- * $default #fff
- * $description Close button background color
+ * @type {color}
+ * @default #fff
+ * @description Close button background color
  */
-$fs-modal-button-background: #fff;
-
 /**
- * $type {color}
- * $default #000
- * $description Close button icon color
+ * @type {color}
+ * @default #000
+ * @description Close button icon color
  */
-$fs-modal-button-color: #000;
-
 /**
- * $selector .fs-modal
- * $description Main modal dialog element. Uses native HTML dialog with custom properties
- * for theming. Supports $starting-style for entry animations and respects prefers-reduced-motion.
+ * @selector .fs-modal
+ * @description Main modal dialog element. Uses native HTML dialog with custom properties
+ * for theming. Supports @starting-style for entry animations and respects prefers-reduced-motion.
  */
 .fs-modal {
   /**
    * CSS Custom Properties - Timing
    * Override these properties to customize modal animation timing
    */
-
-  /** $property {time} --fs-modal-duration - Modal open/close transition duration */
-  --fs-modal-duration: $fs-modal-duration;
-
-  /** $property {keyword} --fs-modal-timing - Modal open/close transition timing function */
-  --fs-modal-timing: $fs-modal-timing;
-
+  /** @property {time} --fs-modal-duration - Modal open/close transition duration */
+  --fs-modal-duration: #{$fs-modal-duration};
+  /** @property {keyword} --fs-modal-timing - Modal open/close transition timing function */
+  --fs-modal-timing: #{$fs-modal-timing};
   /**
    * CSS Custom Properties - Colors
    */
-
-  /** $property {color} --fs-modal-overlay-bg - Dialog backdrop overlay color */
-  --fs-modal-overlay-bg: $fs-modal-overlay-bg;
-
-  /** $property {color} --fs-modal-container-bg - Modal content container background */
-  --fs-modal-container-bg: $fs-modal-container-bg;
-
+  /** @property {color} --fs-modal-overlay-bg - Dialog backdrop overlay color */
+  --fs-modal-overlay-bg: #{$fs-modal-overlay-bg};
+  /** @property {color} --fs-modal-container-bg - Modal content container background */
+  --fs-modal-container-bg: #{$fs-modal-container-bg};
   /**
    * CSS Custom Properties - Close Button
    */
-
-  /** $property {color} --fs-modal-button-background - Close button background color */
-  --fs-modal-button-background: $fs-modal-button-background;
-
-  /** $property {color} --fs-modal-button-color - Close button icon color */
-  --fs-modal-button-color: $fs-modal-button-color;
-
+  /** @property {color} --fs-modal-button-background - Close button background color */
+  --fs-modal-button-background: #{$fs-modal-button-background};
+  /** @property {color} --fs-modal-button-color - Close button icon color */
+  --fs-modal-button-color: #{$fs-modal-button-color};
   /**
    * Accessibility - Reduced Motion
    * Disables all animations when user prefers reduced motion
    */
-  @media (prefers-reduced-motion) {
-
-    & {
-      --fs-modal-duration: 0s;
-    }
-  }
-
-  //
-
   height: 100vh;
   width: 100vw;
   max-height: 100vh;
   max-width: 100vw;
-
   position: fixed;
   inset: 0;
-
   background: transparent;
   border: none;
   margin: 0;
-
   opacity: 0;
   overflow: hidden;
   padding: 0;
-  transition: display var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete,
-  opacity var(--fs-modal-duration) var(--fs-modal-timing),
-  overlay var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete;
-
-  $starting-style {
-    opacity: 0;
-  }
-
-  &[open] {
-    display: flex;
-  }
-
-  //
-
-  &,
-  & * {
-    box-sizing: border-box;
-  }
-
-  &::backdrop {
-    background: var(--fs-modal-overlay-bg);
-    opacity: 0;
-    transition:
-      display var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete,
-      opacity var(--fs-modal-duration) var(--fs-modal-timing),
-      overlay var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete;
-  }
-
-  //
-
+  transition: display var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete, opacity var(--fs-modal-duration) var(--fs-modal-timing), overlay var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete;
   /**
-   * $modifier .fs-modal-open
-   * $description Open state modifier. Applied after modal is shown to trigger transition.
+   * @modifier .fs-modal-open
+   * @description Open state modifier. Applied after modal is shown to trigger transition.
    * Dialog and backdrop fade to full opacity.
    */
-  &-open {
-    opacity: 1;
-
-    &::backdrop {
-      opacity: 1;
-
-      $starting-style {
-        opacity: 0;
-      }
-    }
-  }
-
-  //
-
   /**
-   * $selector .fs-modal-sr
-   * $description Screen reader only content. Visually hidden but accessible to assistive tech.
+   * @selector .fs-modal-sr
+   * @description Screen reader only content. Visually hidden but accessible to assistive tech.
    * Used for accessible button labels.
    */
-  &-sr {
-    width: 1px !important;
-    height: 1px !important;
-
-    position: absolute !important;
-
-    border-width: 0 !important;
-    clip-path: rect(0 0 0 0) !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    white-space: nowrap !important;
-  }
-
-  //
-
   /**
-   * $selector .fs-modal-container
-   * $description Main content container that holds the modal wrap. Positioned absolutely to fill
+   * @selector .fs-modal-container
+   * @description Main content container that holds the modal wrap. Positioned absolutely to fill
    * dialog and uses flexbox to center content.
    */
-  &-container {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    user-select: none;
-  }
-
   /**
-   * $selector .fs-modal-wrap
-   * $description Content wrapper with background and scrolling behavior. Constrains to viewport
+   * @selector .fs-modal-wrap
+   * @description Content wrapper with background and scrolling behavior. Constrains to viewport
    * dimensions and provides white background by default.
    */
-  &-wrap {
-    max-width: 100%;
-    max-height: 100%;
-
-    position: relative;
-
-    background: var(--fs-modal-container-bg);
-    overflow: auto;
-  }
-
   /**
-   * $selector .fs-modal-frame
-   * $description Content frame that holds the inline page content moved into the modal.
+   * @selector .fs-modal-frame
+   * @description Content frame that holds the inline page content moved into the modal.
    */
-  &-frame {
-    // max-width: 100%;
-    // max-height: 100%;
-  }
-
-  //
-
   /**
-   * $selector .fs-modal-close
-   * $description Close button. Fixed at top-right with safe area offset.
+   * @selector .fs-modal-close
+   * @description Close button. Fixed at top-right with safe area offset.
    */
-  &-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
 
-    height: 40px;
-    width: 40px;
-
-    position: absolute;
-    top: env(safe-area-inset-top, 0px);
-    right: env(safe-area-inset-right, 0px);
-    z-index: 2;
-
-    appearance: none;
-
-    background: var(--fs-modal-button-background);
-    border: none;
-    color: var(--fs-modal-button-color);
-    cursor: pointer;
-    padding: 0;
-
-    svg {
-      width: 30px;
-    }
+@media (prefers-reduced-motion) {
+  .fs-modal {
+    --fs-modal-duration: 0s;
   }
+}
+
+@starting-style {
+  opacity: 0;
+}
+
+.fs-modal[open] {
+  display: flex;
+}
+
+.fs-modal,
+.fs-modal * {
+  box-sizing: border-box;
+}
+
+.fs-modal::backdrop {
+  background: var(--fs-modal-overlay-bg);
+  opacity: 0;
+  transition: display var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete, opacity var(--fs-modal-duration) var(--fs-modal-timing), overlay var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete;
+}
+
+.fs-modal-open {
+  opacity: 1;
+}
+
+.fs-modal-open::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  opacity: 0;
+}
+
+.fs-modal-sr {
+  width: 1px !important;
+  height: 1px !important;
+  position: absolute !important;
+  border-width: 0 !important;
+  clip-path: rect(0 0 0 0) !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+}
+
+.fs-modal-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.fs-modal-wrap {
+  max-width: 100%;
+  max-height: 100%;
+  position: relative;
+  background: var(--fs-modal-container-bg);
+  overflow: auto;
+}
+
+.fs-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  right: env(safe-area-inset-right, 0px);
+  z-index: 2;
+  appearance: none;
+  background: var(--fs-modal-button-background);
+  border: none;
+  color: var(--fs-modal-button-color);
+  cursor: pointer;
+  padding: 0;
+}
+
+.fs-modal-close svg {
+  width: 30px;
 }

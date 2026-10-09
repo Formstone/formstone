@@ -1,24 +1,25 @@
-/*! formstone v2.2.2 [background.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
-/**
- * $module background
- * $description Simple modal dialog component
- */
+/*! formstone v2.2.2 [background.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+// Variables
 
+$fs-background-duration: 0.15s !default;
+
+/**
+ * @module background
+ * @description Simple modal dialog component
+ */
 /**
  * Default transition duration for background media transitions
- * $type {time}
- * $default 0.15s
+ * @type {time}
+ * @default 0.15s
  */
-$fs-background-duration: 0.15s;
-
 /**
  * Primary background component
  * Creates a full-frame background with support for images, videos, and YouTube embeds
  *
- * $selector .fs-background
- * $modifier .fs-background-loaded - Applied when media has loaded
- * $modifier .fs-background-lazy - Applied when lazy loading is enabled
- * $example
+ * @selector .fs-background
+ * @modifier .fs-background-loaded - Applied when media has loaded
+ * @modifier .fs-background-lazy - Applied when lazy loading is enabled
+ * @example
  *   <div class="fs-background">
  *     <!-- Content here -->
  *   </div>
@@ -27,129 +28,108 @@ $fs-background-duration: 0.15s;
   /**
    * Transition duration for opacity changes
    * Overridable via custom property
-   * $type {time}
+   * @type {time}
    */
-  --fs-background-duration: $fs-background-duration;
-
-  @media (prefers-reduced-motion) {
-
-    & {
-      --fs-background-duration: 0s;
-    }
-  }
-
-  //
-
+  --fs-background-duration: #{$fs-background-duration};
   position: relative;
-
-  &,
-  &-container,
-  &-media {
-    transition: none;
-  }
-
   /**
    * Container element for background media
    * Uses CSS Grid to stack multiple media layers
    *
-   * $selector .fs-background-container
+   * @selector .fs-background-container
    */
-  &-container {
-    display: grid;
-    grid-template-areas: 'fs-background-stack';
-
-    width: 100%;
-    height: 100%;
-
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-
-    overflow: hidden;
-  }
-
   /**
    * Media element for background content
    * Handles images, videos, and embeds with proper sizing and positioning
    *
-   * $selector .fs-background-media
+   * @selector .fs-background-media
    */
-  &-media {
-    grid-area: fs-background-stack;
-
-    min-height: 0;
-    min-width: 0;
-
-    z-index: 1;
-
-    background-position: center;
-    background-size: cover;
-    opacity: 0;
-    transition: opacity var(--fs-background-duration) linear;
-
-    img,
-    video,
-    iframe {
-      width: 100%;
-      height: 100%;
-
-      display: block;
-      -webkit-user-drag: none;
-    }
-
-    video {
-      object-fit: cover;
-      object-position: center;
-    }
-
-    iframe {
-      z-index: 0;
-    }
-  }
-
-
-  &-image,
-  &-video {
-    width: 100%;
-    height: 100%;
-  }
-
   /**
    * Image background media type
-   * $selector .fs-background-image
+   * @selector .fs-background-image
    */
-  &-image {}
-
   /**
    * Video background media type
-   * $selector .fs-background-video
+   * @selector .fs-background-video
    */
-  &-video {}
-
   /**
    * Embedded media type (YouTube)
    * Maintains 16:9 aspect ratio and centers content
-   * $selector .fs-background-embed
+   * @selector .fs-background-embed
    */
-  &-embed {
-    aspect-ratio: 16 / 9;
+}
 
-    align-self: center;
-    justify-self: center;
-
-    // min-height: calc(100% + 120px); // Hiding youtube info requires extra zoom
-    min-height: 100%;
-    min-width: 100%;
-
-    &:after {
-      width: 100%;
-      height: 100%;
-
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-
-      content: '';
-    }
+@media (prefers-reduced-motion) {
+  .fs-background {
+    --fs-background-duration: 0s;
   }
+}
+
+.fs-background,
+.fs-background-container,
+.fs-background-media {
+  transition: none;
+}
+
+.fs-background-container {
+  display: grid;
+  grid-template-areas: 'fs-background-stack';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.fs-background-media {
+  grid-area: fs-background-stack;
+  min-height: 0;
+  min-width: 0;
+  z-index: 1;
+  background-position: center;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity var(--fs-background-duration) linear;
+}
+
+.fs-background-media img,
+.fs-background-media video,
+.fs-background-media iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  -webkit-user-drag: none;
+}
+
+.fs-background-media video {
+  object-fit: cover;
+  object-position: center;
+}
+
+.fs-background-media iframe {
+  z-index: 0;
+}
+
+.fs-background-image,
+.fs-background-video {
+  width: 100%;
+  height: 100%;
+}
+
+.fs-background-embed {
+  aspect-ratio: 16 / 9;
+  align-self: center;
+  justify-self: center;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.fs-background-embed:after {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
 }

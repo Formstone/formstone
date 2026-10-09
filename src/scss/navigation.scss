@@ -1,411 +1,354 @@
-/*! formstone v2.2.2 [navigation.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
-/**
- * $module navigation
- * $description Responsive navigation menus
- */
+/*! formstone v2.2.2 [navigation.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+// Variables
 
+$fs-navigation-offscreen-background: #fff !default;
+$fs-navigation-offscreen-width: 80vw !default;
+$fs-navigation-offscreen-zindex: 0 !default;
+$fs-navigation-offscreen-duration: 0.2s !default;
+$fs-navigation-offscreen-timing: ease !default;
+$fs-navigation-overlay-zindex: 3 !default;
+$fs-navigation-overlay-content-background: rgba(0, 0, 0, 0.8) !default;
+$fs-navigation-overlay-content-zindex: 2 !default;
+$fs-navigation-push-zindex: 0 !default;
+$fs-navigation-push-content-zindex: 1 !default;
+
+/**
+ * @module navigation
+ * @description Responsive navigation menus
+ */
 /**
  * Background color for offscreen navigation panels
- * $type {color}
- * $default #fff
+ * @type {color}
+ * @default #fff
  */
-$fs-navigation-offscreen-background: #fff;
-
 /**
  * Width of offscreen navigation panels
- * $type {length}
- * $default 80vw
+ * @type {length}
+ * @default 80vw
  */
-$fs-navigation-offscreen-width: 80vw;
-
 /**
  * Base z-index for offscreen navigation
- * $type {number}
- * $default 0
+ * @type {number}
+ * @default 0
  */
-$fs-navigation-offscreen-zindex: 0;
-
 /**
  * Transition duration for navigation transforms and visibility
- * $type {time}
- * $default 0.2s
+ * @type {time}
+ * @default 0.2s
  */
-$fs-navigation-offscreen-duration: 0.2s;
-
 /**
  * Transition timing function for navigation transforms
- * $type {keyword}
- * $default ease
+ * @type {keyword}
+ * @default ease
  */
-$fs-navigation-offscreen-timing: ease;
-
 /**
  * Z-index for overlay navigation panel
- * $type {number}
- * $default 3
+ * @type {number}
+ * @default 3
  */
-$fs-navigation-overlay-zindex: 3;
-
 /**
  * Backdrop color for overlay content
- * $type {color}
- * $default rgba(0, 0, 0, 0.8)
+ * @type {color}
+ * @default rgba(0, 0, 0, 0.8)
  */
-$fs-navigation-overlay-content-background: rgba(0, 0, 0, 0.8);
-
 /**
  * Z-index for overlay content backdrop
- * $type {number}
- * $default 2
+ * @type {number}
+ * @default 2
  */
-$fs-navigation-overlay-content-zindex: 2;
-
 /**
  * Z-index for push and reveal navigation panel
- * $type {number}
- * $default 0
+ * @type {number}
+ * @default 0
  */
-$fs-navigation-push-zindex: 0;
-
 /**
  * Z-index for push and reveal content layer
- * $type {number}
- * $default 1
+ * @type {number}
+ * @default 1
  */
-$fs-navigation-push-content-zindex: 1;
-
 /**
  * Primary navigation component
  * Supports toggle, push, reveal, and overlay navigation behaviors
  *
- * $selector .fs-navigation
- * $modifier .fs-navigation-enabled - Applied when navigation is enabled
- * $modifier .fs-navigation-open - Applied when navigation is open
- * $modifier .fs-navigation-closed - Applied when navigation is closed
- * $modifier .fs-navigation-animated - Applied when transitions are enabled
+ * @selector .fs-navigation
+ * @modifier .fs-navigation-enabled - Applied when navigation is enabled
+ * @modifier .fs-navigation-open - Applied when navigation is open
+ * @modifier .fs-navigation-closed - Applied when navigation is closed
+ * @modifier .fs-navigation-animated - Applied when transitions are enabled
  */
 .fs-navigation {
   box-sizing: border-box;
-
-  &,
-  &-content {
-    /**
-     * Offscreen panel background color
-     * $type {color}
-     */
-    --fs-navigation-offscreen-background: $fs-navigation-offscreen-background;
-    /**
-     * Offscreen panel width
-     * $type {length}
-     */
-    --fs-navigation-offscreen-width: $fs-navigation-offscreen-width;
-    /**
-     * Offscreen panel z-index
-     * $type {number}
-     */
-    --fs-navigation-offscreen-zindex: $fs-navigation-offscreen-zindex;
-
-    /**
-     * Offscreen transition duration
-     * $type {time}
-     */
-    --fs-navigation-offscreen-duration: $fs-navigation-offscreen-duration;
-    /**
-     * Offscreen transition timing function
-     * $type {keyword}
-     */
-    --fs-navigation-offscreen-timing: $fs-navigation-offscreen-timing;
-
-    /**
-     * Overlay navigation z-index
-     * $type {number}
-     */
-    --fs-navigation-overlay-zindex: $fs-navigation-overlay-zindex;
-
-    /**
-     * Overlay content backdrop background
-     * $type {color}
-     */
-    --fs-navigation-overlay-content-background: $fs-navigation-overlay-content-background;
-    /**
-     * Overlay content backdrop z-index
-     * $type {number}
-     */
-    --fs-navigation-overlay-content-zindex: $fs-navigation-overlay-content-zindex;
-
-    /**
-     * Push/reveal navigation z-index
-     * $type {number}
-     */
-    --fs-navigation-push-zindex: $fs-navigation-push-zindex;
-    /**
-     * Push/reveal content z-index
-     * $type {number}
-     */
-    --fs-navigation-push-content-zindex: $fs-navigation-push-content-zindex;
-
-    @media (prefers-reduced-motion) {
-
-      & {
-        --fs-navigation-offscreen-duration: 0s;
-      }
-    }
-  }
-
   /**
    * Hidden state for toggle navigation when closed
-   * $selector .fs-navigation-toggle-nav.fs-navigation-enabled:not(.fs-navigation-open)
+   * @selector .fs-navigation-toggle-nav.fs-navigation-enabled:not(.fs-navigation-open)
    */
-
-  &-toggle-nav &-enabled:not(&-open) {
-    display: none;
-  }
-
-  &-toggle-nav &-open {
-    // display: block;
-  }
-
   /**
    * Handle styles for enabled toggle mode
-   * $selector .fs-navigation-toggle-handle.fs-navigation-enabled
+   * @selector .fs-navigation-toggle-handle.fs-navigation-enabled
    */
-  &-toggle-handle &-enabled {
-    width: 100%;
-
-    cursor: pointer;
-    display: block;
-  }
-
-  &-toggle-handle &-open {}
-
   /**
    * Base offscreen panel styles for push, reveal, and overlay modes
-   * $selector .fs-navigation-push-nav.fs-navigation-enabled
-   * $selector .fs-navigation-reveal-nav.fs-navigation-enabled
-   * $selector .fs-navigation-overlay-nav.fs-navigation-enabled
+   * @selector .fs-navigation-push-nav.fs-navigation-enabled
+   * @selector .fs-navigation-reveal-nav.fs-navigation-enabled
+   * @selector .fs-navigation-overlay-nav.fs-navigation-enabled
    */
-
-  &-push-nav &-enabled,
-  &-reveal-nav &-enabled,
-  &-overlay-nav &-enabled {
-    width: var(--fs-navigation-offscreen-width);
-    height: calc(100vh + 60px);
-
-    position: fixed;
-    top: 0;
-
-    background: var(--fs-navigation-offscreen-background);
-    display: block;
-    overflow-y: scroll;
-    visibility: hidden;
-
-    overscroll-behavior: contain;
-  }
-
-  //
-
   /**
    * Reveal-mode transition timing
-   * $selector .fs-navigation-reveal-nav.fs-navigation-animated
+   * @selector .fs-navigation-reveal-nav.fs-navigation-animated
    */
-  &-reveal-nav &-animated {
-    transition: visibility 0.001s linear var(--fs-navigation-offscreen-duration);
-  }
-
   /**
    * Push and overlay transition timing
-   * $selector .fs-navigation-push-nav.fs-navigation-animated
-   * $selector .fs-navigation-overlay-nav.fs-navigation-animated
+   * @selector .fs-navigation-push-nav.fs-navigation-animated
+   * @selector .fs-navigation-overlay-nav.fs-navigation-animated
    */
-  &-push-nav &-animated,
-  &-overlay-nav &-animated {
-    transition:
-      transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing),
-      visibility 0.001s linear var(--fs-navigation-offscreen-duration);
-  }
-
   /**
    * Z-index assignment for push and reveal panels
-   * $selector .fs-navigation-push-nav.fs-navigation-enabled
-   * $selector .fs-navigation-reveal-nav.fs-navigation-enabled
+   * @selector .fs-navigation-push-nav.fs-navigation-enabled
+   * @selector .fs-navigation-reveal-nav.fs-navigation-enabled
    */
-
-  &-push-nav &-enabled,
-  &-reveal-nav &-enabled {
-    z-index: var(--fs-navigation-push-zindex);
-  }
-
-  &-push-left-nav &-enabled,
-  &-reveal-left-nav &-enabled,
-  &-overlay-left-nav &-enabled {
-    left: 0;
-  }
-
-  &-push-right-nav &-enabled,
-  &-reveal-right-nav &-enabled,
-  &-overlay-right-nav &-enabled {
-    right: 0;
-  }
-
-  // reveal
-
-
-
   /**
    * Off-canvas transforms for left-side push and overlay panels
-   * $selector .fs-navigation-push-left-nav.fs-navigation-enabled
-   * $selector .fs-navigation-overlay-left-nav.fs-navigation-enabled
+   * @selector .fs-navigation-push-left-nav.fs-navigation-enabled
+   * @selector .fs-navigation-overlay-left-nav.fs-navigation-enabled
    */
-
-  &-push-left-nav &-enabled,
-  &-overlay-left-nav &-enabled {
-    transform: translate3d(calc(var(--fs-navigation-offscreen-width) * -1), 0, 0);
-  }
-
   /**
    * Off-canvas transforms for right-side push and overlay panels
-   * $selector .fs-navigation-push-right-nav.fs-navigation-enabled
-   * $selector .fs-navigation-overlay-right-nav.fs-navigation-enabled
+   * @selector .fs-navigation-push-right-nav.fs-navigation-enabled
+   * @selector .fs-navigation-overlay-right-nav.fs-navigation-enabled
    */
-  &-push-right-nav &-enabled,
-  &-overlay-right-nav &-enabled {
-    transform: translate3d(var(--fs-navigation-offscreen-width), 0, 0);
-  }
-
   /**
    * Overlay mode z-index assignment
-   * $selector .fs-navigation-overlay-nav.fs-navigation-enabled
+   * @selector .fs-navigation-overlay-nav.fs-navigation-enabled
    */
-
-  &-overlay-nav &-enabled {
-    z-index: var(--fs-navigation-overlay-zindex);
-  }
-
-  &-overlay-left-nav &-enabled {}
-
-  &-overlay-right-nav &-enabled {}
-
   /**
    * Open state for reveal mode
-   * $selector .fs-navigation-reveal-nav.fs-navigation-open
+   * @selector .fs-navigation-reveal-nav.fs-navigation-open
    */
-
-  &-reveal-nav &-open {
-    visibility: visible;
-    transition: visibility 0.001s linear;
-  }
-
   /**
    * Open state for push and overlay modes
-   * $selector .fs-navigation-push-nav.fs-navigation-open
-   * $selector .fs-navigation-overlay-nav.fs-navigation-open
+   * @selector .fs-navigation-push-nav.fs-navigation-open
+   * @selector .fs-navigation-overlay-nav.fs-navigation-open
    */
-  &-push-nav &-open,
-  &-overlay-nav &-open {
-    transform: translate3d(0, 0, 0);
-    transition:
-      transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing),
-      visibility 0.001s linear;
-    visibility: visible;
-  }
-
   /**
    * Handle styles for enabled push and overlay modes
-   * $selector .fs-navigation-push-handle.fs-navigation-enabled
-   * $selector .fs-navigation-overlay-handle.fs-navigation-enabled
+   * @selector .fs-navigation-push-handle.fs-navigation-enabled
+   * @selector .fs-navigation-overlay-handle.fs-navigation-enabled
    */
-  &-push-handle &-enabled,
-  &-overlay-handle &-enabled {
-    // @include fs_button;
-
-    cursor: pointer;
-    display: block;
-  }
-
   /**
    * Overlay mode backdrop layer
-   * $selector .fs-navigation-overlay-content:before
+   * @selector .fs-navigation-overlay-content:before
    */
-  &-overlay-content:before {
-    width: 100%;
-    height: 100%;
-    height: unquote("calc(100% + 60px)");
-
-    position: fixed;
-    inset: 0;
-    z-index: var(--fs-navigation-overlay-content-zindex);
-
-    background: var(--fs-navigation-overlay-content-background);
-    content: '';
-    display: block;
-    opacity: 0;
-    overflow-y: scroll;
-    overscroll-behavior: contain;
-    transition:
-      background var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing),
-      opacity var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing),
-      visibility var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing);
-    visibility: hidden;
-  }
-
   /**
    * Visible backdrop state when navigation is open
-   * $selector .fs-navigation-overlay-content.fs-navigation-open:before
+   * @selector .fs-navigation-overlay-content.fs-navigation-open:before
    */
-  &-overlay-content &-open:before {
-    opacity: 1;
-    visibility: visible;
-  }
-
   /**
    * Content layer styles for reveal and push modes
-   * $selector .fs-navigation-reveal-content.fs-navigation-enabled
-   * $selector .fs-navigation-push-content.fs-navigation-enabled
+   * @selector .fs-navigation-reveal-content.fs-navigation-enabled
+   * @selector .fs-navigation-push-content.fs-navigation-enabled
    */
-  &-reveal-content &-enabled,
-  &-push-content &-enabled {
-    position: relative;
-    z-index: var(--fs-navigation-push-content-zindex);
-
-    display: block;
-    transform: translate3d(0, 0, 0);
-  }
-
   /**
    * Content transitions for reveal and push modes
-   * $selector .fs-navigation-reveal-content.fs-navigation-animated
-   * $selector .fs-navigation-push-content.fs-navigation-animated
+   * @selector .fs-navigation-reveal-content.fs-navigation-animated
+   * @selector .fs-navigation-push-content.fs-navigation-animated
    */
-  &-reveal-content &-animated,
-  &-push-content &-animated {
-    transition:
-      transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing);
-  }
-
-  &-reveal-left-content &-enabled,
-  &-push-left-content &-enabled {}
-
-  &-reveal-right-content &-enabled,
-  &-push-right-content &-enabled {}
-
   /**
    * Open transform for left-side reveal and push content
-   * $selector .fs-navigation-reveal-left-content.fs-navigation-open
-   * $selector .fs-navigation-push-left-content.fs-navigation-open
+   * @selector .fs-navigation-reveal-left-content.fs-navigation-open
+   * @selector .fs-navigation-push-left-content.fs-navigation-open
    */
-
-  &-reveal-left-content &-open,
-  &-push-left-content &-open {
-    transform: translate3d(var(--fs-navigation-offscreen-width), 0, 0);
-  }
-
   /**
    * Open transform for right-side reveal and push content
-   * $selector .fs-navigation-reveal-right-content.fs-navigation-open
-   * $selector .fs-navigation-push-right-content.fs-navigation-open
+   * @selector .fs-navigation-reveal-right-content.fs-navigation-open
+   * @selector .fs-navigation-push-right-content.fs-navigation-open
    */
-  &-reveal-right-content &-open,
-  &-push-right-content &-open {
-    transform: translate3d(calc(var(--fs-navigation-offscreen-width) * -1), 0, 0);
+}
+
+.fs-navigation,
+.fs-navigation-content {
+  /**
+     * Offscreen panel background color
+     * @type {color}
+     */
+  --fs-navigation-offscreen-background: #{$fs-navigation-offscreen-background};
+  /**
+     * Offscreen panel width
+     * @type {length}
+     */
+  --fs-navigation-offscreen-width: #{$fs-navigation-offscreen-width};
+  /**
+     * Offscreen panel z-index
+     * @type {number}
+     */
+  --fs-navigation-offscreen-zindex: #{$fs-navigation-offscreen-zindex};
+  /**
+     * Offscreen transition duration
+     * @type {time}
+     */
+  --fs-navigation-offscreen-duration: #{$fs-navigation-offscreen-duration};
+  /**
+     * Offscreen transition timing function
+     * @type {keyword}
+     */
+  --fs-navigation-offscreen-timing: #{$fs-navigation-offscreen-timing};
+  /**
+     * Overlay navigation z-index
+     * @type {number}
+     */
+  --fs-navigation-overlay-zindex: #{$fs-navigation-overlay-zindex};
+  /**
+     * Overlay content backdrop background
+     * @type {color}
+     */
+  --fs-navigation-overlay-content-background: #{$fs-navigation-overlay-content-background};
+  /**
+     * Overlay content backdrop z-index
+     * @type {number}
+     */
+  --fs-navigation-overlay-content-zindex: #{$fs-navigation-overlay-content-zindex};
+  /**
+     * Push/reveal navigation z-index
+     * @type {number}
+     */
+  --fs-navigation-push-zindex: #{$fs-navigation-push-zindex};
+  /**
+     * Push/reveal content z-index
+     * @type {number}
+     */
+  --fs-navigation-push-content-zindex: #{$fs-navigation-push-content-zindex};
+}
+
+@media (prefers-reduced-motion) {
+
+  .fs-navigation,
+  .fs-navigation-content {
+    --fs-navigation-offscreen-duration: 0s;
   }
+}
+
+.fs-navigation-toggle-nav.fs-navigation-enabled:not(.fs-navigation-open) {
+  display: none;
+}
+
+.fs-navigation-toggle-handle.fs-navigation-enabled {
+  width: 100%;
+  cursor: pointer;
+  display: block;
+}
+
+.fs-navigation-push-nav.fs-navigation-enabled,
+.fs-navigation-reveal-nav.fs-navigation-enabled,
+.fs-navigation-overlay-nav.fs-navigation-enabled {
+  width: var(--fs-navigation-offscreen-width);
+  height: calc(100vh + 60px);
+  position: fixed;
+  top: 0;
+  background: var(--fs-navigation-offscreen-background);
+  display: block;
+  overflow-y: scroll;
+  visibility: hidden;
+  overscroll-behavior: contain;
+}
+
+.fs-navigation-reveal-nav.fs-navigation-animated {
+  transition: visibility 0.001s linear var(--fs-navigation-offscreen-duration);
+}
+
+.fs-navigation-push-nav.fs-navigation-animated,
+.fs-navigation-overlay-nav.fs-navigation-animated {
+  transition: transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing), visibility 0.001s linear var(--fs-navigation-offscreen-duration);
+}
+
+.fs-navigation-push-nav.fs-navigation-enabled,
+.fs-navigation-reveal-nav.fs-navigation-enabled {
+  z-index: var(--fs-navigation-push-zindex);
+}
+
+.fs-navigation-push-left-nav.fs-navigation-enabled,
+.fs-navigation-reveal-left-nav.fs-navigation-enabled,
+.fs-navigation-overlay-left-nav.fs-navigation-enabled {
+  left: 0;
+}
+
+.fs-navigation-push-right-nav.fs-navigation-enabled,
+.fs-navigation-reveal-right-nav.fs-navigation-enabled,
+.fs-navigation-overlay-right-nav.fs-navigation-enabled {
+  right: 0;
+}
+
+.fs-navigation-push-left-nav.fs-navigation-enabled,
+.fs-navigation-overlay-left-nav.fs-navigation-enabled {
+  transform: translate3d(calc(var(--fs-navigation-offscreen-width) * -1), 0, 0);
+}
+
+.fs-navigation-push-right-nav.fs-navigation-enabled,
+.fs-navigation-overlay-right-nav.fs-navigation-enabled {
+  transform: translate3d(var(--fs-navigation-offscreen-width), 0, 0);
+}
+
+.fs-navigation-overlay-nav.fs-navigation-enabled {
+  z-index: var(--fs-navigation-overlay-zindex);
+}
+
+.fs-navigation-reveal-nav.fs-navigation-open {
+  visibility: visible;
+  transition: visibility 0.001s linear;
+}
+
+.fs-navigation-push-nav.fs-navigation-open,
+.fs-navigation-overlay-nav.fs-navigation-open {
+  transform: translate3d(0, 0, 0);
+  transition: transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing), visibility 0.001s linear;
+  visibility: visible;
+}
+
+.fs-navigation-push-handle.fs-navigation-enabled,
+.fs-navigation-overlay-handle.fs-navigation-enabled {
+  cursor: pointer;
+  display: block;
+}
+
+.fs-navigation-overlay-content:before {
+  width: 100%;
+  height: 100%;
+  height: calc(100% + 60px);
+  position: fixed;
+  inset: 0;
+  z-index: var(--fs-navigation-overlay-content-zindex);
+  background: var(--fs-navigation-overlay-content-background);
+  content: '';
+  display: block;
+  opacity: 0;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  transition: background var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing), opacity var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing), visibility var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing);
+  visibility: hidden;
+}
+
+.fs-navigation-overlay-content.fs-navigation-open:before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fs-navigation-reveal-content.fs-navigation-enabled,
+.fs-navigation-push-content.fs-navigation-enabled {
+  position: relative;
+  z-index: var(--fs-navigation-push-content-zindex);
+  display: block;
+  transform: translate3d(0, 0, 0);
+}
+
+.fs-navigation-reveal-content.fs-navigation-animated,
+.fs-navigation-push-content.fs-navigation-animated {
+  transition: transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing);
+}
+
+.fs-navigation-reveal-left-content.fs-navigation-open,
+.fs-navigation-push-left-content.fs-navigation-open {
+  transform: translate3d(var(--fs-navigation-offscreen-width), 0, 0);
+}
+
+.fs-navigation-reveal-right-content.fs-navigation-open,
+.fs-navigation-push-right-content.fs-navigation-open {
+  transform: translate3d(calc(var(--fs-navigation-offscreen-width) * -1), 0, 0);
 }
