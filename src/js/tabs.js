@@ -187,7 +187,7 @@ class Tabs {
 
     if (hash.length) {
       this.hashActive = (el.hash == hash);
-      this.hashGroup = this.group && (select(`[data-tabs-group="${this.group}"][href$="${hash}]`).length > 0);
+      this.hashGroup = this.group && (select(`[data-tabs-group="${CSS.escape(this.group)}"][href$="${CSS.escape(hash)}"]`).length > 0);
     }
 
     // SHOULD BE IN ENABLE / DISABLE?
@@ -424,7 +424,7 @@ class Tabs {
   #onActivate() {
     return (e) => {
       if (this.group) {
-        iterate(select(`[data-tabs-group="${this.group}"]`), (el) => {
+        iterate(select(`[data-tabs-group="${CSS.escape(this.group)}"]`), (el) => {
           if (el.Tabs && el !== this.el) {
             setAttr(el, {
               'aria-selected': 'false',

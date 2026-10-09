@@ -130,8 +130,8 @@ class Swap {
 
     this.enabled = false;
     // this.active = el.dataset.swapActive || false;
-    this.group = dataset.swapGroup ? `[data-swap-group="${dataset.swapGroup}"]` : false;
-    this.linked = dataset.swapLinked ? `[data-swap-linked="${dataset.swapLinked}"]` : false;
+    this.group = dataset.swapGroup ? `[data-swap-group="${CSS.escape(dataset.swapGroup)}"]` : false;
+    this.linked = dataset.swapLinked ? `[data-swap-linked="${CSS.escape(dataset.swapLinked)}"]` : false;
     this.target = dataset.swapTarget || null;
     this.targetEl = select(this.target);
     // this = extend(true, this.constructor.#_defaults, options || {}, optionsData);
