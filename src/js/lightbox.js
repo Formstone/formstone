@@ -44,7 +44,7 @@ let LightboxInstance;
 
 /**
  * @typedef {Object} LightboxOptions
- * @property {string} [direction=document.dir] - Content direction ('ltr' or 'rtl')
+ * @property {string} [direction=null] - Content direction ('ltr' or 'rtl'); defaults to `document.dir` when the instance is created
  * @property {string} [customClass=''] - Custom CSS class to add to lightbox dialog
  * @property {string} [label='Gallery'] - Accessibility label for the lightbox
  * @property {RegExp} [fileTypes=/\.(jpg|sjpg|jpeg|png|gif|webp)/i] - Regular expression to match image file extensions
@@ -63,7 +63,7 @@ class Lightbox {
   static #_guid = 1;
 
   static #_defaults = {
-    direction: document.dir,
+    direction: null,
     customClass: '',
     label: 'Gallery',
     fileTypes: /\.(jpg|sjpg|jpeg|png|gif|webp)/i,
@@ -183,7 +183,7 @@ class Lightbox {
     this.isOpen = false;
     this.isTouching = false;
     this.isDragging = false;
-    this.isRTL = this.direction == 'rtl';
+    this.isRTL = (this.direction || document.dir) == 'rtl';
 
     // Enhance trigger
 

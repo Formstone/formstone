@@ -69,7 +69,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
 | `customClass` | `string` | `''` | Custom CSS class for lightbox dialog |
-| `direction` | `string` | `document.dir` | Content direction (ltr, rtl) |
+| `direction` | `string` | `null` | Content direction (ltr, rtl); falls back to `document.dir` when the instance is created |
 | `fileTypes` | `RegExp` | `/\.(jpg\|sjpg\|jpeg\|png\|gif\|webp)/i` | Supported image file extensions |
 | `label` | `string` | `'Gallery'` | Accessibility label |
 | `ordinal` | `boolean` | `true` | Show gallery position indicator |

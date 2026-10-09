@@ -35,7 +35,7 @@ grep -l "from './swap.js'" src/js/*.js
 
 ```sh
 npm run gulp         # development build: beautify, bundle, convert Less → CSS/SCSS, regenerate license
-npm run gulp-build   # production build (NODE_ENV=production): use this before publishing
+npm run gulp-build   # production build (NODE_ENV=production); runs automatically on `npm publish` (prepublishOnly)
 npx gulp dev         # build, then watch Less/JS
 ```
 
@@ -43,7 +43,8 @@ Notes:
 - The build **rewrites source files in place**: `beautify-scripts` reformats `src/js` and `src/jquery`, and `beautify-styles` reformats `src/less`. Expect formatting-only diffs after a build.
 - `clean` deletes `dist/*`, `src/css/*` and `src/scss/*` before regenerating them.
 - Generated file banners include the version from `package.json` and the build date, so every build touches every generated file.
-- Release with `gulp-build` only. Development bundles contain `eval()` and will not run under a strict CSP.
+- Release with `gulp-build` only. Development bundles contain `eval()` and will not run under a strict CSP. `prepublishOnly` enforces this for `npm publish`, and plain `npx gulp` (no `NODE_ENV`) also builds production; commit `dist/` from a production build.
+- `beautify-*` strips the final newline from some files, so a build may show newline-only diffs.
 - There is no test suite yet. Check changes manually with the pages in `demo/`, and run `node --check src/js/<file>.js` for syntax.
 
 ## Package entry points
@@ -52,7 +53,8 @@ Notes:
 - `formstone` → `src/js/index.js` (ESM) or `dist/formstone.js` (CJS `require`)
 - `formstone/<module>` → `src/js/<module>.js`
 - `formstone/jquery` and `formstone/jquery/<module>` → `src/jquery/…`
-- `formstone/<name>.css|.less|.scss` → `src/css|less|scss/<name>.*`
+- `formstone/<name>.css|.less|.scss` → `src/css|less|scss/<name>.*`, including `index.*` for all components
+- `formstone/dist/*` → `dist/*`, and `formstone/package.json`
 - Sass: the `sass` condition on `"."` points at `src/scss/index.scss`, so `@use 'pkg:formstone' with (…)` works with Sass's `NodePackageImporter`. Single modules must include the extension (`pkg:formstone/lightbox.scss`), because `lightbox` alone matches both the `.scss` and `.css` patterns.
 
 Consumers import `src/` directly, so **everything in `src/js` ships as-is**. Do not introduce syntax or APIs that need a transpile step beyond what `.browserslistrc` supports (`> 1%, last 2 versions`).

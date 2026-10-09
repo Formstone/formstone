@@ -831,12 +831,44 @@ function onYouTubeReady() {
 }
 
 /**
+ * @type {boolean}
+ * @private
+ */
+let YouTubeHooked = false;
+
+/**
+ * Chains onto the global YouTube API callback; done on first use, not at import, so the module
+ * can be imported without a window (SSR)
+ * @private
+ * @returns {void}
+ */
+function hookYouTubeCallback() {
+  if (YouTubeHooked) {
+    return;
+  }
+
+  YouTubeHooked = true;
+
+  let originalYouTubeCallback = window.onYouTubeIframeAPIReady;
+
+  window.onYouTubeIframeAPIReady = () => {
+    if (isFn(originalYouTubeCallback)) {
+      originalYouTubeCallback.call();
+    }
+
+    onYouTubeReady();
+  };
+}
+
+/**
  * Executes a callback once the YouTube IFrame API is ready, loading the API if needed
  * @private
  * @param {Function} cb - Callback function
  * @returns {void}
  */
 function whenYouTubeReady(cb) {
+  hookYouTubeCallback();
+
   if (isYouTubeReady()) {
     cb.call();
 
@@ -864,16 +896,6 @@ function whenYouTubeReady(cb) {
   once(script, 'load', ready);
   ready();
 }
-
-let originalYouTubeCallback = (isFn(window.onYouTubeIframeAPIReady)) ? window.onYouTubeIframeAPIReady : null;
-
-window.onYouTubeIframeAPIReady = () => {
-  if (originalYouTubeCallback) {
-    originalYouTubeCallback.call();
-  }
-
-  onYouTubeReady();
-};
 
 // Export
 

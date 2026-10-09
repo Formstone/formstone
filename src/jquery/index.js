@@ -8,7 +8,9 @@ import Navigation from './navigation.js';
 import Swap from './swap.js';
 import Tabs from './tabs.js';
 import * as Utils from '../js/utils.js';
-import { install } from './adaptor.js';
+import {
+  install
+} from './adaptor.js';
 
 export {
   Background,

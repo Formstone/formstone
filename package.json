@@ -11,7 +11,8 @@
   },
   "scripts": {
     "gulp": "NODE_ENV='development' gulp",
-    "gulp-build": "NODE_ENV='production' gulp"
+    "gulp-build": "NODE_ENV='production' gulp",
+    "prepublishOnly": "npm run gulp-build"
   },
   "homepage": "https://formstone.dev/",
   "homepage_short": "formstone.dev",
@@ -23,6 +24,8 @@
       "import": "./src/js/index.js",
       "require": "./dist/formstone.js"
     },
+    "./package.json": "./package.json",
+    "./dist/*": "./dist/*",
     "./*": "./src/js/*.js",
     "./jquery": "./src/jquery/index.js",
     "./jquery/*": "./src/jquery/*.js",

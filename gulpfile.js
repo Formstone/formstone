@@ -78,7 +78,7 @@ gulp.task('bundle-styles', () => {
 gulp.task('bundle-scripts', () => {
   return gulp.src('./src/js/index.js')
     .pipe(webpack({
-      mode: process.env.NODE_ENV || 'development',
+      mode: process.env.NODE_ENV || 'production',
       entry: './src/js/index.js',
       output: {
         path: __dirname + '/dist/js',
@@ -101,7 +101,7 @@ gulp.task('bundle-scripts', () => {
 gulp.task('bundle-scripts-jq', () => {
   return gulp.src('./src/jquery/index.js')
     .pipe(webpack({
-      mode: process.env.NODE_ENV || 'development',
+      mode: process.env.NODE_ENV || 'production',
       entry: './src/jquery/index.js',
       externals: {
         jquery: 'jQuery'
@@ -125,7 +125,7 @@ gulp.task('bundle-scripts-jq', () => {
 
 // Convert Less to CSS
 gulp.task('convert-css', () => {
-  return gulp.src(['./src/less/**/*.less', '!./src/less/index.less'])
+  return gulp.src(['./src/less/**/*.less'])
     .pipe(less({
       // plugins: [ new lessImportNPM() ],
       // globalVars: pkg.src.vars
