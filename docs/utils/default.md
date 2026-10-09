@@ -28,6 +28,7 @@ Methods are publicly available as static methods on the `Utils` class.
 | -- | -- |
 | [`.addClass()`](#method-addclass) | Adds class(es) to target(s) |
 | [`.after()`](#method-after) | Inserts HTML after a target |
+| [`.afterTransition()`](#method-aftertransition) | Executes callback once an element's transition completes |
 | [`.append()`](#method-append) | Inserts HTML at the end of a target |
 | [`.before()`](#method-before) | Inserts HTML before a target |
 | [`.camelCase()`](#method-camelcase) | Converts a string to camelCase |
@@ -53,6 +54,7 @@ Methods are publicly available as static methods on the `Utils` class.
 | [`.select()`](#method-select) | Selects elements via query selector |
 | [`.setAttr()`](#method-setattr) | Sets attribute(s) |
 | [`.siblings()`](#method-siblings) | Returns siblings of an element |
+| [`.transitionTime()`](#method-transitiontime) | Returns an element's longest transition time |
 | [`.trigger()`](#method-trigger) | Triggers a custom event |
 | [`.type()`](#method-type) | Returns the native typeof of an item |
 | [`.updateAttr()`](#method-updateattr) | Preserves and updates an attribute |
@@ -461,6 +463,44 @@ Dispatches a custom event on element(s).
 <figure class="example js-example" markdown="1">
 ```js
 Utils.trigger(element, 'customEvent', {data: 'value'});
+```
+</figure>
+
+### .transitionTime() {#method-transitiontime}
+
+Returns the longest transition (duration + delay) of an element in milliseconds.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `el` | `element` | The target element |
+
+#### Returns
+
+| Type | Description |
+| -- | -- |
+| `number` | Transition time in milliseconds |
+
+### .afterTransition() {#method-aftertransition}
+
+Executes a callback once an element's transition completes. Runs immediately when the element has no transition (for example with `prefers-reduced-motion`), and falls back to a timeout because `transitionend` never fires for `0s`, interrupted, or non-rendered transitions. Only transitions on the element itself count; bubbled child transitions are ignored.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `el` | `element` | The transitioning element |
+| `cb` | `function` | Callback function, executed once |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.removeClass(dialog, 'open');
+Utils.afterTransition(dialog, () => {
+  dialog.remove();
+});
 ```
 </figure>
 

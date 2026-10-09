@@ -12,10 +12,13 @@ import {
   select,
   iterate,
   //
+  append,
+  //
   on,
   off,
   once,
   trigger,
+  afterTransition,
   //
   addClass,
   removeClass,
@@ -314,25 +317,13 @@ class Lightbox {
     off(window, 'lightbox:next', this.listeners.next);
     off(window, 'lightbox:close', this.listeners.close);
 
-    let promise = new Promise((resolve, reject) => {
-      let cb = (e) => {
-        if (!hasClass(e.target, 'fs-lightbox')) {
-          return;
-        }
-
-        off(this.lightboxEl, 'transitionend', cb);
-        // off(this.lightboxEl, 'transitioncancel', cb);
-
+    return new Promise((resolve) => {
+      afterTransition(this.lightboxEl, () => {
         this.#cleanUp();
 
         resolve(this.el);
-      };
-
-      on(this.lightboxEl, 'transitionend', cb);
-      // on(this.lightboxEl, 'transitioncancel', cb);
+      });
     });
-
-    return promise;
   }
 
   /**
@@ -731,7 +722,7 @@ class Lightbox {
 
         this.#updateStatus();
       } else {
-        once(item.el, 'transitionend', (e) => {
+        afterTransition(item.el, () => {
           this.#unloadItem(item, index);
         });
 
@@ -776,6 +767,13 @@ class Lightbox {
         addClass(item.el, 'fs-lightbox-loaded');
 
         item.isLoaded = true;
+
+        // Navigated away while loading
+        if (index !== this.index) {
+          this.#unloadItem(item, index);
+
+          return;
+        }
 
         this.#hideLoading();
       });
@@ -890,23 +888,37 @@ class Lightbox {
    * @returns {void}
    */
   #checkDetails(item, el) {
-    let details = '';
+    let hasOrdinal = (this.items.length > 1 && this.ordinal);
 
-    if (this.items.length > 1 && this.ordinal) {
+    if (!hasOrdinal && !item.caption) {
+      return;
+    }
+
+    let detailsEl = element('div');
+
+    addClass(detailsEl, 'fs-lightbox-details');
+
+    if (hasOrdinal) {
       let ordinal = this.templates.ordinal
         .replace('[current]', item.index + 1)
         .replace('[total]', this.items.length);
 
-      details += `<div class="fs-lightbox-ordinal">${ordinal}</div>`;
+      // Ordinal template is developer-defined markup
+      append(detailsEl, `<div class="fs-lightbox-ordinal">${ordinal}</div>`);
     }
 
     if (item.caption) {
-      details += `<div class="fs-lightbox-caption">${item.caption}</div>`;
+      let captionEl = element('div');
+
+      addClass(captionEl, 'fs-lightbox-caption');
+
+      // Caption comes from user-controlled attributes; never parse as HTML
+      captionEl.textContent = item.caption;
+
+      detailsEl.append(captionEl);
     }
 
-    if (details !== '') {
-      el.insertAdjacentHTML('beforeend', `<div class="fs-lightbox-details">${details}</div>`);
-    }
+    el.append(detailsEl);
   }
 
   /**

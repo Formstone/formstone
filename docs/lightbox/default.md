@@ -84,7 +84,7 @@ Data attributes provide configuration options and can be set directly on the tar
 | `data-lightbox-options` | `string` (JSON) | JSON encoded object containing [instance options](#options) |
 | `data-lightbox-gallery` | `string` | Gallery group identifier for navigation |
 | `data-lightbox-type` | `string` | Force content type: 'image', 'video', 'element', or 'url' |
-| `data-lightbox-caption` | `string` | Caption text to display |
+| `data-lightbox-caption` | `string` | Caption text to display (rendered as plain text; falls back to the `title` attribute) |
 
 
 <hr class="divider">

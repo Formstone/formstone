@@ -6,11 +6,12 @@
   "html-css-class-completion.includeGlobPattern": "wp-content/themes/**/*.{css,less,html}",
   "html-css-class-completion.excludeGlobPattern": "**/*/node_modules",
   "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#4ba6dd",
+    "titleBar.activeBackground": "#00adff",
     "titleBar.activeForeground": "#15202b",
-    "titleBar.inactiveBackground": "#4ba6dd99",
+    "titleBar.inactiveBackground": "#00adff99",
     "titleBar.inactiveForeground": "#15202b99",
-    "commandCenter.border": "#15202b99"
+    "commandCenter.border": "#15202b99",
+    "commandCenter.foreground": "#15202b"
   },
-  "peacock.color": "4BA6DD"
+  "peacock.color": "#00ADFF"
 }

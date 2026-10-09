@@ -302,6 +302,67 @@ export function trigger(target, event, detail) {
   });
 }
 
+/**
+ * Returns the longest transition (duration + delay) of an element in milliseconds
+ * @param {Element} el - The target element
+ * @returns {number} Transition time in milliseconds
+ * @example
+ * transitionTime(element); // 250
+ */
+export function transitionTime(el) {
+  let style = getComputedStyle(el);
+  let durations = style.transitionDuration.split(',');
+  let delays = style.transitionDelay.split(',');
+  let toMs = (v) => {
+    return (parseFloat(v) || 0) * (v.trim().endsWith('ms') ? 1 : 1000);
+  };
+
+  return Math.max(0, ...durations.map((d, i) => {
+    return toMs(d) + toMs(delays[i % delays.length]);
+  }));
+}
+
+/**
+ * Executes a callback once an element's transition completes
+ * Runs immediately when the element has no transition (e.g. reduced motion) and falls back to a
+ * timeout, since transitionend never fires for 0s, interrupted, or non-rendered transitions
+ * @param {Element} el - The transitioning element
+ * @param {Function} cb - Callback function to execute once
+ * @example
+ * removeClass(dialog, 'open');
+ * afterTransition(dialog, () => {
+ *   dialog.remove();
+ * });
+ */
+export function afterTransition(el, cb) {
+  let time = transitionTime(el);
+  let timer;
+
+  if (time <= 0) {
+    cb.call();
+
+    return;
+  }
+
+  let done = (e) => {
+    if (e && e.target !== el) {
+      return;
+    }
+
+    clearTimeout(timer);
+
+    off(el, 'transitionend', done);
+    off(el, 'transitioncancel', done);
+
+    cb.call();
+  };
+
+  on(el, 'transitionend', done);
+  on(el, 'transitioncancel', done);
+
+  timer = setTimeout(done, time + 50);
+}
+
 //
 
 /**
