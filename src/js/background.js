@@ -272,7 +272,7 @@ class Background {
       this.responsive = false;
 
       this.player = null;
-      this.playerReady = true;
+      this.playerReady = false; // Set by YouTube onReady
       this.playing = false;
 
       this.isVideo = (isObj(source) && (!falsey(source.mp4) || !falsey(source.ogg) || !falsey(source.webm)));
@@ -612,7 +612,10 @@ class Background {
       if (this.playerReady) {
         this.player.playVideo();
       } else {
+        // Applied by onReady; `playing` is left to onStateChange so the layer still fades in
         this.autoPlay = true;
+
+        return;
       }
     } else if (this.isVideo) {
       let video = select('video', this.container);
@@ -637,7 +640,10 @@ class Background {
       if (this.playerReady) {
         this.player.pauseVideo();
       } else {
+        // Applied by onReady
         this.autoPlay = false;
+
+        return;
       }
     } else if (this.isVideo) {
       let video = select('video', this.container);
