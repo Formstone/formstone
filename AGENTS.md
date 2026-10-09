@@ -165,7 +165,7 @@ export default Name;
 
 - **Instance storage:** the instance lives on the element as `el.<ClassName>` (e.g. `el.Swap`, `el.Tabs`). Public API calls go through it: `el.Tabs.activate()`.
 - **Options are merged in this order:** static defaults, then constructor `options`, then `data-<name>-options` JSON. The merged options are assigned directly onto the instance with `Object.assign(this, …)`.
-  - ⚠️ Because of this, **an option name must never match a method name**. Background's `mute` option currently shadows its `mute()` method.
+  - ⚠️ Because of this, **an option name must never match a method name**: the option becomes an own property that shadows the method. Background's `mute` option is the one legacy exception; its constructor moves it to `this.muted` and deletes `this.mute`. Don't add more.
 - **Per-element configuration** comes from `data-<name>-*` attributes, read via `el.dataset`.
 - **Identity:** `static #_guid` gives each instance a number, which is used for `fs-<name>-element-<guid>` classes and MediaQuery binding keys.
 - **Private members:** use `#` private fields and methods. Statics use the `#_name` prefix.

@@ -126,6 +126,11 @@ class Background {
 
     Object.assign(this, extend(true, this.constructor.#_defaults, options || {}, optionsData));
 
+    // Move the `mute` option to internal state so it doesn't shadow the mute() method
+    this.muted = this.mute;
+
+    delete this.mute;
+
     this.el = el;
     this.guid = this.constructor.#_guid++;
     this.guidClass = `fs-background-element-${this.guid}`;
@@ -411,7 +416,7 @@ class Background {
     if (this.loop) {
       video.loop = true;
     }
-    if (this.mute) {
+    if (this.muted) {
       video.muted = true;
     }
     if (this.autoPlay) {
@@ -542,7 +547,7 @@ class Background {
             this.playerReady = true;
             // data.player.setPlaybackQuality('highres');
 
-            if (this.mute) {
+            if (this.muted) {
               this.player.mute();
             }
 
@@ -666,7 +671,7 @@ class Background {
 
     // TODO trigger mute event?
 
-    this.mute = true;
+    this.muted = true;
   }
 
   // Mute / Unmute is now blocked unless the user interacts with the video
@@ -694,7 +699,7 @@ class Background {
 
     // TODO trigger unmute event?
 
-    this.mute = false;
+    this.muted = false;
   }
 
   // TODO unload method and event?
