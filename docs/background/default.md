@@ -181,7 +181,7 @@ Utils.ready(() => {
 
 ### YouTube {#demo-youtube}
 
-Create a YouTube Background by defining the `youtube` URL.
+Create a YouTube Background by defining the `youtube` URL. Watch, `youtu.be`, embed, Shorts and live URLs are supported, as well as a bare 11 character video ID; an unrecognized value logs a console warning and nothing is loaded.
 
 <figure class="demo js-editor" markdown="1">
 
@@ -238,7 +238,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
 | `alt` | `string` | `''` | Image `alt` attribute |
-| `autoPlay` | `boolean` | `true` | Autoplay video |
+| `autoPlay` | `boolean` | `true` | Autoplay video; turned off when the user prefers reduced motion (`.play()` still plays) |
 | `lazy` | `boolean` | `false` | Lazy load media on scroll |
 | `lazyOffset` | `string` | `'100px'` | Distance from bottom of window for lazy loading |
 | `loop` | `boolean` | `true` | Loop video |

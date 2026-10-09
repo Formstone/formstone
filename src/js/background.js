@@ -15,6 +15,7 @@ import {
   //
   once,
   trigger,
+  afterTransition,
   //
   addClass,
   removeClass,
@@ -131,6 +132,11 @@ class Background {
 
     delete this.mute;
 
+    // Respect reduced motion; an explicit play() still plays
+    if (this.autoPlay && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.autoPlay = false;
+    }
+
     this.el = el;
     this.guid = this.constructor.#_guid++;
     this.guidClass = `fs-background-element-${this.guid}`;
@@ -179,6 +185,8 @@ class Background {
    * el.Background.destroy();
    */
   destroy() {
+    this.destroyed = true;
+
     if (this.observer) {
       this.observer.disconnect();
       this.observer = null;
@@ -186,9 +194,20 @@ class Background {
 
     this.#unbindSources();
 
+    if (this.onLoadTimer) {
+      clearTimeout(this.onLoadTimer);
+      this.onLoadTimer = null;
+    }
+
+    if (this.player && isFn(this.player.destroy)) {
+      this.player.destroy();
+    }
+
+    this.player = null;
+
     this.container.remove();
 
-    removeClass(this.el, 'fs-background', this.guidClass);
+    removeClass(this.el, 'fs-background', 'fs-background-loaded', 'fs-background-lazy', this.guidClass);
 
     this.el.Background = null;
 
@@ -263,6 +282,10 @@ class Background {
    * });
    */
   load(source) {
+    if (falsey(source) || source === '') {
+      return;
+    }
+
     addClass(this.el, 'fs-background-loaded');
 
     if (source !== this.source) {
@@ -378,8 +401,6 @@ class Background {
     };
 
     image.src = source;
-
-    this.source = source;
   }
 
   //
@@ -470,134 +491,142 @@ class Background {
    * @returns {void}
    */
   #loadYouTube(source) {
-    // let parts = source.youtube.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
-    let parts = source.youtube.match(/(?:(?:youtube\.com|youtube-nocookie\.com)\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+    let id = parseYouTubeId(source.youtube);
 
-    this.youTubeId = parts[1];
+    if (!id) {
+      console.warn('Background: Unrecognized YouTube URL', source.youtube, this.el);
+
+      return;
+    }
+
+    this.youTubeId = id;
 
     let ytURL = 'youtube.com';
 
-    if (!source.poster) {
-      // source.poster = '//img.youtube.com/vi/' + this.youTubeId + '/0.jpg';
-      source.poster = `//img.${ytURL}/vi/${this.youTubeId}/maxresdefault.jpg`;
-    }
-
-    this.#loadImage(source.poster);
+    // Don't mutate the caller's source object
+    this.#loadImage(source.poster || `//img.${ytURL}/vi/${id}/maxresdefault.jpg`);
 
     this.layerGuid++;
 
-    if (!select(`script[src*="${ytURL}/iframe_api"]`).length) {
-      let script = element('script');
-      script.src = `//www.${ytURL}/iframe_api`;
-      document.head.append(script);
-    }
+    let layer = this.layerGuid;
 
-    if (!YouTubeReady) {
-      YouTubeQueue.push({
-        el: this,
-        source: source
-      });
-    } else {
-      let guid = `fs-background-${this.guid}-${this.layerGuid}`;
-      let media = element('div');
-      let video = element('div');
+    whenYouTubeReady(() => {
+      // Skip if destroyed or a different source was loaded while waiting for the API
+      if (this.destroyed || this.source !== source) {
+        return;
+      }
 
-      video.id = guid;
+      this.#createPlayer(layer, ytURL);
+    });
+  }
 
-      media.ariaHidden = true;
-      media.className = 'fs-background-media fs-background-embed';
-      media.style.opacity = 0;
+  /**
+   * Creates the YouTube player once the API is ready
+   * @private
+   * @param {number} layer - Layer guid reserved for the embed
+   * @param {string} ytURL - YouTube domain
+   * @returns {void}
+   */
+  #createPlayer(layer, ytURL) {
+    let guid = `fs-background-${this.guid}-${layer}`;
+    let media = element('div');
+    let video = element('div');
 
-      setAttr(media, 'data-background-layer', this.layerGuid);
+    video.id = guid;
 
-      media.append(video);
-      this.container.append(media);
+    media.ariaHidden = true;
+    media.className = 'fs-background-media fs-background-embed';
+    media.style.opacity = 0;
 
-      let options = extend(true, {}, {
-        controls: 0,
-        rel: 0,
-        showinfo: 0,
-        wmode: 'transparent',
-        enablejsapi: 1,
-        version: 3,
-        playerapiid: guid,
-        loop: (this.loop) ? 1 : 0,
-        // autoplay: 1,
-        mute: 1,
-        origin: `${window.location.protocol}//${window.location.host}`
-      }, this.youtubeOptions, {
-        autoplay: 1 // Must be enabled for initial API callbacks to fire
-      });
+    setAttr(media, 'data-background-layer', layer);
 
-      this.player = new window.YT.Player(guid, {
-        host: `https://www.${ytURL.replace('.com', '-nocookie.com')}`,
-        videoId: this.youTubeId,
-        playerVars: options,
-        events: {
-          onReady: (e) => {
-            // console.log('onReady', e);
+    media.append(video);
+    this.container.append(media);
 
-            let iframe = select('iframe', this.container);
+    let options = extend(true, {}, {
+      controls: 0,
+      rel: 0,
+      showinfo: 0,
+      wmode: 'transparent',
+      enablejsapi: 1,
+      version: 3,
+      playerapiid: guid,
+      loop: (this.loop) ? 1 : 0,
+      // autoplay: 1,
+      mute: 1,
+      origin: `${window.location.protocol}//${window.location.host}`
+    }, this.youtubeOptions, {
+      autoplay: 1 // Must be enabled for initial API callbacks to fire
+    });
 
-            setAttr(iframe, {
-              'role': 'presentation',
-              'tabindex': '-1',
-            });
+    this.player = new window.YT.Player(guid, {
+      host: `https://www.${ytURL.replace('.com', '-nocookie.com')}`,
+      videoId: this.youTubeId,
+      playerVars: options,
+      events: {
+        onReady: (e) => {
+          // console.log('onReady', e);
 
-            this.playerReady = true;
-            // data.player.setPlaybackQuality('highres');
+          let iframe = select('iframe', this.container);
 
-            if (this.muted) {
-              this.player.mute();
-            }
+          setAttr(iframe, {
+            'role': 'presentation',
+            'tabindex': '-1',
+          });
 
-            if (this.autoPlay) {
-              this.player.playVideo();
-            } else {
-              this.player.pauseVideo();
-            }
+          this.playerReady = true;
+          // data.player.setPlaybackQuality('highres');
 
-            // TODO trigger ready event?
-          },
-          onStateChange: (e) => {
-            // console.log('onStateChange', e);
-
-            // -1 = unstarted
-            //  0 = ended
-            //  1 = playing
-            //  2 = paused
-            //  3 = buffering
-            //  4 =
-            //  5 = cued
-
-            if (!this.playing && e.data === window.YT.PlayerState.PLAYING) {
-              this.playing = true;
-
-              this.#onLoad(media);
-            } else if (this.loop && this.playing && e.data === window.YT.PlayerState.ENDED) {
-              // fix looping option
-              this.player.playVideo();
-            }
-
-            // Fix for Safari's overly secure security settings
-            // this.el.find(Classes.embed)
-            //   .addClass(RawClasses.ready);
-          },
-          onPlaybackQualityChange: (e) => {
-            // console.log('onPlaybackQualityChange', e);
-          },
-          onPlaybackRateChange: (e) => {
-            // console.log('onPlaybackRateChange', e);
-          },
-          onError: (e) => {
-            // console.log('onError', e);
-          },
-          onApiChange: (e) => {
-            // console.log('onApiChange', e);
+          if (this.muted) {
+            this.player.mute();
           }
+
+          if (this.autoPlay) {
+            this.player.playVideo();
+          } else {
+            this.player.pauseVideo();
+          }
+
+          // TODO trigger ready event?
+        },
+        onStateChange: (e) => {
+          // console.log('onStateChange', e);
+
+          // -1 = unstarted
+          //  0 = ended
+          //  1 = playing
+          //  2 = paused
+          //  3 = buffering
+          //  4 =
+          //  5 = cued
+
+          if (!this.playing && e.data === window.YT.PlayerState.PLAYING) {
+            this.playing = true;
+
+            this.#onLoad(media);
+          } else if (this.loop && this.playing && e.data === window.YT.PlayerState.ENDED) {
+            // fix looping option
+            this.player.playVideo();
+          }
+
+          // Fix for Safari's overly secure security settings
+          // this.el.find(Classes.embed)
+          //   .addClass(RawClasses.ready);
+        },
+        onPlaybackQualityChange: (e) => {
+          // console.log('onPlaybackQualityChange', e);
+        },
+        onPlaybackRateChange: (e) => {
+          // console.log('onPlaybackRateChange', e);
+        },
+        onError: (e) => {
+          // console.log('onError', e);
+        },
+        onApiChange: (e) => {
+          // console.log('onApiChange', e);
         }
-      });
-    }
+      }
+    });
   }
 
   //
@@ -724,7 +753,7 @@ class Background {
   #onLoad(media) {
     let layer = getAttr(media, 'data-background-layer');
 
-    once(media, 'transitionend', (e) => {
+    afterTransition(media, () => {
       if (this.onLoadTimer) {
         clearTimeout(this.onLoadTimer);
         this.onLoadTimer = null;
@@ -748,33 +777,92 @@ class Background {
 
 };
 
-// YouTube Helper
+// YouTube Helpers
 
 /**
- * @type {boolean}
- * @private
- */
-let YouTubeReady = false;
-
-/**
- * @type {Array<{el: Background, source: Object}>}
+ * Callbacks waiting for the YouTube IFrame API
+ * @type {Function[]}
  * @private
  */
 let YouTubeQueue = [];
 
 /**
- * Processes queued YouTube backgrounds once API is ready
+ * Extracts a YouTube video ID from a URL or a bare 11 character ID
+ * @private
+ * @param {string} url - YouTube URL or video ID
+ * @returns {string|null} Video ID, or null when unrecognized
+ */
+function parseYouTubeId(url) {
+  if (typeof url !== 'string') {
+    return null;
+  }
+
+  if (/^[\w-]{11}$/.test(url)) {
+    return url;
+  }
+
+  let parts = url.match(/(?:(?:youtube\.com|youtube-nocookie\.com)\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+
+  return parts ? parts[1] : null;
+}
+
+/**
+ * Checks whether the YouTube IFrame API is loaded
+ * @private
+ * @returns {boolean} True when YT.Player is available
+ */
+function isYouTubeReady() {
+  return !!(window.YT && isFn(window.YT.Player));
+}
+
+/**
+ * Runs queued callbacks once the YouTube IFrame API is ready; safe to call more than once
  * @private
  * @returns {void}
  */
 function onYouTubeReady() {
-  YouTubeReady = true;
-
-  iterate(YouTubeQueue, (item) => {
-    item.el.load(item.source);
-  });
+  let queue = YouTubeQueue;
 
   YouTubeQueue = [];
+
+  iterate(queue, (cb) => {
+    cb.call();
+  });
+}
+
+/**
+ * Executes a callback once the YouTube IFrame API is ready, loading the API if needed
+ * @private
+ * @param {Function} cb - Callback function
+ * @returns {void}
+ */
+function whenYouTubeReady(cb) {
+  if (isYouTubeReady()) {
+    cb.call();
+
+    return;
+  }
+
+  YouTubeQueue.push(cb);
+
+  let script = select('script[src*="youtube.com/iframe_api"]')[0];
+
+  if (!script) {
+    script = element('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+
+    document.head.append(script);
+  }
+
+  // Don't rely only on the global callback, which other scripts may overwrite
+  let ready = () => {
+    if (window.YT && isFn(window.YT.ready)) {
+      window.YT.ready(onYouTubeReady);
+    }
+  };
+
+  once(script, 'load', ready);
+  ready();
 }
 
 let originalYouTubeCallback = (isFn(window.onYouTubeIframeAPIReady)) ? window.onYouTubeIframeAPIReady : null;

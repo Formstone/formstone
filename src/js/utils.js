@@ -85,10 +85,10 @@ export function isFn(v) {
 /**
  * Checks if a value is an object
  * @param {*} v - The value to check
- * @returns {boolean} True if the value is an object
+ * @returns {boolean} True if the value is an object (not null)
  */
 export function isObj(v) {
-  return (type(v) === 'object');
+  return (v !== null && type(v) === 'object');
 }
 
 /**
