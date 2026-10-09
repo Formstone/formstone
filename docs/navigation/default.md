@@ -79,8 +79,10 @@ Data attributes provide configuration options and can be set directly on the tar
 | Name | Type | Description |
 | -- | -- | -- |
 | `data-navigation-options` | `string` (JSON) | JSON encoded object containing [instance options](#options) |
-| `data-navigation-handle` | `string` | Selector for navigation handle element |
-| `data-navigation-content` | `string` | Selector for content element |
+| `data-navigation-handle` | `string` | Selector for navigation handle element (required; a console warning is logged when missing) |
+| `data-navigation-content` | `string` | Selector for content element (required for `push` and `reveal`) |
+
+While a `push`, `reveal` or `overlay` navigation is open it behaves as a modal dialog: the rest of the page is made [`inert`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/inert), which hides it from assistive technologies and keeps focus inside the navigation. Clicking outside or pressing Escape closes it and returns focus to the handle. Handles get `aria-expanded` for every type and `aria-haspopup="dialog"` for modal types.
 
 
 <hr class="divider">

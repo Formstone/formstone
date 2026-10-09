@@ -134,9 +134,21 @@ class Tabs {
     this.container = dataset.tabsContainer;
     this.group = dataset.tabsGroup;
 
+    this.contentEl = this.#getTarget(this.target);
+
+    if (!this.contentEl) {
+      console.warn('Tabs: Panel not found; tabs must link to a panel id (href="#panel")', el);
+
+      return;
+    }
+
+    this.containerEl = this.container ? select(this.container)[0] : null;
+
+    if (!this.containerEl) {
+      console.warn('Tabs: Container not found; set data-tabs-container so tabs get role="tablist"', el);
+    }
+
     this.mobileEl = element('button');
-    this.contentEl = select(this.target)[0];
-    this.containerEl = select(this.container)[0];
 
     this.handleEl = [el, this.mobileEl];
 
@@ -358,7 +370,8 @@ class Tabs {
 
       setAttr(this.el, {
         'aria-selected': isActive ? 'true' : 'false',
-        'tabindex': isActive ? '0' : '-1'
+        // The desktop tab is hidden in mobile mode, so it stays out of the tab order
+        'tabindex': (isActive && !hasClass(this.el, 'fs-tabs-mobile')) ? '0' : '-1'
       });
 
       if (select('a, button, input, [tabindex="0"]', this.contentEl).length === 0) {
@@ -439,7 +452,8 @@ class Tabs {
 
       setAttr(this.el, {
         'aria-selected': 'true',
-        'tabindex': '0'
+        // The desktop tab is hidden in mobile mode, so it stays out of the tab order
+        'tabindex': hasClass(this.el, 'fs-tabs-mobile') ? '-1' : '0'
       });
       setAttr(this.mobileEl, {
         'aria-expanded': 'true'
@@ -477,7 +491,9 @@ class Tabs {
    */
   #onKeyDown() {
     return (e) => {
-      let tabs = Array.from(select(`[role="tab"]`, this.containerEl));
+      let tabs = this.group ?
+        Array.from(select(`[data-tabs-group="${CSS.escape(this.group)}"][role="tab"]`)) :
+        (this.containerEl ? Array.from(select('[role="tab"]', this.containerEl)) : [this.el]);
       let index = tabs.indexOf(e.currentTarget);
       let next;
 
@@ -501,6 +517,20 @@ class Tabs {
   }
 
   //
+
+  /**
+   * Returns the element targeted by a hash, without building a selector
+   * @private
+   * @param {string} hash - Hash including '#'
+   * @returns {Element|null} Target element
+   */
+  #getTarget(hash) {
+    try {
+      return hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   /**
    * Enables mobile tab behavior
@@ -544,10 +574,14 @@ class Tabs {
 
     removeAttr(this.mobileEl, ['aria-controls', 'aria-expanded']);
 
-    removeAttr(this.el, [
-      'aria-hidden',
-      'tabindex'
-    ]);
+    removeAttr(this.el, 'aria-hidden');
+
+    // Restore the roving tabindex while enabled
+    if (getAttr(this.el, 'role') === 'tab') {
+      setAttr(this.el, 'tabindex', getAttr(this.el, 'aria-selected') === 'true' ? '0' : '-1');
+    } else {
+      removeAttr(this.el, 'tabindex');
+    }
   }
 
 };

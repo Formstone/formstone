@@ -130,10 +130,20 @@ class Navigation {
     // this = extend(true, this.constructor.#_defaults, options || {}, optionsData);
     this.isOpen = false;
 
-    this.handleEl = select(dataset.navigationHandle);
-    this.contentEl = select(dataset.navigationContent);
+    this.handleEl = dataset.navigationHandle ? select(dataset.navigationHandle) : [];
+    this.contentEl = dataset.navigationContent ? select(dataset.navigationContent) : [];
+
+    if (!this.handleEl.length) {
+      console.warn('Navigation: Handle not found; set data-navigation-handle', el);
+
+      return;
+    }
 
     this.isToggle = (this.type === 'toggle');
+
+    if (!this.contentEl.length && (this.type === 'push' || this.type === 'reveal')) {
+      console.warn(`Navigation: Content not found; ${this.type} navigation needs data-navigation-content`, el);
+    }
 
     let typeClass = `fs-navigation-${this.type}`;
     let gravityClass = (!this.isToggle) ? `${typeClass}-${this.gravity}` : '';
@@ -306,11 +316,11 @@ class Navigation {
         });
       }
 
-      setAttr(this.handleEl, 'aria-controls', this.elId);
-
-      if (this.isToggle) {
-        setAttr(this.handleEl, 'aria-expanded', 'false');
-      }
+      setAttr(this.handleEl, {
+        'aria-controls': this.elId,
+        'aria-expanded': 'false',
+        'aria-haspopup': this.isToggle ? false : 'dialog'
+      });
 
       // this.el.tabIndex = -1;
 
@@ -352,7 +362,8 @@ class Navigation {
 
       removeAttr(this.handleEl, [
         'aria-controls',
-        'aria-expanded'
+        'aria-expanded',
+        'aria-haspopup'
       ]);
 
       removeClass(this.el, 'fs-navigation-animated');
@@ -375,12 +386,13 @@ class Navigation {
 
       if (!this.isToggle) {
         this.#hideSiblings();
-      } else {
-        setAttr(this.handleEl, 'aria-expanded', 'true');
       }
 
-      on(document.body, 'click', this.listeners.body);
-      on(document.body, 'keydown', this.listeners.keydown);
+      setAttr(this.handleEl, 'aria-expanded', 'true');
+
+      // On document, not body: clicks on inert content target <html>
+      on(document, 'click', this.listeners.body);
+      on(document, 'keydown', this.listeners.keydown);
 
       if (!this.isOpen) {
         trigger(this.el, 'navigation:open');
@@ -408,14 +420,13 @@ class Navigation {
       removeClass(this.contentEl, this.contentOpenClasses);
 
       if (!this.isToggle) {
-        // restoreAttr(this.#getSiblings(), 'aria-hidden', 'navigation');
         this.#showSiblings();
       }
 
       setAttr(this.handleEl, 'aria-expanded', 'false');
 
-      off(document.body, 'click', this.listeners.body);
-      off(document.body, 'keydown', this.listeners.keydown);
+      off(document, 'click', this.listeners.body);
+      off(document, 'keydown', this.listeners.keydown);
 
       if (this.isOpen) {
         trigger(this.el, 'navigation:close');
@@ -430,32 +441,52 @@ class Navigation {
   //
 
   /**
-   * Gets sibling elements outside Navigation instances
+   * Gets elements outside the navigation: siblings of the element and of each ancestor up to
+   * the body, excluding other Navigation instances
    * @private
-   * @returns {Element[]} Array of sibling elements
+   * @returns {Element[]} Array of elements
    */
   #getSiblings() {
-    return siblings(this.el).filter((el) => {
-      return isU(el.Navigation);
-    });
+    let outside = [];
+
+    for (let node = this.el; node.parentElement && node !== document.body; node = node.parentElement) {
+      outside.push(...siblings(node).filter((el) => {
+        return isU(el.Navigation) && !['SCRIPT', 'STYLE', 'TEMPLATE'].includes(el.tagName);
+      }));
+    }
+
+    return outside;
   }
 
   /**
-   * Hides sibling elements from assistive technologies
+   * Makes the rest of the page inert while the modal navigation is open
+   * Inert content is hidden from assistive technologies and can't be focused or clicked,
+   * which keeps focus inside the navigation
    * @private
    * @returns {void}
    */
   #hideSiblings() {
-    updateAttr(this.#getSiblings(), 'aria-hidden', 'true', 'navigation');
+    // Only track elements this instance changes, so restoring leaves others' state alone
+    this.inertEls = this.#getSiblings().filter((el) => {
+      return !el.inert;
+    });
+
+    iterate(this.inertEls, (el) => {
+      el.inert = true;
+    });
   }
 
   /**
-   * Restores sibling element accessibility attributes
+   * Restores the rest of the page
    * @private
    * @returns {void}
    */
   #showSiblings() {
-    restoreAttr(this.#getSiblings(), 'aria-hidden', 'navigation');
+    iterate(this.inertEls, (el) => {
+      el.inert = false;
+    });
+
+    this.inertEls = [];
   }
 
   //

@@ -40,17 +40,20 @@ Create a set of tabs using links.
 <nav class="tabs_menu">
   <a href="#tab-1" class="tabs_link js-tabs"
     data-tabs-group="tabs"
+    data-tabs-container=".tabs_menu"
     data-tabs-active="true"
   >
     Tab One
   </a>
   <a href="#tab-2" class="tabs_link js-tabs"
     data-tabs-group="tabs"
+    data-tabs-container=".tabs_menu"
   >
     Tab Two
   </a>
   <a href="#tab-3" class="tabs_link js-tabs"
     data-tabs-group="tabs"
+    data-tabs-container=".tabs_menu"
   >
     Tab Three
   </a>
@@ -159,12 +162,14 @@ Set instance options by passing a valid object at initialization, or to the publ
 | `automatic` | `boolean` | `true` | Automatically activate focused tabs with keyboard navigation |
 | `label` | `string` | `'Tabs'` | Accessibility label for the tablist |
 
+Each tab must be a link to its panel's id (`href="#panel"`); a tab whose panel isn't found is skipped with a console warning.
+
 Data attributes provide configuration options and can be set directly on the target element.
 
 | Name | Type | Description |
 | -- | -- | -- |
 | `data-tabs-options` | `string` (JSON) | JSON encoded object containing [instance options](#options) |
-| `data-tabs-container` | `string` | Selector for tablist container element |
+| `data-tabs-container` | `string` | Selector for the tablist container element; required for `role="tablist"` (a console warning is logged when missing) |
 | `data-tabs-group` | `string` | Group key for related tab links |
 | `data-tabs-active` | `string` | Marks a tab as active on initialization |
 
