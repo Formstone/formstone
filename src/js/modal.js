@@ -15,6 +15,7 @@ import {
   off,
   once,
   trigger,
+  afterTransition,
   //
   addClass,
   removeClass,
@@ -239,25 +240,13 @@ class Modal {
 
     off(window, 'modal:close', this.listeners.close);
 
-    let promise = new Promise((resolve, reject) => {
-      let cb = (e) => {
-        if (!hasClass(e.target, 'fs-modal')) {
-          return;
-        }
-
-        off(this.modalEl, 'transitionend', cb);
-        // off(this.modalEl, 'transitioncancel', cb);
-
+    return new Promise((resolve) => {
+      afterTransition(this.modalEl, () => {
         this.#cleanUp();
 
         resolve(this.el);
-      };
-
-      on(this.modalEl, 'transitionend', cb);
-      // on(this.modalEl, 'transitioncancel', cb);
+      });
     });
-
-    return promise;
   }
 
   /**
