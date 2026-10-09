@@ -247,7 +247,7 @@ Utils.ready(() => {
 ```
 
 ```css
-[data-checkpoint-animation="spinner"] {
+.fs-checkpoint[data-checkpoint-animation="spinner"] {
   --opacity: 0;
   --transform: translate(0, 100%) scale(0.5) rotate(300deg);
   --duration: 0.5s;
@@ -260,7 +260,7 @@ Utils.ready(() => {
     transform var(--duration) var(--ease);
 }
 
-[data-checkpoint-animation="spinner"].fs-checkpoint-active {
+.fs-checkpoint[data-checkpoint-animation="spinner"].fs-checkpoint-active {
   --opacity: 1;
   --transform: translate(0, 0) scale(1) rotate(0deg);
 }
@@ -809,5 +809,7 @@ Classes allow deeper customization and indicate the current state of a specific 
 | -- | -- | -- |
 | `.fs-checkpoint` | `element` | Target element |
 | `.fs-checkpoint-active` | `modifier` | Indicates active state |
+
+Animation styles only apply to `.fs-checkpoint[data-checkpoint-animation]`. `.fs-checkpoint` is added by CheckPoint when an instance is enabled (never add it to markup) and removed by `.disable()` and `.destroy()`, so elements stay visible without JavaScript and after an instance is disabled or destroyed. Elements already in view when CheckPoint initializes appear without an entrance animation. Custom animations should use the same selector, as in the demo above.
 
 </div>

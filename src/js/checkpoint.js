@@ -212,6 +212,10 @@ class CheckPoint {
 
     this.deactivate();
 
+    // Reset state; deactivate() is a no-op for non-reverse instances that already activated
+    this.active = false;
+    this.hasActived = false;
+
     this.enabled = false;
 
     removeClass(this.el, 'fs-checkpoint', 'fs-checkpoint-active');

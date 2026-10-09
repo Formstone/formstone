@@ -175,6 +175,7 @@ export default Name;
   - Widgets dispatch on their element. Modal and Lightbox currently dispatch on `window`, which is a known inconsistency; don't copy it.
 - **CSS classes:**
   - All generated classes are prefixed `fs-<name>-`. State modifiers are `fs-<name>-enabled`, `-active`, `-open`, `-loaded`, etc.
+  - `fs-` classes are owned by the library: components add and remove them, and they are **never** required in (or documented for) consumer markup. Consumers select elements with their own classes (`js-…`) and `data-*` attributes. Styles must not hide or transform content unless a component-added `fs-` class is present, so content is visible without JS and after `destroy()`.
   - Class names that consumers might restyle go in the `classes` option object.
 - **Responsive behavior** goes through `MediaQuery.bind(key, query, { enter, leave })`. Any binding created in the constructor **must** be released with `MediaQuery.unbind(key)` in `destroy()`.
 - **Section separators:** a bare `//` line separates groups (statics, lifecycle, public methods, private handlers). Short labeled comments such as `// Parse JSON Options` and `// Internal Data` introduce steps inside long methods.

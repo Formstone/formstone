@@ -1,4 +1,4 @@
-/*! formstone v2.2.2 [checkpoint.scss] 2026-06-30 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.2.2 [checkpoint.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
 /**
  * $module checkpoint
  * $description Animate elements on scroll
@@ -118,11 +118,11 @@ $fs-checkpoint-scale-out: 1.25;
  *   </div>
  */
 
-[data-checkpoint-animation="fade-in"],
-[data-checkpoint-animation="fade-up"],
-[data-checkpoint-animation="fade-down"],
-[data-checkpoint-animation="fade-left"],
-[data-checkpoint-animation="fade-right"] {
+.fs-checkpoint[data-checkpoint-animation="fade-in"],
+.fs-checkpoint[data-checkpoint-animation="fade-up"],
+.fs-checkpoint[data-checkpoint-animation="fade-down"],
+.fs-checkpoint[data-checkpoint-animation="fade-left"],
+.fs-checkpoint[data-checkpoint-animation="fade-right"] {
   opacity: 0;
   transition:
     opacity var(--fs-checkpoint-duration) linear,
@@ -133,32 +133,32 @@ $fs-checkpoint-scale-out: 1.25;
   }
 }
 
-[data-checkpoint-animation="fade-up"] {
+.fs-checkpoint[data-checkpoint-animation="fade-up"] {
   transform: translateY(var(--fs-checkpoint-distance));
 }
 
-[data-checkpoint-animation="fade-down"] {
+.fs-checkpoint[data-checkpoint-animation="fade-down"] {
   transform: translateY(calc(var(--fs-checkpoint-distance) * -1));
 }
 
-[data-checkpoint-animation="fade-up"],
-[data-checkpoint-animation="fade-down"] {
+.fs-checkpoint[data-checkpoint-animation="fade-up"],
+.fs-checkpoint[data-checkpoint-animation="fade-down"] {
 
   &.fs-checkpoint-active {
     transform: translateY(0);
   }
 }
 
-[data-checkpoint-animation="fade-left"] {
+.fs-checkpoint[data-checkpoint-animation="fade-left"] {
   transform: translateX(calc(var(--fs-checkpoint-distance) * -1));
 }
 
-[data-checkpoint-animation="fade-right"] {
+.fs-checkpoint[data-checkpoint-animation="fade-right"] {
   transform: translateX(var(--fs-checkpoint-distance));
 }
 
-[data-checkpoint-animation="fade-left"],
-[data-checkpoint-animation="fade-right"] {
+.fs-checkpoint[data-checkpoint-animation="fade-left"],
+.fs-checkpoint[data-checkpoint-animation="fade-right"] {
 
   &.fs-checkpoint-active {
     transform: translateX(0);
@@ -180,11 +180,11 @@ $fs-checkpoint-scale-out: 1.25;
  *   </div>
  */
 
-[data-checkpoint-animation="zoom-in"],
-[data-checkpoint-animation="zoom-in-up"],
-[data-checkpoint-animation="zoom-in-down"],
-[data-checkpoint-animation="zoom-in-left"],
-[data-checkpoint-animation="zoom-in-right"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-up"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-down"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-left"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-right"] {
   opacity: 0;
   transition:
     opacity var(--fs-checkpoint-duration) linear,
@@ -195,37 +195,37 @@ $fs-checkpoint-scale-out: 1.25;
   }
 }
 
-[data-checkpoint-animation="zoom-in"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in"] {
   transform: translateY(0) scale(var(--fs-checkpoint-scale-in));
 }
 
-[data-checkpoint-animation="zoom-in-up"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in-up"] {
   transform: translateY(var(--fs-checkpoint-distance)) scale(var(--fs-checkpoint-scale-in));
 }
 
-[data-checkpoint-animation="zoom-in-down"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in-down"] {
   transform: translateY(calc(var(--fs-checkpoint-distance) * -1)) scale(var(--fs-checkpoint-scale-in));
 }
 
-[data-checkpoint-animation="zoom-in"],
-[data-checkpoint-animation="zoom-in-up"],
-[data-checkpoint-animation="zoom-in-down"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-up"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-down"] {
 
   &.fs-checkpoint-active {
     transform: translateY(0) scale(1);
   }
 }
 
-[data-checkpoint-animation="zoom-in-left"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in-left"] {
   transform: translateX(calc(var(--fs-checkpoint-distance) * -1)) scale(var(--fs-checkpoint-scale-in));
 }
 
-[data-checkpoint-animation="zoom-in-right"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in-right"] {
   transform: translateX(var(--fs-checkpoint-distance)) scale(var(--fs-checkpoint-scale-in));
 }
 
-[data-checkpoint-animation="zoom-in-left"],
-[data-checkpoint-animation="zoom-in-right"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-in-left"],
+.fs-checkpoint[data-checkpoint-animation="zoom-in-right"] {
 
   &.fs-checkpoint-active {
     transform: translateX(0) scale(1);
@@ -247,11 +247,11 @@ $fs-checkpoint-scale-out: 1.25;
  *   </div>
  */
 
-[data-checkpoint-animation="zoom-out"],
-[data-checkpoint-animation="zoom-out-up"],
-[data-checkpoint-animation="zoom-out-down"],
-[data-checkpoint-animation="zoom-out-left"],
-[data-checkpoint-animation="zoom-out-right"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-up"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-down"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-left"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-right"] {
   opacity: 0;
   transition:
     opacity var(--fs-checkpoint-duration) linear,
@@ -262,37 +262,37 @@ $fs-checkpoint-scale-out: 1.25;
   }
 }
 
-[data-checkpoint-animation="zoom-out"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out"] {
   transform: translateY(0) scale(var(--fs-checkpoint-scale-out));
 }
 
-[data-checkpoint-animation="zoom-out-up"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out-up"] {
   transform: translateY(var(--fs-checkpoint-distance)) scale(var(--fs-checkpoint-scale-out));
 }
 
-[data-checkpoint-animation="zoom-out-down"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out-down"] {
   transform: translateY(calc(var(--fs-checkpoint-distance) * -1)) scale(var(--fs-checkpoint-scale-out));
 }
 
-[data-checkpoint-animation="zoom-out"],
-[data-checkpoint-animation="zoom-out-up"],
-[data-checkpoint-animation="zoom-out-down"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-up"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-down"] {
 
   &.fs-checkpoint-active {
     transform: translateY(0) scale(1);
   }
 }
 
-[data-checkpoint-animation="zoom-out-left"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out-left"] {
   transform: translateX(calc(var(--fs-checkpoint-distance) * -1)) scale(var(--fs-checkpoint-scale-out));
 }
 
-[data-checkpoint-animation="zoom-out-right"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out-right"] {
   transform: translateX(var(--fs-checkpoint-distance)) scale(var(--fs-checkpoint-scale-out));
 }
 
-[data-checkpoint-animation="zoom-out-left"],
-[data-checkpoint-animation="zoom-out-right"] {
+.fs-checkpoint[data-checkpoint-animation="zoom-out-left"],
+.fs-checkpoint[data-checkpoint-animation="zoom-out-right"] {
 
   &.fs-checkpoint-active {
     transform: translateX(0) scale(1);
@@ -313,42 +313,42 @@ $fs-checkpoint-scale-out: 1.25;
  *   </div>
  */
 
-[data-checkpoint-animation="flip-up"],
-[data-checkpoint-animation="flip-down"],
-[data-checkpoint-animation="flip-left"],
-[data-checkpoint-animation="flip-right"] {
+.fs-checkpoint[data-checkpoint-animation="flip-up"],
+.fs-checkpoint[data-checkpoint-animation="flip-down"],
+.fs-checkpoint[data-checkpoint-animation="flip-left"],
+.fs-checkpoint[data-checkpoint-animation="flip-right"] {
   backface-visibility: hidden;
   transition:
     opacity var(--fs-checkpoint-duration) linear,
     transform var(--fs-checkpoint-duration) ease;
 }
 
-[data-checkpoint-animation="flip-up"] {
+.fs-checkpoint[data-checkpoint-animation="flip-up"] {
   transform: perspective(var(--fs-checkpoint-perspective)) rotateX(calc(var(--fs-checkpoint-rotate) * -1));
 }
 
-[data-checkpoint-animation="flip-down"] {
+.fs-checkpoint[data-checkpoint-animation="flip-down"] {
   transform: perspective(var(--fs-checkpoint-perspective)) rotateX(var(--fs-checkpoint-rotate));
 }
 
-[data-checkpoint-animation="flip-up"],
-[data-checkpoint-animation="flip-down"] {
+.fs-checkpoint[data-checkpoint-animation="flip-up"],
+.fs-checkpoint[data-checkpoint-animation="flip-down"] {
 
   &.fs-checkpoint-active {
     transform: perspective(var(--fs-checkpoint-perspective)) rotateX(0);
   }
 }
 
-[data-checkpoint-animation="flip-left"] {
+.fs-checkpoint[data-checkpoint-animation="flip-left"] {
   transform: perspective(var(--fs-checkpoint-perspective)) rotateY(var(--fs-checkpoint-rotate));
 }
 
-[data-checkpoint-animation="flip-right"] {
+.fs-checkpoint[data-checkpoint-animation="flip-right"] {
   transform: perspective(var(--fs-checkpoint-perspective)) rotateY(calc(var(--fs-checkpoint-rotate) * -1));
 }
 
-[data-checkpoint-animation="flip-left"],
-[data-checkpoint-animation="flip-right"] {
+.fs-checkpoint[data-checkpoint-animation="flip-left"],
+.fs-checkpoint[data-checkpoint-animation="flip-right"] {
 
   &.fs-checkpoint-active {
     transform: perspective(var(--fs-checkpoint-perspective)) rotateY(0);
