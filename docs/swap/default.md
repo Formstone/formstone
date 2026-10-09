@@ -491,7 +491,7 @@ Events are triggered on the target instance's element, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | `swap:activate` | Instance activated |
-| `swap:deactivate` | Instance deactivated |
+| `swap:deactivate` | Instance deactivated, including when another member of its `data-swap-group` activates (fired before that member's `swap:activate`) |
 | `swap:enable` | Instance enabled |
 | `swap:disable` | Instance disabled |
 

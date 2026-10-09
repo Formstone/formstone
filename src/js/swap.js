@@ -269,6 +269,16 @@ class Swap {
     removeClass(this.toggleEl, this.classes.inactive);
     addClass(this.toggleEl, this.classes.active);
 
+    // Deactivate group members first, as full deactivations (with events), so their
+    // swap:deactivate handlers run before this instance's swap:activate handlers
+    if (this.group) {
+      iterate(select(this.linked ? `${this.group}:not(${this.linked})` : this.group), (el) => {
+        if (el.Swap && !hasClass(el, this.guidClass)) {
+          el.Swap.deactivate();
+        }
+      });
+    }
+
     if (!internal) {
       trigger(this.toggleEl, 'swap:activate');
 
@@ -279,14 +289,6 @@ class Swap {
           }
         });
       }
-    }
-
-    if (this.group) {
-      iterate(select(this.linked ? `${this.group}:not(${this.linked})` : this.group), (el) => {
-        if (el.Swap && !hasClass(el, this.guidClass)) {
-          el.Swap.deactivate(true);
-        }
-      });
     }
   }
 

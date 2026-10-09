@@ -319,7 +319,7 @@ Events are triggered on the target instance's element, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | `tabs:activate` | Tab activated |
-| `tabs:deactivate` | Tab deactivated |
+| `tabs:deactivate` | Tab deactivated, including when another tab in its group activates (fired before that tab's `tabs:activate`) |
 | `tabs:disable` | Tab disabled |
 | `tabs:enable` | Tab enabled |
 
