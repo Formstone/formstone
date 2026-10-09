@@ -38,7 +38,7 @@ Cookie.set('foo', 'bar');
 Cookie.set('fizz', 'bat');
 
 console.log(Cookie.get('foo')); // bar
-console.log(Cookie.get('fizz')); // baz
+console.log(Cookie.get('fizz')); // bat
 
 Cookie.delete('foo');
 
@@ -141,7 +141,7 @@ Set global options by passing a valid object to the public [`.defaults()`](#meth
 | `domain` | `string` | `null` | Cookie domain |
 | `expires` | `number` | `604800000` | Expiration time in milliseconds (default 7 days) |
 | `path` | `string` | `null` | Cookie path |
-| `samesite` | `string` | `'Lax'` | SameSite attribute ('Strict', 'Lax', or 'None') |
+| `samesite` | `string` | `'Lax'` | SameSite attribute ('Strict', 'Lax', or 'None'); 'None' always adds `secure`, since browsers reject it otherwise |
 | `secure` | `boolean` | `null` | Secure attribute (requires HTTPS) |
 
 
@@ -184,7 +184,7 @@ Cookie.defaults({
 
 ### .set() {#method-set}
 
-Sets a cookie value.
+Sets a cookie value. The key and value are URI-encoded, and `.get()` decodes them, so values may contain characters like `;`, `=` and spaces.
 
 #### Parameters
 

@@ -78,16 +78,19 @@ class Cookie {
       expiration = date.toUTCString();
     }
 
+    // Browsers reject SameSite=None cookies that aren't Secure
+    let isNone = String(options.samesite).toLowerCase() === 'none';
+
     let domain = (options.domain) ? '; domain=' + options.domain : '';
     let expires = (expiration) ? '; expires=' + expiration : '';
-    let maxAge = (expiration) ? '; max-age=' + (options.expires / 1000) : ''; // to seconds
+    let maxAge = (expiration) ? '; max-age=' + Math.round(options.expires / 1000) : ''; // to whole seconds
     let path = (options.path) ? '; path=' + options.path : '';
     let samesite = (options.samesite) ? '; samesite=' + options.samesite : '';
-    let secure = (options.secure) ? '; secure' : '';
+    let secure = (options.secure || isNone) ? '; secure' : '';
 
     // Set Cookie
 
-    document.cookie = `${key}=${value}${expires}${maxAge}${domain}${path}${samesite}${secure}`;
+    document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}${expires}${maxAge}${domain}${path}${samesite}${secure}`;
   }
 
   /**
@@ -101,14 +104,21 @@ class Cookie {
    * }
    */
   static get(key) {
-    let keyString = `${key}=`;
+    let keyString = `${encodeURIComponent(key)}=`;
     let cookies = document.cookie.split(';');
 
     for (let i = 0; i < cookies.length; i++) {
       let cookie = cookies[i].trim();
 
       if (cookie.indexOf(keyString) === 0) {
-        return cookie.substring(keyString.length, cookie.length);
+        let value = cookie.substring(keyString.length, cookie.length);
+
+        // Cookies set elsewhere may contain malformed escape sequences
+        try {
+          return decodeURIComponent(value);
+        } catch (e) {
+          return value;
+        }
       }
     }
 

@@ -205,6 +205,8 @@ Known utils gotchas until they are fixed:
 Each `src/jquery/<module>.js` imports the core class and registers it through `adaptor.js`:
 - `widget(Class, 'Name')` adds `$.fn.name(options | 'method', …args)`.
 - `utility(Class, 'Name')` adds `$.name('staticMethod', …args)`.
+- Registrations are applied to a global `jQuery` when one exists at import time, and are also recorded so that `install($)` (exported from `formstone/jquery`) can apply them to a jQuery that isn't global, e.g. one imported in a bundler.
+- `$(el).name('method', …args)` returns the first element's result when it isn't `undefined` (e.g. the Promise from `close()`), and otherwise the jQuery collection for chaining.
 
 Adaptors must stay thin. All behavior belongs in `src/js`. When you add a component, add its adaptor and export it from both `src/js/index.js` and `src/jquery/index.js`.
 
