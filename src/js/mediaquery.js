@@ -3,9 +3,10 @@
  */
 
 import {
-  iterate,
+  isFn,
   //
   on,
+  off,
 } from './utils.js';
 
 /**
@@ -14,7 +15,20 @@ import {
  */
 class MediaQuery {
 
-  static #_bindings = {};
+  /**
+   * @typedef {Object} MediaQueryBinding
+   * @property {MediaQueryList} mq - Media query list
+   * @property {Function} handler - Change listener bound to the media query list
+   * @property {Map<string, Function>} enter - Enter callbacks by key
+   * @property {Map<string, Function>} leave - Leave callbacks by key
+   */
+
+  /**
+   * Bindings keyed by the browser-normalized media query text
+   * @type {Map<string, MediaQueryBinding>}
+   * @private
+   */
+  static #_bindings = new Map();
 
   /**
    * Binds callbacks to a media query
@@ -28,49 +42,47 @@ class MediaQuery {
    * });
    */
   static bind(key, media, data) {
-    key = this.#createKey(key);
-
     let mq = window.matchMedia(media);
-    let mqKey = this.#createKey(mq.media);
+    let binding = this.#_bindings.get(mq.media);
 
-    if (!this.#_bindings[mqKey]) {
-      this.#_bindings[mqKey] = {
+    if (!binding) {
+      binding = {
         mq: mq,
-        active: true,
-        enter: {},
-        leave: {}
+        handler: (e) => {
+          this.#onBindingChange(binding, e);
+        },
+        enter: new Map(),
+        leave: new Map()
       };
 
-      on(mq, 'change', (e) => {
-        this.#onBindingChange(e);
-      });
+      on(mq, 'change', binding.handler);
+
+      this.#_bindings.set(mq.media, binding);
     }
 
-    iterate(Object.entries(data), (entry) => {
-      let action = entry[0];
-      let cb = entry[1];
+    if (binding.enter.has(key) || binding.leave.has(key)) {
+      console.warn(`MediaQuery: '${key}' ${media} already exists and can not be bound`);
 
-      if (this.#_bindings[mqKey][action]) {
-        if (this.#_bindings[mqKey][action][key]) {
-          console.warn(`MediaQuery: '${key}' ${media} already exists and can not be bound`);
-          // TODO short circuit here?
-        } else {
-          this.#_bindings[mqKey][action][key] = cb;
-        }
-      }
-    });
+      return;
+    }
+
+    if (isFn(data.enter)) {
+      binding.enter.set(key, data.enter);
+    }
+
+    if (isFn(data.leave)) {
+      binding.leave.set(key, data.leave);
+    }
 
     // Check Match
 
-    let binding = this.#_bindings[mqKey];
+    let cb = binding[mq.matches ? 'enter' : 'leave'].get(key);
 
-    if (mq.matches && binding.enter[key]) {
-      binding.enter[key].apply(mq);
-      binding.active = true;
-    } else if (!mq.matches && binding.leave[key]) {
-      binding.leave[key].apply(mq);
-      binding.active = false;
+    if (cb) {
+      cb.apply(mq);
     }
+
+    this.#cleanUp(binding);
   }
 
   /**
@@ -86,69 +98,48 @@ class MediaQuery {
       return;
     }
 
-    key = this.#createKey(key);
+    let bindings = media ? [this.#_bindings.get(window.matchMedia(media).media)] : [...this.#_bindings.values()];
 
-    if (media) {
-      // Unbind specific MQ
-      let mqKey = this.#createKey(media);
+    for (let binding of bindings) {
+      if (binding) {
+        binding.enter.delete(key);
+        binding.leave.delete(key);
 
-      if (this.#_bindings[mqKey]) {
-        if (this.#_bindings[mqKey].enter[key]) {
-          delete this.#_bindings[mqKey].enter[key];
-        }
-
-        if (this.#_bindings[mqKey].leave[key]) {
-          delete this.#_bindings[mqKey].leave[key];
-        }
+        this.#cleanUp(binding);
       }
-    } else {
-      // Unbind all
-      iterate(Object.entries(this.#_bindings), (entry) => {
-        // let mqKey = entry[0];
-        let binding = entry[1];
+    }
+  }
 
-        if (binding.enter[key]) {
-          delete binding.enter[key];
-        }
+  /**
+   * Removes a binding and its change listener once it has no callbacks
+   * @private
+   * @param {MediaQueryBinding} binding - Binding to check
+   * @returns {void}
+   */
+  static #cleanUp(binding) {
+    if (!binding.enter.size && !binding.leave.size) {
+      off(binding.mq, 'change', binding.handler);
 
-        if (binding.leave[key]) {
-          delete binding.leave[key];
-        }
-      });
+      this.#_bindings.delete(binding.mq.media);
     }
   }
 
   /**
    * Handles media query match state changes
    * @private
+   * @param {MediaQueryBinding} binding - Binding that changed
    * @param {MediaQueryListEvent} e - Media query change event
    * @returns {void}
    */
-  static #onBindingChange(e) {
-    let mqkey = MediaQuery.#createKey(e.media);
-    let binding = this.#_bindings[mqkey];
-    let action = e.matches ? 'enter' : 'leave';
+  static #onBindingChange(binding, e) {
+    let callbacks = binding[e.matches ? 'enter' : 'leave'];
 
-    if (binding && (binding.active || (!binding.active && e.matches))) {
-      iterate(Object.entries(binding[action]), (entry) => {
-        // let key = entry[0];
-        let cb = entry[1];
-
+    // Copy first; callbacks may unbind themselves or others
+    for (let [key, cb] of [...callbacks]) {
+      if (callbacks.get(key) === cb) {
         cb.apply(binding.mq);
-      });
-
-      binding.active = true;
+      }
     }
-  }
-
-  /**
-   * Creates a normalized key from media query text
-   * @private
-   * @param {string} text - Media query text
-   * @returns {string} Normalized key string
-   */
-  static #createKey(text) {
-    return text.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '').replace(/^\s+|\s+$/g, '');
   }
 
 };

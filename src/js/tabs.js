@@ -256,6 +256,10 @@ class Tabs {
   destroy() {
     this.listeners.disable.call();
 
+    MediaQuery.unbind(this.guidClass);
+
+    this.#mobileDisable();
+
     removeClass(this.el, 'fs-tabs-tab', this.guidClass);
     removeClass(this.contentEl, 'fs-tabs-content', this.guidContent);
     removeClass(this.containerEl, 'fs-tabs-container');

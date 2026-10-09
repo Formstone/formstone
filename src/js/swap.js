@@ -165,6 +165,8 @@ class Swap {
   destroy() {
     this.disable();
 
+    MediaQuery.unbind(this.guidClass);
+
     removeClass(this.toggleEl, this.guidClass, this.guidTarget);
 
     this.el.Swap = null;

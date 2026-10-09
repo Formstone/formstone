@@ -77,7 +77,7 @@ Binds callbacks to a media query.
 
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
-| `key` | `string` (required) | `''` | Unique identifier for this binding |
+| `key` | `string` (required) | `''` | Unique identifier for this binding; binding an existing key to the same media query logs a warning and is ignored |
 | `media` | `string` (required) | `''` | Media query string (e.g., '(min-width: 768px)') |
 | `data` | `object` (required) | `{}` | Object containing `enter` and/or `leave` callback functions |
 
@@ -105,7 +105,7 @@ Unbinds callbacks from a media query.
 
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
-| `key` | `string` (required) | `''` | Unique identifier for the binding to remove |
+| `key` | `string` (required) | `''` | Identifier used with `.bind()` (exact match) |
 | `media` | `string` (optional) | `''` | Specific media query string (omit to unbind from all) |
 
 #### Examples

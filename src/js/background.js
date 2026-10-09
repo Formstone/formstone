@@ -174,6 +174,13 @@ class Background {
    * el.Background.destroy();
    */
   destroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+
+    this.#unbindSources();
+
     this.container.remove();
 
     removeClass(this.el, 'fs-background', this.guidClass);
@@ -210,6 +217,19 @@ class Background {
     this.load(source);
   }
 
+  /**
+   * Unbinds responsive image media queries
+   * @private
+   * @returns {void}
+   */
+  #unbindSources() {
+    iterate(this.sources, (source) => {
+      MediaQuery.unbind(source.key);
+    });
+
+    this.sources = null;
+  }
+
   //
 
   /**
@@ -241,8 +261,9 @@ class Background {
     addClass(this.el, 'fs-background-loaded');
 
     if (source !== this.source) {
+      this.#unbindSources();
+
       this.source = source;
-      this.sources = null;
       this.responsive = false;
 
       this.player = null;
@@ -282,19 +303,23 @@ class Background {
               mq = `(min-width: ${width}px) and (max-width: ${maxWidth}px)`;
             }
 
+            let mqKey = `background-${this.guid}-${mq}`;
+
             sources.push({
               width: width,
               url: source[key],
-              // mq: window.matchMedia(`(min-width: ${mq}px)`)
-              mediaquery: MediaQuery.bind(`background-${this.guid}-${mq}`, mq, {
-                enter: () => {
-                  this.#loadImage(source[key]);
-                }
-              })
+              key: mqKey
+            });
+
+            MediaQuery.bind(mqKey, mq, {
+              enter: () => {
+                this.#loadImage(source[key]);
+              }
             });
           }
 
-          this.sources = sources; // TODO do we need to track this way?
+          // Tracked for unbinding on reload / destroy
+          this.sources = sources;
         } else {
           // Single image
           this.#loadImage(newSource);
