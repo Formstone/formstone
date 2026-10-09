@@ -446,6 +446,7 @@ Removes event listener(s) from element(s).
 | `target` | `element|NodeList|array` | The target element(s) |
 | `event` | `string` | The event name |
 | `cb` | `function` | The event handler callback to remove |
+| `options` | `object|boolean` (optional) | Listener options; `capture` must match the value used with `.on()` |
 
 ### .trigger() {#method-trigger}
 

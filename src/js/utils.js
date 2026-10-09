@@ -280,10 +280,11 @@ export function once(target, event, cb, options) {
  * @param {Element|NodeList|Array} target - The target element(s)
  * @param {string} event - The event name
  * @param {Function} cb - The event handler callback to remove
+ * @param {Object|boolean} [options] - Event listener options (must match `capture` used with on())
  */
-export function off(target, event, cb) {
+export function off(target, event, cb, options) {
   iterate(target, (el) => {
-    el.removeEventListener(event, cb);
+    el.removeEventListener(event, cb, options || null);
   });
 }
 

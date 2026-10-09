@@ -7,6 +7,7 @@
 // import MediaQuery from './mediaquery.js';
 import {
   extend,
+  isU,
   //
   element,
   select,
@@ -181,9 +182,14 @@ class Lightbox {
     this.gallery = dataset.lightboxGallery || null;
     this.isOpen = false;
     this.isTouching = false;
+    this.isDragging = false;
     this.isRTL = this.direction == 'rtl';
 
     // Enhance trigger
+
+    this.originalRole = getAttr(this.el, 'role');
+    this.originalHaspopup = getAttr(this.el, 'aria-haspopup');
+    this.originalLabel = getAttr(this.el, 'aria-label');
 
     addClass(this.el, this.guidClass);
 
@@ -200,14 +206,7 @@ class Lightbox {
     }
 
     on(this.el, 'click', this.#onClick);
-
-    on(this.el, 'keydown', (e) => {
-      if (e.key === ' ') {
-        e.preventDefault();
-
-        this.open();
-      }
-    });
+    on(this.el, 'keydown', this.#onTriggerKeyDown);
 
     el.Lightbox = this;
   }
@@ -227,7 +226,14 @@ class Lightbox {
 
     removeClass(this.el, this.guidClass);
 
+    setAttr(this.el, {
+      role: this.originalRole || false,
+      'aria-haspopup': this.originalHaspopup || false,
+      'aria-label': this.originalLabel || false
+    });
+
     off(this.el, 'click', this.#onClick);
+    off(this.el, 'keydown', this.#onTriggerKeyDown);
 
     this.el.Lightbox = null;
 
@@ -255,7 +261,15 @@ class Lightbox {
 
       this.#buildItems();
 
+      if (!this.items.length) {
+        console.warn('Lightbox: No items to display', this.el);
+
+        return;
+      }
+
       this.maxIndex = this.items.length - 1;
+
+      this.#checkIndex();
 
       this.listeners = {
         'close': this.#onClose(),
@@ -266,6 +280,7 @@ class Lightbox {
         'pointerdown': this.#onPointerDown(),
         'pointermove': this.#onPointerMove(),
         'pointerup': this.#onPointerUp(),
+        'clickblock': this.#onClickBlock(),
         // 'zoomin': this.#onZoomIn(),
         // 'zoomout': this.#onZoomOut(),
       };
@@ -407,7 +422,7 @@ class Lightbox {
 
     this.items = [];
 
-    iterate(targets, (el, i) => {
+    iterate(targets, (el) => {
       if (el.tagName === 'A') {
         let url = window.location.href.replace(window.location.hash, '');
         let hash = el.hash;
@@ -418,14 +433,24 @@ class Lightbox {
         let isElement = (type === 'element') || (!isImage && !isVideo && (source.indexOf(url) > -1 && hash.substr(0, 1) === '#'));
         let isIframe = (type === 'url') || (!isImage && !isVideo && !isElement && source.substr(0, 4) === 'http');
 
-        if (!this.index && el == this.el) {
-          this.index = i;
+        let targetEl = isElement ? this.#getTarget(hash) : null;
+
+        if (isElement && !targetEl) {
+          console.warn(`Lightbox: Target ${hash} not found`, el);
+
+          return;
+        }
+
+        // Default to the trigger's position when no index is passed to open()
+        if (isU(this.index) && el == this.el) {
+          this.index = this.items.length;
         }
 
         this.items.push({
-          index: i,
+          index: this.items.length,
           source: el.href,
           hash: hash,
+          targetEl: targetEl,
           // type: type,
           isLoaded: false,
           isImage: isImage,
@@ -453,9 +478,15 @@ class Lightbox {
       .replace('[previous]', this.templates.previous)
       .replace('[next]', this.templates.next);
 
-    document.body.insertAdjacentHTML('beforeend', html);
+    let template = element('template');
 
-    this.lightboxEl = select('.fs-lightbox')[0];
+    template.innerHTML = html.trim();
+
+    // Keep a reference to this dialog rather than querying the page for one
+    this.lightboxEl = template.content.firstElementChild;
+
+    document.body.append(this.lightboxEl);
+
     this.closeEl = select('.fs-lightbox-close', this.lightboxEl)[0];
     this.loadingEl = select('.fs-lightbox-loading', this.lightboxEl)[0];
     this.containerEl = select('.fs-lightbox-container', this.lightboxEl)[0];
@@ -668,8 +699,6 @@ class Lightbox {
     let mediaEl = element('div');
     let frameEl = element('div');
 
-    item.targetEl = select(item.hash)[0];
-
     addClass(itemEl, 'fs-lightbox-item', `fs-lightbox-item_${index}`, 'fs-lightbox-loaded');
     addClass(wrapEl, 'fs-lightbox-wrap');
     addClass(mediaEl, 'fs-lightbox-media', 'fs-lightbox-media_element');
@@ -843,6 +872,9 @@ class Lightbox {
    * @returns {void}
    */
   #checkIndex() {
+    if (!Number.isInteger(this.index)) {
+      this.index = 0;
+    }
     if (this.index < 0) {
       this.index = this.loop ? this.maxIndex : 0;
     }
@@ -933,6 +965,34 @@ class Lightbox {
   }
 
   //
+
+  /**
+   * Returns the element targeted by a hash, without building a selector
+   * @private
+   * @param {string} hash - Hash including '#'
+   * @returns {Element|null} Target element
+   */
+  #getTarget(hash) {
+    try {
+      return document.getElementById(decodeURIComponent(hash.slice(1)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Handles Space key on lightbox trigger element
+   * @private
+   * @param {KeyboardEvent} e - Keydown event
+   * @returns {void}
+   */
+  #onTriggerKeyDown(e) {
+    if (e.key === ' ') {
+      e.preventDefault();
+
+      this.Lightbox.open();
+    }
+  }
 
   /**
    * Handles click on lightbox trigger element
@@ -1048,24 +1108,26 @@ class Lightbox {
    */
   #onPointerDown() {
     return (e) => {
+      // A new gesture clears any click blocker left by a drag that produced no click
+      off(this.containerEl, 'click', this.listeners.clickblock, true);
+
       if (
-        !hasClass(e.target, 'fs-lightbox-trigger-previous') &&
-        !hasClass(e.target, 'fs-lightbox-trigger-next') &&
-        !hasClass(e.target, 'fs-lightbox-trigger-close') &&
-        e.target.tagName !== 'A' // don't act on links
+        hasClass(e.target, 'fs-lightbox-trigger-previous') ||
+        hasClass(e.target, 'fs-lightbox-trigger-next') ||
+        hasClass(e.target, 'fs-lightbox-trigger-close') ||
+        e.target.closest('a, button, input, select, textarea, label, [contenteditable]') // don't act on interactive elements
       ) {
-        this.isTouching = true;
-        this.pointerStartX = e.clientX;
-        this.pointerStartY = e.clientY;
-
-        this.containerEl.setPointerCapture(e.pointerId);
-
-        addClass(this.containerEl, 'fs-lightbox-touching');
-
-        on(this.containerEl, 'pointermove', this.listeners.pointermove);
-        on(this.containerEl, 'pointerup', this.listeners.pointerup);
-        on(this.containerEl, 'pointercancel', this.listeners.pointerup);
+        return;
       }
+
+      this.isTouching = true;
+      this.isDragging = false;
+      this.pointerStartX = e.clientX;
+      this.pointerStartY = e.clientY;
+
+      on(this.containerEl, 'pointermove', this.listeners.pointermove);
+      on(this.containerEl, 'pointerup', this.listeners.pointerup);
+      on(this.containerEl, 'pointercancel', this.listeners.pointerup);
     }
   }
 
@@ -1077,17 +1139,22 @@ class Lightbox {
   #onPointerMove() {
     return (e) => {
       let item = this.items[this.index];
-
-      // if (item.zoomed) {
-      //   // handle pan
-      //   let diffX = -(this.pointerStartX - e.clientX);
-      //   let diffY = -(this.pointerStartY - e.clientY);
-
-      // } else {
       let diff = -(this.pointerStartX - e.clientX);
 
+      // Only capture once the pointer has moved, so taps still click their target
+      if (!this.isDragging) {
+        if (Math.abs(diff) < 10) {
+          return;
+        }
+
+        this.isDragging = true;
+
+        this.containerEl.setPointerCapture(e.pointerId);
+
+        addClass(this.containerEl, 'fs-lightbox-touching');
+      }
+
       item.el.style.transform = `translate3d(${diff}px, 0, 0)`;
-      // }
     }
   }
 
@@ -1100,20 +1167,25 @@ class Lightbox {
     return (e) => {
       let item = this.items[this.index];
 
-      removeClass(this.containerEl, 'fs-lightbox-touching');
-
       off(this.containerEl, 'pointermove', this.listeners.pointermove);
       off(this.containerEl, 'pointerup', this.listeners.pointerup);
       off(this.containerEl, 'pointercancel', this.listeners.pointerup);
 
-      // if (item.zoomed) {
-      //   // handle pan
-      // } else {
+      this.isTouching = false;
+
+      if (!this.isDragging) {
+        return;
+      }
+
+      this.isDragging = false;
+
+      removeClass(this.containerEl, 'fs-lightbox-touching');
+
       let diff = this.pointerStartX - e.clientX;
 
       item.el.style.transform = null;
 
-      if (Math.abs(diff) > this.threshold) {
+      if (e.type === 'pointerup' && Math.abs(diff) > this.threshold) {
         if (diff < 0) {
           if (this.isRTL) {
             this.next();
@@ -1129,13 +1201,24 @@ class Lightbox {
           }
         }
       }
-      // }
 
-      this.isTouching = false;
+      // The drag captured the pointer, so its click targets the container (which closes); block it
+      if (e.type === 'pointerup') {
+        on(this.containerEl, 'click', this.listeners.clickblock, true);
+      }
+    }
+  }
 
-      once(this.containerEl, 'click', (e) => {
-        e.stopPropagation(); // prevent closing when swiping
-      }, true);
+  /**
+   * Returns click handler that swallows the click ending a drag
+   * @private
+   * @returns {(e: MouseEvent) => void} Event handler function
+   */
+  #onClickBlock() {
+    return (e) => {
+      e.stopPropagation();
+
+      off(this.containerEl, 'click', this.listeners.clickblock, true);
     }
   }
 

@@ -86,6 +86,8 @@ Data attributes provide configuration options and can be set directly on the tar
 | `data-lightbox-type` | `string` | Force content type: 'image', 'video', 'element', or 'url' |
 | `data-lightbox-caption` | `string` | Caption text to display (rendered as plain text; falls back to the `title` attribute) |
 
+Gallery links whose `#hash` target doesn't exist are skipped with a console warning.
+
 
 <hr class="divider">
 
@@ -235,7 +237,7 @@ Opens lightbox at specified index.
 
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
-| `index` | `number` (optional) | `undefined` | Starting index |
+| `index` | `number` (optional) | `undefined` | Zero-based starting index; out-of-range values are clamped. Defaults to the trigger's position in its gallery |
 
 #### Examples
 

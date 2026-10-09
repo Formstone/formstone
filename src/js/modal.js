@@ -8,6 +8,7 @@
 import {
   extend,
   //
+  element,
   select,
   iterate,
   //
@@ -128,6 +129,10 @@ class Modal {
 
     // Enhance trigger
 
+    this.originalRole = getAttr(this.el, 'role');
+    this.originalHaspopup = getAttr(this.el, 'aria-haspopup');
+    this.originalLabel = getAttr(this.el, 'aria-label');
+
     addClass(this.el, this.guidClass);
 
     setAttr(this.el, {
@@ -140,14 +145,7 @@ class Modal {
     }
 
     on(this.el, 'click', this.#onClick);
-
-    on(this.el, 'keydown', (e) => {
-      if (e.key === ' ') {
-        e.preventDefault();
-
-        this.open();
-      }
-    });
+    on(this.el, 'keydown', this.#onTriggerKeyDown);
 
     el.Modal = this;
   }
@@ -164,7 +162,14 @@ class Modal {
 
     removeClass(this.el, this.guidClass);
 
+    setAttr(this.el, {
+      role: this.originalRole || false,
+      'aria-haspopup': this.originalHaspopup || false,
+      'aria-label': this.originalLabel || false
+    });
+
     off(this.el, 'click', this.#onClick);
+    off(this.el, 'keydown', this.#onTriggerKeyDown);
 
     this.el.Modal = null;
 
@@ -187,9 +192,11 @@ class Modal {
       }
 
       this.hash = this.el.hash;
-      this.targetEl = select(this.hash)[0];
+      this.targetEl = this.#getTarget(this.hash);
 
       if (!this.targetEl) {
+        console.warn(`Modal: Target ${this.hash} not found`, this.el);
+
         return;
       }
 
@@ -283,9 +290,15 @@ class Modal {
     let html = this.templates.container
       .replace('[close]', this.templates.close);
 
-    document.body.insertAdjacentHTML('beforeend', html);
+    let template = element('template');
 
-    this.modalEl = select('.fs-modal')[0];
+    template.innerHTML = html.trim();
+
+    // Keep a reference to this dialog rather than querying the page for one
+    this.modalEl = template.content.firstElementChild;
+
+    document.body.append(this.modalEl);
+
     this.overlayEl = select('.fs-modal-overlay', this.modalEl)[0];
     this.closeEl = select('.fs-modal-close', this.modalEl)[0];
     this.containerEl = select('.fs-modal-container', this.modalEl)[0];
@@ -306,6 +319,34 @@ class Modal {
   }
 
   //
+
+  /**
+   * Returns the element targeted by a hash, without building a selector
+   * @private
+   * @param {string} hash - Hash including '#'
+   * @returns {Element|null} Target element
+   */
+  #getTarget(hash) {
+    try {
+      return document.getElementById(decodeURIComponent(hash.slice(1)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Handles Space key on modal trigger element
+   * @private
+   * @param {KeyboardEvent} e - Keydown event
+   * @returns {void}
+   */
+  #onTriggerKeyDown(e) {
+    if (e.key === ' ') {
+      e.preventDefault();
+
+      this.Modal.open();
+    }
+  }
 
   /**
    * Handles click on modal trigger element
