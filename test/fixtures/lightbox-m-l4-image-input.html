@@ -1,0 +1,10 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/lightbox.css"></head><body>
+<a id="i1" href="/test/fixtures/assets/img.svg?1" data-lightbox-type="image" data-lightbox-gallery="i">one</a>
+<a id="i2" href="/test/fixtures/assets/img.svg?2" data-lightbox-type="image" data-lightbox-gallery="i">two</a>
+<script type="module">
+import { Lightbox } from '/src/js/index.js';
+Lightbox.construct('#i1, #i2');
+window.rect = (sel) => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top), bottom: Math.round(r.bottom) }; };
+window.state = () => ({ open: !!document.querySelector('dialog.fs-lightbox[open]'), active: [...document.querySelectorAll('.fs-lightbox-item')].findIndex((i) => i.classList.contains('fs-lightbox-active')) });
+window.T_READY = true;
+</script></body></html>

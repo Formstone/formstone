@@ -10,6 +10,10 @@ node_cache/*
 node_modules/*
 npm-debug.log
 
+# Tests
+test-results/
+playwright-report/
+
 # Editor
 .idea
 

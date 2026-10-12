@@ -1,0 +1,48 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/lightbox.css"><link rel="stylesheet" href="/src/css/modal.css"></head><body>
+<div class="fs-modal" id="decoy">stray element with the dialog class</div>
+<a id="g1" href="/test/fixtures/assets/img.svg" data-lightbox-type="image" data-lightbox-gallery="g">one</a>
+<a id="g2" href="#missing" data-lightbox-gallery="g">missing target</a>
+<a id="g3" href="#1abc" data-lightbox-gallery="g">digit id</a>
+<a id="g4" href="/test/fixtures/assets/img.svg" data-lightbox-type="image" data-lightbox-gallery="g">four</a>
+<div id="1abc"><p>element content</p></div>
+<a id="mt" href="#1m">modal</a><div id="1m"><p id="mcontent">modal content</p></div>
+<script type="module">
+import { Lightbox, Modal } from '/src/js/index.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const $ = (id) => document.getElementById(id);
+const r = { errors: [] };
+addEventListener('error', (e) => r.errors.push(e.message));
+addEventListener('unhandledrejection', (e) => r.errors.push('rejection: ' + (e.reason && e.reason.message)));
+const lb = () => ({ dialogs: document.querySelectorAll('dialog.fs-lightbox').length, items: document.querySelectorAll('.fs-lightbox-item').length, active: [...document.querySelectorAll('.fs-lightbox-item')].findIndex((i) => i.classList.contains('fs-lightbox-active')), ordinal: (document.querySelector('.fs-lightbox-active .fs-lightbox-ordinal') || {}).textContent });
+const closeAll = async () => { for (const id of ['g1', 'g2', 'g3', 'g4']) if ($(id).Lightbox && $(id).Lightbox.isOpen) await $(id).Lightbox.close(); await wait(100); };
+try {
+  Lightbox.construct('#g1, #g2, #g3, #g4');
+  $('g4').click(); await wait(500);
+  r.openFromG4 = lb();
+  await closeAll();
+  $('g4').Lightbox.open(0); await wait(500);
+  r.open0 = lb();
+  await closeAll();
+  $('g1').Lightbox.open(99); await wait(500);
+  r.open99 = lb();
+  document.querySelector('.fs-lightbox-container') && document.querySelector('.fs-lightbox-container').click(); await wait(400);
+  r.afterContainerClick = { dialogs: document.querySelectorAll('dialog.fs-lightbox').length };
+  await closeAll();
+  r.digitIdContentBack = !!$('1abc').querySelector('p');
+  $('g1').Lightbox.destroy();
+  $('g1').dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })); await wait(400);
+  r.lightboxAfterDestroySpace = { dialogs: document.querySelectorAll('dialog.fs-lightbox').length, role: $('g1').getAttribute('role'), haspopup: $('g1').getAttribute('aria-haspopup'), label: $('g1').getAttribute('aria-label') };
+  await closeAll();
+} catch (e) { r.errors.push('lightbox: ' + e.message); }
+try {
+  Modal.construct('#mt');
+  $('mt').click(); await wait(400);
+  const dlg = document.querySelector('dialog.fs-modal');
+  r.modal = { opened: !!(dlg && dlg.open), contentInDialog: !!(dlg && dlg.querySelector('#mcontent')), decoyUntouched: !$('decoy').querySelector('#mcontent') && !$('decoy').classList.contains('fs-modal-open') };
+  await $('mt').Modal.close(); await wait(100);
+  $('mt').Modal.destroy();
+  $('mt').dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })); await wait(400);
+  r.modalAfterDestroySpace = { opened: !!document.querySelector('dialog.fs-modal'), role: $('mt').getAttribute('role'), label: $('mt').getAttribute('aria-label') };
+} catch (e) { r.errors.push('modal: ' + e.message); }
+window.R = JSON.stringify(r);
+</script></body></html>

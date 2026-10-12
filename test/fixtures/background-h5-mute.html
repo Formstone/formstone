@@ -1,0 +1,32 @@
+<!doctype html><html><meta charset="utf-8"><body>
+<div id="a"></div><div id="b"></div><div id="c" data-background-options='{"mute": false}'></div>
+<script type="module">
+import Background from '/src/js/background.js';
+const r = {};
+const vid = (id) => document.querySelector('#' + id + ' video');
+const tryIt = (fn) => { try { fn(); return 'ok'; } catch (e) { return e.message; } };
+const src = { mp4: '/test/fixtures/assets/none.mp4' };
+window.T = {
+  async setup() {
+    new Background(document.querySelector('#a'), { source: src });
+    const a = document.querySelector('#a').Background;
+    r.defaultMuted = vid('a') && vid('a').muted;
+    r.typeofMute = typeof a.mute;
+    r.unmute = tryIt(() => a.unmute()); r.afterUnmute = vid('a').muted;
+    r.mute = tryIt(() => a.mute()); r.afterMute = vid('a').muted;
+    r.mute2 = tryIt(() => a.mute());
+    r.unmute2 = tryIt(() => a.unmute()); r.afterUnmute2 = vid('a').muted;
+    new Background(document.querySelector('#b'), { source: src, mute: false });
+    r.optionFalse = vid('b') && vid('b').muted;
+    new Background(document.querySelector('#c'), { source: src });
+    r.dataOptionFalse = vid('c') && vid('c').muted;
+    Background.defaults({ mute: false });
+    const d = document.createElement('div'); document.body.append(d);
+    new Background(d, { source: src });
+    r.defaultsFalse = d.querySelector('video') && d.querySelector('video').muted;
+    r.defaultsTypeofMute = typeof d.Background.mute;
+  },
+  async wide() {}, async narrow() { return JSON.stringify(r); }
+};
+window.T_READY = true;
+</script></body></html>

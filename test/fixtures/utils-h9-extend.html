@@ -1,0 +1,20 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/lightbox.css"></head><body>
+<a id="yt" class="lb" href="https://www.youtube.com/watch?v=abcdefghijk">YouTube</a>
+<a id="pg" class="lb" data-lightbox-type="" href="/test/fixtures/assets/frame.html">Page</a>
+<script type="module">
+import Lightbox from '/src/js/lightbox.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const r = {};
+Lightbox.defaults({ videoProviders: { youtube: { format: (parts) => '/test/fixtures/assets/custom-' + parts[2] } } });
+Lightbox.construct('.lb');
+const open = async (id) => {
+  const el = document.getElementById(id); el.click(); await wait(600);
+  const item = document.querySelector('.fs-lightbox-item');
+  const iframe = document.querySelector('.fs-lightbox iframe');
+  const res = { itemClass: item && item.className.replace(/fs-lightbox-(item|active|loaded)\b ?/g, '').trim(), iframeSrc: iframe && iframe.getAttribute('data-src') };
+  await el.Lightbox.close(); await wait(100);
+  return res;
+};
+try { r.youtube = await open('yt'); r.page = await open('pg'); } catch (e) { r.error = String(e); }
+window.R = JSON.stringify(r);
+</script></body></html>

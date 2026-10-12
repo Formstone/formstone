@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body>
+<ul id="list"><li>1</li><li>2</li><li>3</li></ul>
+<form id="f"><input name="a"><input name="b"></form><select id="s"><option>1</option><option>2</option></select>
+<div class="x" data-a="1"></div><div class="x" data-a="1"></div>
+<script type="module">
+import * as U from '/src/js/utils.js';
+const r = { errors: [] };
+const count = (t) => { try { return U.iterable(t).length; } catch (e) { return 'ERR ' + e.message; } };
+const list = document.getElementById('list');
+r.U3_counts = { HTMLCollection: count(list.children), Set: count(new Set([1, 2])), NodeList: count(list.querySelectorAll('li')), Array: count([1, 2, 3]), form: count(document.getElementById('f')), select: count(document.getElementById('s')), string: count('abc'), window: count(window), element: count(list), null: count(null) };
+try { let n = 0; U.on(list.children, 'click', () => n++); list.children[1].click(); r.U3_onHTMLCollection = n; } catch (e) { r.U3_onHTMLCollection = 'ERR ' + e.message; }
+const got = []; list.addEventListener('t', (e) => got.push(e.detail));
+for (const d of [0, false, '', null, undefined, { a: 1 }]) U.trigger(list, 't', d);
+r.U4_triggerDetails = got;
+U.setAttr(document.querySelectorAll('.x'), 'data-a', false);
+r.U4_setAttrFalseyRemoves = [...document.querySelectorAll('.x')].map((e) => e.hasAttribute('data-a'));
+window.R = JSON.stringify(r);
+</script></body></html>

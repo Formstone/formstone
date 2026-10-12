@@ -1,0 +1,17 @@
+<!doctype html><html><meta charset="utf-8"><body><script>
+window.cookieWrites = [];
+const d = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+Object.defineProperty(document, 'cookie', { get() { return d.get.call(document); }, set(v) { cookieWrites.push(v); d.set.call(document, v); } });
+</script><script type="module">
+import Cookie from '/src/js/cookie.js';
+const r = { errors: [] };
+const t = (l, f) => { try { r[l] = f(); } catch (e) { r.errors.push(l + ': ' + e.message); } };
+t('semicolonValue', () => { Cookie.set('a', 'x;y'); return Cookie.get('a'); });
+t('equalsInKey', () => { Cookie.set('k=1', 'v'); return Cookie.get('k=1'); });
+t('unicode', () => { Cookie.set('u', 'ümlaut & space'); return Cookie.get('u'); });
+t('sameSiteNone', () => { Cookie.set('n', 'v', { samesite: 'None' }); return { value: Cookie.get('n'), written: cookieWrites[cookieWrites.length - 1].replace(/expires=[^;]*; /, '') }; });
+t('malformedForeign', () => { document.cookie = 'raw=%E0%A4%A; path=/'; return Cookie.get('raw'); });
+t('maxAge', () => { Cookie.set('m', '1', { expires: 1500 }); return cookieWrites[cookieWrites.length - 1].match(/max-age=[^;]*/)[0]; });
+t('delete', () => { Cookie.delete('a'); return Cookie.get('a'); });
+window.R = JSON.stringify(r);
+</script></body></html>

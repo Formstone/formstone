@@ -1,0 +1,15 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/lightbox.css"></head><body>
+<a id="g1" href="#el1" data-lightbox-type="element" data-lightbox-gallery="g">element</a>
+<a id="g2" href="#el2" data-lightbox-type="element" data-lightbox-gallery="g">element 2</a>
+<div id="el1"><div style="width:400px;height:300px;background:#eee;padding:20px"><p id="txt">Some text</p><button id="btn" type="button">Press</button> <input id="inp"></div></div>
+<div id="el2"><div style="width:400px;height:300px;background:#ddd;padding:20px"><p id="txt2">Second</p><button id="btn2" type="button">Press 2</button></div></div>
+<script type="module">
+import { Lightbox } from '/src/js/index.js';
+window.clicks = { btn: 0, btn2: 0 };
+document.addEventListener('click', (e) => { if (e.target.id in clicks) clicks[e.target.id]++; }, true);
+document.getElementById('el1').addEventListener('click', () => {}, false);
+Lightbox.construct('#g1, #g2', { });
+window.rect = (sel) => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), w: Math.round(r.width), h: Math.round(r.height) }; };
+window.state = () => ({ open: !!document.querySelector('dialog.fs-lightbox[open]'), active: [...document.querySelectorAll('.fs-lightbox-item')].findIndex((i) => i.classList.contains('fs-lightbox-active')), clicks: { ...clicks } });
+window.T_READY = true;
+</script></body></html>

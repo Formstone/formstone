@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/src/css/navigation.css"><link rel="stylesheet" href="/src/css/checkpoint.css"></head><body>
+<div id="scroller" style="height:200px;overflow:auto"><div style="height:50px"></div><div id="cp" data-checkpoint-animation="fade-in" data-checkpoint-parent="#scroller" style="height:20px">cp</div><div style="height:2000px"></div></div>
+<button id="opener" type="button">open programmatically</button>
+<button id="h1" type="button">menu</button><nav id="n1" data-navigation-handle="#h1"><a href="#a">a</a></nav>
+<input id="outside" value="outside">
+<div id="h2">div handle</div><nav id="n2" data-navigation-handle="#h2"><a href="#b">b</a></nav>
+<a id="ta" href="#pa" data-tabs-container="#tc1">A</a><a id="tb" href="#pb" data-tabs-container="#tc2">B</a><div id="tc1"></div><div id="tc2"></div><div id="pa">pa</div><div id="pb">pb</div>
+<script type="module">
+import { Navigation, Tabs, CheckPoint } from '/src/js/index.js';
+window.wait = (ms) => new Promise(r => setTimeout(r, ms));
+window.$ = (id) => document.getElementById(id);
+window.errors = []; addEventListener('error', (e) => errors.push(e.message));
+window.rect = (id) => { const r = $(id).getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) }; };
+$('scroller').scrollTop = 1000;
+new CheckPoint($('cp'));
+new Navigation($('n1'), { type: 'toggle', maxWidth: '100000px' });
+new Navigation($('n2'), { type: 'toggle', maxWidth: '100000px' });
+$('opener').addEventListener('click', () => $('n1').Navigation.open());
+window.tabEvents = { enable: 0, disable: 0 };
+for (const id of ['ta', 'tb']) { $(id).addEventListener('tabs:enable', () => tabEvents.enable++); $(id).addEventListener('tabs:disable', () => tabEvents.disable++); }
+Tabs.construct('#ta, #tb', { mobileMaxWidth: '1px' });
+window.T_READY = true;
+</script></body></html>

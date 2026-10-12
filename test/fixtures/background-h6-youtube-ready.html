@@ -1,0 +1,58 @@
+<!doctype html><html><meta charset="utf-8"><head>
+<script type="text/plain" src="//www.youtube.com/iframe_api"></script>
+<script>
+  // Stub YouTube API: records calls, test fires events manually
+  window.players = [];
+  window.YT = { PlayerState: { PLAYING: 1, ENDED: 0 }, Player: class {
+    constructor(id, cfg) { this.cfg = cfg; this.calls = []; players.push(this); }
+    playVideo() { this.calls.push('play'); } pauseVideo() { this.calls.push('pause'); }
+    mute() { this.calls.push('mute'); } unMute() { this.calls.push('unmute'); }
+  } };
+</script></head><body>
+<div id="q" style="width:50px;height:50px"></div><div id="r" style="width:50px;height:50px"></div><div id="p" style="width:50px;height:50px"></div>
+<script type="module">
+import Background from '/src/js/background.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const tryIt = (fn) => { try { fn(); return 'ok'; } catch (e) { return e.message; } };
+const r = {};
+const yt = (id) => ({ youtube: `https://youtu.be/${id}` });
+const embedOpacity = (el) => { const m = el.querySelector('.fs-background-embed'); return m ? m.style.opacity : 'no-embed'; };
+window.T = {
+  async setup() {
+    // Path 1: API not ready yet (queued)
+    new Background(document.querySelector('#q'), { source: yt('aaaaaaaaaaa'), autoPlay: false });
+    const q = document.querySelector('#q').Background;
+    r.queued = { play: tryIt(() => q.play()), pause: tryIt(() => q.pause()), mute: tryIt(() => q.mute()), unmute: tryIt(() => q.unmute()), play2: tryIt(() => q.play()) };
+    window.onYouTubeIframeAPIReady();
+    await wait(50);
+    const pq = players[0];
+    if (pq) { pq.cfg.events.onReady({}); pq.cfg.events.onStateChange({ data: 1 }); }
+    r.queuedPlayerCalls = pq ? pq.calls : 'no player';
+    r.queuedEmbedOpacity = embedOpacity(document.querySelector('#q'));
+
+    // Path 2: API ready, player created but not ready
+    new Background(document.querySelector('#r'), { source: yt('bbbbbbbbbbb'), autoPlay: false });
+    const rb = document.querySelector('#r').Background;
+    r.notReady = { play: tryIt(() => rb.play()), mute: tryIt(() => rb.mute()) };
+    const pr = players[players.length - 1];
+    pr.cfg.events.onReady({});
+    pr.cfg.events.onStateChange({ data: 1 });
+    r.notReadyPlayerCalls = pr.calls;
+    r.notReadyEmbedOpacity = embedOpacity(document.querySelector('#r'));
+    r.notReadyPlaying = rb.playing;
+
+    // Path 3: pause before ready, with autoPlay on
+    new Background(document.querySelector('#p'), { source: yt('ccccccccccc') });
+    const pb = document.querySelector('#p').Background;
+    r.pauseBeforeReady = tryIt(() => pb.pause());
+    const pp = players[players.length - 1];
+    pp.cfg.events.onReady({});
+    r.pauseBeforeReadyCalls = pp.calls;
+
+    // After ready: direct control
+    r.afterReady = { pause: tryIt(() => rb.pause()), play: tryIt(() => rb.play()), calls: pr.calls.slice(-2) };
+  },
+  async wide() {}, async narrow() { return JSON.stringify(r); }
+};
+window.T_READY = true;
+</script></body></html>

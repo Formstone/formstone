@@ -1,0 +1,32 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/checkpoint.css">
+<style>div { height: 60px; margin: 4px; background: #ccc; }</style></head><body>
+<div id="a" data-checkpoint-animation="fade-up">A in view</div>
+<div id="d" data-checkpoint-animation="zoom-in">D in view, destroyed</div>
+<div id="n" data-checkpoint-animation="fade-in">N never constructed (no JS)</div>
+<div style="height: 3000px; background: none"></div>
+<div id="b" data-checkpoint-animation="fade-up">B below fold</div>
+<script type="module">
+import CheckPoint from '/src/js/checkpoint.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const $ = (s) => document.querySelector(s);
+const op = (id) => getComputedStyle($('#' + id)).opacity;
+const r = {};
+window.T = {
+  async setup() {
+    CheckPoint.construct('#a, #d, #b');
+    await wait(800);
+    r.activated = { aOpacity: op('a'), aActive: $('#a').CheckPoint.active, belowFoldOpacity: op('b'), belowFoldActive: $('#b').CheckPoint.active };
+    r.noJsOpacity = op('n');
+    $('#a').CheckPoint.disable(); await wait(800);
+    r.afterDisable = { opacity: op('a'), active: $('#a').CheckPoint.active };
+    $('#a').CheckPoint.enable(); await wait(800);
+    r.afterReEnable = { opacity: op('a'), active: $('#a').CheckPoint.active };
+    $('#d').CheckPoint.destroy(); await wait(800);
+    r.afterDestroy = { opacity: op('d') };
+    $('#b').scrollIntoView(); await wait(800);
+    r.belowFoldAfterScroll = { opacity: op('b'), active: $('#b').CheckPoint.active };
+  },
+  async wide() {}, async narrow() { return JSON.stringify(r); }
+};
+window.T_READY = true;
+</script></body></html>

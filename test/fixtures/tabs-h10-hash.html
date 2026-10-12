@@ -1,0 +1,18 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/tabs.css"></head><body>
+<div id="c1"><a id="t1" href="#p1" data-tabs-group="g" data-tabs-container="#c1">One</a><a id="t2" href="#p2" data-tabs-group="g" data-tabs-container="#c1">Two</a><a id="t3" href="#p3" data-tabs-group="g" data-tabs-container="#c1" data-tabs-active="true">Three</a></div>
+<div id="p1">P1</div><div id="p2">P2</div><div id="p3">P3</div>
+<div id="c2"><a id="q1" href="#r1" data-tabs-group='x"y' data-tabs-container="#c2" data-tabs-active="true">Q1</a><a id="q2" href="#r2" data-tabs-group='x"y' data-tabs-container="#c2">Q2</a></div>
+<div id="r1">R1</div><div id="r2">R2</div>
+<script type="module">
+import Tabs from '/src/js/tabs.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const r = { hash: location.hash, errors: [] };
+const state = (ids) => Object.fromEntries(ids.map((id) => [id, document.getElementById(id).getAttribute('aria-selected')]));
+const panels = (ids) => ids.filter((id) => document.getElementById(id).classList.contains('fs-tabs-active'));
+try { Tabs.construct('#t1, #t2, #t3'); } catch (e) { r.errors.push('group g: ' + e.message); }
+try { Tabs.construct('#q1, #q2'); } catch (e) { r.errors.push('group x"y: ' + e.message); }
+await wait(100);
+r.groupG = { selected: state(['t1', 't2', 't3']), activePanels: panels(['p1', 'p2', 'p3']) };
+try { document.getElementById('q2').click(); await wait(50); r.quoteGroup = { selected: state(['q1', 'q2']), activePanels: panels(['r1', 'r2']) }; } catch (e) { r.errors.push('click: ' + e.message); }
+window.R = JSON.stringify(r);
+</script></body></html>

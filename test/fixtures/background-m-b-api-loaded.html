@@ -1,0 +1,30 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/background.css">
+<script type="text/plain" src="https://www.youtube.com/iframe_api"></script>
+<script>window.players = []; window.makeYT = () => ({ PlayerState: { PLAYING: 1, ENDED: 0 }, Player: class { constructor(id, cfg) { this.id = id; this.cfg = cfg; this.calls = []; players.push(this); } playVideo() { this.calls.push("play"); } pauseVideo() { this.calls.push("pause"); } mute() { this.calls.push("mute"); } unMute() {} destroy() { this.calls.push("destroy"); } } }); window.YT = makeYT();</script></head><body>
+<div id="u1"></div><div id="u2"></div><div id="u3"></div><div id="u4"></div><div id="u5"></div><div id="u6"></div><div id="d" style="width:50px;height:50px"></div><div id="img" style="width:50px;height:50px"></div><div id="vid" style="width:50px;height:50px"></div>
+<script type="module">
+import Background from '/src/js/background.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const $ = (id) => document.getElementById(id);
+const r = { reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, errors: [] };
+addEventListener('error', (e) => r.errors.push(e.message));
+const urls = { u1: 'https://www.youtube.com/watch?v=watchwatchw', u2: 'https://youtu.be/shortlinkk', u3: 'https://www.youtube.com/shorts/shortsshort', u4: 'https://www.youtube.com/live/livelivelive', u5: 'embedembedd', u6: 'https://www.youtube.com/embed/embedurlurl' };
+for (const [id, url] of Object.entries(urls)) { try { new Background($(id), { source: { youtube: url } }); } catch (e) { r.errors.push(id + ': ' + e.message); } }
+await wait(50);
+r.playersImmediately = players.map((p) => p.cfg.videoId);
+// M-B5 + M-B7 (YouTube)
+new Background($('d'), { source: { youtube: 'https://youtu.be/destroydest' } });
+const pd = players[players.length - 1];
+if (pd) { pd.cfg.events.onReady({}); r.youtubeOnReadyCalls = [...pd.calls]; }
+$('d').Background.destroy();
+r.destroy = { playerDestroyed: pd ? pd.calls.includes('destroy') : 'no player', classes: $('d').className };
+// M-B7 (video)
+new Background($('vid'), { source: { mp4: '/test/fixtures/assets/none.mp4' } });
+r.videoAutoplay = $('vid').querySelector('video').autoplay;
+// M-B6 layers
+new Background($('img'), { source: '/test/fixtures/assets/a.svg' }); await wait(700);
+$('img').Background.load('/test/fixtures/assets/b.svg'); await wait(700);
+$('img').Background.load('/test/fixtures/assets/c.svg'); await wait(1500);
+r.imageLayersAfter3Loads = $('img').querySelectorAll('.fs-background-media').length;
+window.R = JSON.stringify(r);
+</script></body></html>

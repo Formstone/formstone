@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/src/css/lightbox.css"><link rel="stylesheet" href="/src/css/modal.css"></head><body style="height:3000px">
+<a id="broken" href="/test/fixtures/assets/missing.png" data-lightbox-gallery="b">broken</a><a id="ok2" href="/test/fixtures/assets/img.svg" data-lightbox-type="image" data-lightbox-gallery="b">ok</a>
+<a id="q1" href="/test/fixtures/assets/img.svg" data-lightbox-type="image" data-lightbox-gallery='q"x'>q1</a><a id="q2" href="/test/fixtures/assets/img.svg" data-lightbox-type="image" data-lightbox-gallery='q"x'>q2</a>
+<a class="det" href="https://www.jpeg.org/">jpeg.org</a><a class="det" href="/test/fixtures/assets/img.svg?v=1">svg?v</a><a class="det" href="/test/fixtures/assets/PHOTO.JPG">JPG</a><a class="det" href="/test/fixtures/assets/photo.jpg.html">jpg.html</a>
+<a id="js" href="javascript:window.__pwned=1" data-lightbox-type="url">js</a>
+<a id="e1" href="#form1" data-lightbox-type="element" data-lightbox-gallery="f">form</a><a id="e2" href="/test/fixtures/assets/img.svg" data-lightbox-type="image" data-lightbox-gallery="f">img</a>
+<div id="form1"><div style="width:300px;height:200px"><input id="field" value="text"></div></div>
+<a id="m1" href="#mc1">m1</a><div id="mc1"><h2>Settings</h2><p>x</p></div>
+<a id="m2" href="#mc2">m2</a><div id="mc2"><p>No heading</p></div>
+<a id="m3" href="#mc3">m3</a><div id="mc3"><h3 id="own">Own id</h3></div>
+<script type="module">
+import { Lightbox, Modal } from '/src/js/index.js';
+window.L = Lightbox; window.M = Modal;
+window.wait = (ms) => new Promise(r => setTimeout(r, ms));
+window.errors = []; window.warnings = [];
+addEventListener('error', (e) => errors.push(e.message)); addEventListener('unhandledrejection', (e) => errors.push('rej: ' + (e.reason && e.reason.message)));
+const w = console.warn; console.warn = (...a) => { warnings.push(String(a[0])); w(...a); };
+window.closeAll = async () => { for (const el of document.querySelectorAll('a')) { if (el.Lightbox && el.Lightbox.isOpen) await el.Lightbox.close(); if (el.Modal && el.Modal.isOpen) await el.Modal.close(); } await wait(150); };
+window.activeItem = () => document.querySelector('.fs-lightbox-item.fs-lightbox-active');
+window.T_READY = true;
+</script></body></html>

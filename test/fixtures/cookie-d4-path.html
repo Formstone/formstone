@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body><script>
+window.cookieWrites = [];
+const d = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie');
+Object.defineProperty(document, 'cookie', { get() { return d.get.call(document); }, set(v) { cookieWrites.push(v); d.set.call(document, v); } });
+</script><script type="module">
+import Cookie from '/src/js/cookie.js';
+const r = {};
+Cookie.set('site', '1');
+r.setWrites = cookieWrites.slice(-1).map((w) => w.replace(/expires=[^;]*; /, ''));
+document.cookie = 'legacy=old';                       // legacy: scoped to /fixed/ (no path)
+Cookie.set('legacy', 'new');                          // new default: path=/
+r.beforeDelete = document.cookie.split('; ').filter((c) => c.startsWith('legacy='));
+Cookie.delete('legacy');
+r.afterDelete = document.cookie.split('; ').filter((c) => c.startsWith('legacy='));
+document.cookie = 'scoped=keep';                      // explicit-path delete must not touch the dir copy
+Cookie.set('scoped', 'root', { path: '/' });
+Cookie.delete('scoped', { path: '/' });
+r.explicitPathDeleteLeavesDirCopy = document.cookie.split('; ').filter((c) => c.startsWith('scoped='));
+r.deleteWrites = cookieWrites.filter((w) => w.startsWith('legacy=;')).map((w) => w.replace(/expires=[^;]*; /, ''));
+window.R = JSON.stringify(r);
+</script></body></html>

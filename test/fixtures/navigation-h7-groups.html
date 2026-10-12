@@ -1,0 +1,41 @@
+<!doctype html><html><meta charset="utf-8"><body>
+<button id="ha">Menu A</button><button id="hb">Menu B</button>
+<nav id="na" data-navigation-handle="#ha" data-navigation-content="#main"><a href="#1">A link</a></nav>
+<nav id="nb" data-navigation-handle="#hb" data-navigation-content="#main"><a href="#2">B link</a></nav>
+<div id="main">Page content</div>
+<div id="tc"><a id="t1" href="#p1" data-tabs-group="g" data-tabs-container="#tc" data-tabs-active="true">Tab 1</a><a id="t2" href="#p2" data-tabs-group="g" data-tabs-container="#tc">Tab 2</a></div>
+<div id="p1">panel 1</div><div id="p2">panel 2</div>
+<a id="s1" href="#x1" data-swap-target="#x1" data-swap-group="acc">S1</a><div id="x1">x1</div>
+<a id="s2" href="#x2" data-swap-target="#x2" data-swap-group="acc">S2</a><div id="x2">x2</div>
+<script type="module">
+import { Navigation, Tabs, Swap } from '/src/js/index.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const $ = (s) => document.querySelector(s);
+const log = []; const r = {}; const errors = [];
+addEventListener('error', (e) => errors.push(e.message));
+for (const ev of ['navigation:open', 'navigation:close']) for (const id of ['na', 'nb']) $('#' + id).addEventListener(ev, () => log.push(id + ' ' + ev.split(':')[1]));
+for (const ev of ['tabs:activate', 'tabs:deactivate']) for (const id of ['t1', 't2']) $('#' + id).addEventListener(ev, () => log.push(id + ' ' + ev.split(':')[1]));
+for (const ev of ['swap:activate', 'swap:deactivate']) for (const id of ['s1', 's2']) $('#' + id).addEventListener(ev, () => log.push(id + ' ' + ev.split(':')[1]));
+window.T = {
+  async setup() {
+    Navigation.construct('#na, #nb', { type: 'overlay' });
+    $('#ha').click(); await wait(80);
+    r.afterOpenA = { mainInert: $('#main').inert, aOpen: $('#na').Navigation.isOpen, events: log.splice(0) };
+    $('#hb').click(); await wait(80);
+    r.afterOpenB = { mainInert: $('#main').inert, aOpen: $('#na').Navigation.isOpen, bOpen: $('#nb').Navigation.isOpen, events: log.splice(0) };
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await wait(80);
+    r.afterEscape = { mainInert: $('#main').inert, aOpen: $('#na').Navigation.isOpen, bOpen: $('#nb').Navigation.isOpen, events: log.splice(0) };
+    // Tabs regression
+    Tabs.construct('#t1, #t2', { mobileMaxWidth: '100px' }); log.length = 0;
+    $('#t2').click(); await wait(50);
+    r.tabsSwitch = { events: log.splice(0), t1: $('#t1').getAttribute('aria-selected'), t2: $('#t2').getAttribute('aria-selected'), p1: $('#p1').className.includes('fs-tabs-active'), p2: $('#p2').className.includes('fs-tabs-active') };
+    // Swap accordion
+    Swap.construct('#s1, #s2'); log.length = 0;
+    $('#s1').click(); $('#s2').click(); await wait(50);
+    r.swapGroup = { events: log.splice(0), s1Active: $('#s1').Swap.active, s2Active: $('#s2').Swap.active };
+    r.errors = errors;
+  },
+  async wide() {}, async narrow() { return JSON.stringify(r); }
+};
+window.T_READY = true;
+</script></body></html>

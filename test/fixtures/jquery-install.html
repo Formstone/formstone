@@ -1,0 +1,17 @@
+<!doctype html><html><meta charset="utf-8"><body>
+<a class="sw" href="#x1" data-swap-target="#x1">s1</a><div id="x1"></div>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script>window.$jq = jQuery.noConflict(true);</script>
+<script type="module">
+import * as F from '/src/jquery/index.js';
+const r = { errors: [], globalJQuery: typeof window.jQuery };
+const $ = window.$jq;
+r.beforeInstall = typeof $.fn.swap;
+try {
+  r.installExported = typeof F.install;
+  if (F.install) { F.install($); }
+  r.afterInstall = typeof $.fn.swap;
+  if ($.fn.swap) { $('.sw').swap(); r.instance = !!$('.sw')[0].Swap; }
+} catch (e) { r.errors.push(e.message); }
+window.R = JSON.stringify(r);
+</script></body></html>

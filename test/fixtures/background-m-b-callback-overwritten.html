@@ -1,0 +1,18 @@
+<!doctype html><html><meta charset="utf-8"><head>
+<script type="text/plain" src="https://www.youtube.com/iframe_api"></script>
+<script>window.players = []; window.makeYT = () => ({ PlayerState: { PLAYING: 1, ENDED: 0 }, Player: class { constructor(id, cfg) { this.id = id; this.cfg = cfg; this.calls = []; players.push(this); } playVideo() { this.calls.push("play"); } pauseVideo() { this.calls.push("pause"); } mute() { this.calls.push("mute"); } unMute() {} destroy() { this.calls.push("destroy"); } } }); window.__ready = []; window.YT = { ready: (f) => window.__ready.push(f) };</script></head><body>
+<div id="c" style="width:50px;height:50px"></div>
+<script type="module">
+import Background from '/src/js/background.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const r = {};
+window.onYouTubeIframeAPIReady = () => {}; // another script overwrites the global callback
+new Background(document.getElementById('c'), { source: { youtube: 'https://youtu.be/overwritten' } });
+await wait(50);
+Object.assign(window.YT, makeYT());
+window.onYouTubeIframeAPIReady();
+window.__ready.forEach((f) => f());
+await wait(50);
+r.playersCreatedFor = players.map((p) => p.cfg.videoId);
+window.R = JSON.stringify(r);
+</script></body></html>

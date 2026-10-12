@@ -1,0 +1,30 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/navigation.css"><link rel="stylesheet" href="/src/css/tabs.css">
+<style>body{margin:0} main{height:300px} #main a, #side a {display:inline-block;padding:10px}</style></head><body>
+<header id="hdr"><button id="h">Menu</button></header>
+<div id="wrap"><nav id="nav" data-navigation-handle="#h" data-navigation-content="#main"><a id="l1" href="#a">Nav link</a> <button id="l2" type="button">Nav button</button></nav><aside id="side"><a id="sidelink" href="#s">Side link</a></aside></div>
+<main id="main"><a id="mainlink" href="#m">Main link</a>
+<div><a id="a1" href="#pa1" data-tabs-group="A">A1</a><a id="a2" href="#pa2" data-tabs-group="A">A2</a></div>
+<div><a id="b1" href="#pb1" data-tabs-group="B">B1</a><a id="b2" href="#pb2" data-tabs-group="B">B2</a></div>
+<div id="pa1">pa1</div><div id="pa2">pa2</div><div id="pb1">pb1</div><div id="pb2">pb2</div>
+<div id="tc"><a id="t1" href="#pt1" data-tabs-group="T" data-tabs-container="#tc" data-tabs-active="true">T1</a><a id="t2" href="#pt2" data-tabs-group="T" data-tabs-container="#tc">T2</a></div>
+<div id="pt1">pt1</div><div id="pt2">pt2</div>
+<a id="nohash" href="/somewhere">no hash</a><a id="nopanel" href="#missing">no panel</a>
+<nav id="nohandle">nav without handle</nav>
+</main>
+<script type="module">
+import { Navigation, Tabs } from '/src/js/index.js';
+window.errors = []; window.warnings = [];
+addEventListener('error', (e) => errors.push(e.message));
+const w = console.warn; console.warn = (...a) => { warnings.push(String(a[0])); w(...a); };
+const tryIt = (l, f) => { try { f(); } catch (e) { errors.push(l + ': ' + e.message); } };
+tryIt('nav', () => new Navigation(document.getElementById('nav'), { type: 'overlay' }));
+tryIt('nohandle', () => { new Navigation(document.getElementById('nohandle'), { type: 'overlay' }); document.getElementById('nohandle').Navigation && document.getElementById('nohandle').Navigation.open(); });
+tryIt('tabsAB', () => Tabs.construct('#a1, #a2, #b1, #b2'));
+tryIt('tabsT', () => Tabs.construct('#t1, #t2'));
+tryIt('nohash', () => new Tabs(document.getElementById('nohash')));
+tryIt('nopanel', () => new Tabs(document.getElementById('nopanel')));
+window.$ = (id) => document.getElementById(id);
+window.rect = (id) => { const r = $(id).getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) }; };
+window.navState = () => ({ open: $('nav').Navigation.isOpen, expanded: $('h').getAttribute('aria-expanded'), haspopup: $('h').getAttribute('aria-haspopup'), inert: ['hdr', 'side', 'main'].filter((id) => $(id).inert), ariaHidden: ['hdr', 'side', 'main'].filter((id) => $(id).getAttribute('aria-hidden') === 'true'), active: document.activeElement.id || document.activeElement.tagName });
+window.T_READY = true;
+</script></body></html>

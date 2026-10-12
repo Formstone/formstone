@@ -1,0 +1,30 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/background.css">
+<script type="text/plain" src="https://www.youtube.com/iframe_api"></script>
+<script>window.players = []; window.makeYT = () => ({ PlayerState: { PLAYING: 1, ENDED: 0 }, Player: class { constructor(id, cfg) { this.id = id; this.cfg = cfg; this.calls = []; players.push(this); } playVideo() { this.calls.push("play"); } pauseVideo() { this.calls.push("pause"); } mute() { this.calls.push("mute"); } unMute() {} destroy() { this.calls.push("destroy"); } } });</script></head><body>
+<div id="none" style="width:50px;height:50px"></div><div id="bad" style="width:50px;height:50px"></div>
+<div id="stale" style="width:50px;height:50px"></div><div id="dead" style="width:50px;height:50px"></div><div id="ok" style="width:50px;height:50px"></div>
+<script type="module">
+import Background from '/src/js/background.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const $ = (id) => document.getElementById(id);
+const r = { errors: [], warnings: [] };
+addEventListener('error', (e) => r.errors.push(e.message));
+const w = console.warn; console.warn = (...a) => { r.warnings.push(String(a[0])); w(...a); };
+const tryIt = (label, fn) => { try { fn(); } catch (e) { r.errors.push(label + ': ' + e.message); } };
+tryIt('none', () => new Background($('none')));
+r.noSource = { loadedClass: $('none').classList.contains('fs-background-loaded'), layers: $('none').querySelectorAll('.fs-background-media').length };
+tryIt('bad', () => new Background($('bad'), { source: { youtube: 'https://example.com/not-youtube' } }));
+const okSource = { youtube: 'https://youtu.be/okokokokokk' };
+tryIt('ok', () => new Background($('ok'), { source: okSource }));
+tryIt('stale', () => { new Background($('stale'), { source: { youtube: 'https://youtu.be/stalestalee' } }); $('stale').Background.load('/test/fixtures/assets/a.svg'); });
+tryIt('dead', () => { new Background($('dead'), { source: { youtube: 'https://youtu.be/deaddeaddea' } }); $('dead').Background.destroy(); });
+r.callerSourceMutated = 'poster' in okSource;
+await wait(200);
+window.YT = makeYT();
+window.onYouTubeIframeAPIReady();
+await wait(100);
+r.playersCreatedFor = players.map((p) => p.cfg.videoId);
+const staleImg = $('stale').querySelector('.fs-background-media:last-child');
+r.staleLastLayer = staleImg ? (staleImg.className + ' ' + staleImg.style.backgroundImage).replace(/.*fs-background-(\w+).*?(\w\.svg|maxresdefault).*/, '$1 $2') : null;
+window.R = JSON.stringify(r);
+</script></body></html>

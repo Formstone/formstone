@@ -1,0 +1,16 @@
+<!doctype html><html><meta charset="utf-8"><body><script type="module">
+import MediaQuery from '/src/js/mediaquery.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const log = []; const r = {};
+const L = (k) => ({ enter: () => log.push(k + ':enter'), leave: () => log.push(k + ':leave') });
+window.T = {
+  async setup() {
+    MediaQuery.bind('gte', '(width >= 800px)', L('gte'));
+    MediaQuery.bind('lte', '(width <= 800px)', L('lte'));
+    r.initialAt500 = [...log]; log.length = 0;
+  },
+  async wide() { await wait(300); r.at1000 = [...log]; log.length = 0; },
+  async narrow() { await wait(300); r.backTo500 = [...log]; return JSON.stringify(r); }
+};
+window.T_READY = true;
+</script></body></html>

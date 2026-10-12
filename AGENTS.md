@@ -24,6 +24,9 @@ Formstone is a library of modular front-end components written in dependency-fre
 | `tasks/js.cjs` | webpack UMD bundling for `dist/formstone.js` and `dist/formstone.jquery.js` | Yes |
 | `tasks/scss.cjs` | SCSS generation and verification used by the gulp `convert-scss` / `verify-scss` tasks | Yes |
 | `.browserslistrc` | Browser targets for CSS prefixes (Lightning CSS) and webpack's output syntax | Yes |
+| `test/` | Tests: `browser/*.spec.js` (Playwright), `node/*.test.js` (`node:test`), `fixtures/*.html` (pages the browser specs load), `server.js` (static server for fixtures) | Yes |
+| `playwright.config.js` | Playwright config: Chromium, runs `test/server.js` on port 8765 | Yes |
+| `.github/workflows/test.yml` | CI: production build, build-output check, `npm test` | Yes |
 | `CHANGELOG.md` | Release notes, newest first | Yes |
 
 Components: `Background`, `CheckPoint`, `Cookie`, `Lightbox`, `MediaQuery`, `Modal`, `Navigation`, `Swap`, `Tabs`, plus the `Utils` namespace.
@@ -51,7 +54,35 @@ Notes:
 - Generated file banners include the version from `package.json` and the build date, so every build touches every generated file.
 - Release with `gulp-build` only. Development bundles contain `eval()` and will not run under a strict CSP. `prepublishOnly` enforces this for `npm publish`, and plain `npx gulp` (no `NODE_ENV`) also builds production; commit `dist/` from a production build.
 - `beautify-*` strips the final newline from some files, so a build may show newline-only diffs.
-- There is no test suite yet. Check changes manually with the pages in `demo/`, and run `node --check src/js/<file>.js` for syntax.
+- Run `npm test` before committing (see **Testing**).
+
+## Testing
+
+```sh
+npm test               # node tests, then browser tests
+npm run test:node      # node --test "test/node/*.test.js"
+npm run test:browser   # playwright test (starts test/server.js)
+npx playwright test --ui   # debug browser tests
+```
+
+- **Browser tests (Playwright, Chromium)** load fixture pages from `test/fixtures/`, which import `src/` (or `dist/` for `dist-smoke.html`). Use a real browser: transitions, `<dialog>`, `inert`, focus, pointer capture, `matchMedia` and IntersectionObserver are where bugs live, and simulated DOMs don't implement them faithfully.
+- **Fixtures report results** in one of three ways (helpers in `test/browser/helpers.js`):
+  - `window.R`, a JSON string, read with `result()`;
+  - an `#out` element, read with `out()`;
+  - `window.T` phases `setup()` / `wide()` / `narrow()` run at 500 → 1000 → 500px, with `phases()`.
+
+  Specs that need real input use `ready()` plus `page.mouse` / `page.keyboard` / `touchDrag()`.
+- **Requests outside localhost are blocked** (`offline()`), so tests never depend on the network. Fake external APIs (see the `YT` stub in the Background fixtures) instead of loading them.
+- **Node tests** cover packaging, from a throwaway consumer project linked to the repo:
+  - every `exports` path resolves;
+  - `import` works without a window or warnings;
+  - `require()` gets the UMD build;
+  - Sass `pkg:formstone` works.
+
+  They also cover DOM-free helpers in `utils.js`.
+- **Name tests after the finding or behavior they protect** (e.g. `H7: …`) so failures trace back to the audit in `feedback.md`. When fixing a bug, add or extend a fixture and spec, and check the spec fails without the fix.
+- **CI** (`.github/workflows/test.yml`) runs the production build (including `verify-scss`) and fails if committed `dist/`, `src/css` or `src/scss` differ from a fresh build (banner lines aside), then runs `npm test`. Commit build output from `npm run gulp-build`.
+- Autoplay and other browser policies differ between browsers and headless modes. Make fixtures deterministic (e.g. stub `HTMLMediaElement.prototype.play`) rather than relying on a policy.
 
 ## Package entry points
 

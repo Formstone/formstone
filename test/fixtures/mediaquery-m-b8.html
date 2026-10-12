@@ -1,0 +1,50 @@
+<!doctype html><html><meta charset="utf-8"><body><script>
+window.live = 0;
+const add = MediaQueryList.prototype.addEventListener, rem = MediaQueryList.prototype.removeEventListener;
+const seen = new Set();
+MediaQueryList.prototype.addEventListener = function (t, f, o) { if (t === 'change' && !seen.has(f)) { seen.add(f); live++; } return add.call(this, t, f, o); };
+MediaQueryList.prototype.removeEventListener = function (t, f, o) { if (t === 'change' && seen.has(f)) { seen.delete(f); live--; } return rem.call(this, t, f, o); };
+window.warns = []; const w = console.warn; console.warn = (...a) => { warns.push(String(a[0])); w(...a); };
+</script><script type="module">
+import MediaQuery from '/src/js/mediaquery.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const log = []; const r = {};
+const L = (k) => ({ enter: () => log.push(k + ':enter'), leave: () => log.push(k + ':leave') });
+window.T = {
+  async setup() {
+    const base = live;
+    // 1. range syntax collision
+    MediaQuery.bind('gte', '(width >= 740px)', L('gte'));
+    MediaQuery.bind('lte', '(width <= 739px)', L('lte'));
+    // 2. case-different unbind
+    MediaQuery.bind('case', '(min-width: 740px)', L('case'));
+    MediaQuery.unbind('case', '(MIN-WIDTH: 740px)');
+    // 4. unbind another during dispatch
+    MediaQuery.bind('e1', '(min-width: 800px)', { enter: () => { log.push('e1:enter'); MediaQuery.unbind('e2'); } });
+    MediaQuery.bind('e2', '(min-width: 800px)', { enter: () => log.push('e2:enter') });
+    // 5. duplicate
+    MediaQuery.bind('dup', '(min-width: 900px)', L('dup'));
+    MediaQuery.bind('dup', '(min-width: 900px)', L('dup2'));
+    r.initial = [...log]; log.length = 0;
+    r.liveAfterSetup = live - base;
+    // 3. listener cleanup
+    MediaQuery.bind('x1', '(min-width: 1234px)', L('x1'));
+    MediaQuery.bind('x2', '(min-width:1234px)', L('x2'));
+    const afterBind = live - base;
+    MediaQuery.unbind('x1');
+    const afterOne = live - base;
+    MediaQuery.unbind('x2', '(min-width: 1234px)');
+    r.cleanup = { afterBind, afterUnbindOne: afterOne, afterUnbindBoth: live - base };
+    window.base = base;
+  },
+  async wide() { await wait(300); r.onWide = [...log]; log.length = 0; },
+  async narrow() {
+    await wait(300); r.onNarrow = [...log];
+    MediaQuery.unbind('gte'); MediaQuery.unbind('lte'); MediaQuery.unbind('e1'); MediaQuery.unbind('dup'); MediaQuery.unbind('dup2');
+    r.liveAfterUnbindAll = live - window.base;
+    r.duplicateWarned = warns.some((x) => x.includes("'dup'"));
+    return JSON.stringify(r, null, 0);
+  }
+};
+window.T_READY = true;
+</script></body></html>

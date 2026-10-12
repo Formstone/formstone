@@ -1,0 +1,7 @@
+<!doctype html><html dir="rtl"><meta charset="utf-8"><body><a id="a" href="/test/fixtures/assets/img.svg" data-lightbox-type="image">a</a><a id="b" href="/test/fixtures/assets/img.svg" data-lightbox-type="image">b</a>
+<script type="module">
+import Lightbox from '/src/js/lightbox.js';
+new Lightbox(document.getElementById('a'));
+new Lightbox(document.getElementById('b'), { direction: 'ltr' });
+window.R = JSON.stringify({ docRtl: document.getElementById('a').Lightbox.isRTL, optionLtr: document.getElementById('b').Lightbox.isRTL });
+</script></body></html>
