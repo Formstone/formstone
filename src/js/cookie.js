@@ -4,6 +4,7 @@
 
 import {
   type,
+  isU,
   extend,
 } from './utils.js';
 
@@ -17,7 +18,7 @@ class Cookie {
    * @typedef {Object} CookieOptions
    * @property {string} [domain=null] - Cookie domain
    * @property {number} [expires=604800000] - Expiration time in milliseconds (default 7 days)
-   * @property {string} [path=null] - Cookie path
+   * @property {string} [path='/'] - Cookie path; site-wide by default
    * @property {string} [samesite='Lax'] - SameSite attribute ('Strict', 'Lax', or 'None')
    * @property {boolean} [secure=null] - Secure attribute
    */
@@ -29,7 +30,7 @@ class Cookie {
   static #_defaults = {
     domain: null,
     expires: 604800000, // 7 days
-    path: null,
+    path: '/',
     samesite: 'Lax',
     secure: null
   };
@@ -139,9 +140,19 @@ class Cookie {
    * });
    */
   static delete(key, options) {
-    this.set(key, '', extend({}, options, {
+    options = extend({}, options, {
       expires: -604800000 // -7 days
-    }));
+    });
+
+    this.set(key, '', options);
+
+    // Without an explicit path, also remove a copy scoped to the current directory
+    // (the browser default, used by cookies set before path defaulted to '/')
+    if (isU(options.path)) {
+      this.set(key, '', extend({}, options, {
+        path: false
+      }));
+    }
   }
 };
 

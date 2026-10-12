@@ -41,8 +41,8 @@ class Swap {
    * @property {string} [classes.active='fs-swap-active'] - Active state class
    * @property {string} [classes.inactive='fs-swap-inactive'] - Inactive state class
    * @property {boolean} [collapse=true] - Allow active item to deactivate on click
-   * @property {string|number} [maxWidth=Infinity] - Maximum viewport width to enable swap
-   * @property {string} [minWidth='0px'] - Minimum viewport width to enable swap
+   * @property {string|number} [maxWidth=Infinity] - Maximum viewport width to enable swap (numbers are pixels)
+   * @property {string|number} [minWidth='0px'] - Minimum viewport width to enable swap (numbers are pixels)
    */
 
   /**
@@ -136,9 +136,11 @@ class Swap {
     this.targetEl = select(this.target);
     // this = extend(true, this.constructor.#_defaults, options || {}, optionsData);
 
-    let maxWidth = (this.maxWidth === Infinity ? '100000px' : this.maxWidth);
+    // Numbers are pixels; media queries need units
+    let px = (v) => (typeof v === 'number') ? `${v}px` : v;
+    let maxWidth = ((this.maxWidth === Infinity || this.maxWidth === 'Infinity') ? '100000px' : px(this.maxWidth));
 
-    this.mq = `(min-width: ${this.minWidth}) and (max-width: ${maxWidth})`;
+    this.mq = `(min-width: ${px(this.minWidth)}) and (max-width: ${maxWidth})`;
 
     addClass(this.el, this.guidClass);
     addClass(this.targetEl, this.guidTarget);

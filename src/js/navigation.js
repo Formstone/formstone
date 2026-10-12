@@ -151,7 +151,7 @@ class Navigation {
     this.navClasses = ['fs-navigation', this.guidClass, `${typeClass}-nav`, (gravityClass ? `${gravityClass}-nav` : '')];
     this.handleClasses = ['fs-navigation-handle', this.guidHandle, `${typeClass}-handle`, (gravityClass ? `${gravityClass}-handle` : '')];
     this.contentClasses = ['fs-navigation-content', `${typeClass}-content`];
-    this.contentOpenClasses = ['fs-navigation-open', `${gravityClass}-content`];
+    this.contentOpenClasses = ['fs-navigation-open', (gravityClass ? `${gravityClass}-content` : '')];
 
     //
 
@@ -194,7 +194,8 @@ class Navigation {
     });
 
     iterate(this.handleEl, (handle) => {
-      setAttr(handle, 'data-navigation-tabindex', handle.tabIndex);
+      // Store the attribute (not the tabIndex property, which is -1 for non-focusable elements)
+      setAttr(handle, 'data-navigation-tabindex', getAttr(handle, 'tabindex') || '');
       handle.tabIndex = 0;
 
       on(handle, 'swap:activate', this.listeners.open);
@@ -238,7 +239,7 @@ class Navigation {
     ]);
 
     iterate(this.handleEl, (handle) => {
-      handle.tabIndex = getAttr(handle, 'data-navigation-tabindex');
+      setAttr(handle, 'tabindex', getAttr(handle, 'data-navigation-tabindex') || false);
       removeAttr(handle, 'data-navigation-tabindex');
 
       off(handle, 'swap:activate', this.listeners.open);
@@ -391,8 +392,14 @@ class Navigation {
       setAttr(this.handleEl, 'aria-expanded', 'true');
 
       // On document, not body: clicks on inert content target <html>
-      on(document, 'click', this.listeners.body);
       on(document, 'keydown', this.listeners.keydown);
+
+      // Deferred so a click that called open() doesn't reach the listener and close it again
+      setTimeout(() => {
+        if (this.isOpen) {
+          on(document, 'click', this.listeners.body);
+        }
+      }, 0);
 
       if (!this.isOpen) {
         trigger(this.el, 'navigation:open');
@@ -400,7 +407,7 @@ class Navigation {
         this.isOpen = true;
 
         setTimeout(() => {
-          (select('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', this.el)[0] || this.el).focus();
+          (select(this.focusables, this.el)[0] || this.el).focus();
         }, 50);
       }
     };
@@ -431,7 +438,12 @@ class Navigation {
       if (this.isOpen) {
         trigger(this.el, 'navigation:close');
 
-        this.handleEl[0].focus();
+        // Return focus only if it was in the navigation; an outside click keeps its own focus
+        let focused = document.activeElement;
+
+        if (!focused || focused === document.body || this.el.contains(focused)) {
+          this.handleEl[0].focus();
+        }
 
         this.isOpen = false;
       }

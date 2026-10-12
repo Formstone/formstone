@@ -69,6 +69,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
 | `customClass` | `string` | `''` | Custom CSS class for modal dialog |
+| `label` | `string` | `null` | Accessible name for the dialog; when not set, the first heading in the content is used, then `'Dialog'` |
 | `returnFocus` | `boolean` | `true` | Return focus to trigger after closing |
 | `templates` | `object` | `...` | HTML templates for modal components |
 
@@ -229,6 +230,8 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-modal-frame` | `element` | Content frame element |
 | `.fs-modal-close` | `element` | Close button element |
 | `.fs-modal-open` | `modifier` | Indicates open state |
+
+The page behind an open modal doesn't scroll (`html:has(.fs-modal[open])`).
 
 
 </div>

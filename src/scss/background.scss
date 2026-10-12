@@ -1,11 +1,11 @@
-/*! formstone v2.2.2 [background.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.2.2 [background.scss] 2026-10-12 | GPL-3.0 License | formstone.dev */
 // Variables
 
 $fs-background-duration: 0.15s !default;
 
 /**
  * @module background
- * @description Simple modal dialog component
+ * @description Full-frame, responsive image and video backgrounds
  */
 /**
  * Default transition duration for background media transitions
@@ -43,14 +43,6 @@ $fs-background-duration: 0.15s !default;
    * Handles images, videos, and embeds with proper sizing and positioning
    *
    * @selector .fs-background-media
-   */
-  /**
-   * Image background media type
-   * @selector .fs-background-image
-   */
-  /**
-   * Video background media type
-   * @selector .fs-background-video
    */
   /**
    * Embedded media type (YouTube)

@@ -1,4 +1,8 @@
-/*! formstone v2.2.2 [modal.css] 2026-10-09 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.2.2 [modal.css] 2026-10-12 | GPL-3.0 License | formstone.dev */
+html:has(.fs-modal[open]) {
+  overflow: hidden;
+}
+
 .fs-modal {
   --fs-modal-duration: 0.25s;
   --fs-modal-timing: linear;
@@ -19,16 +23,16 @@
   overflow: hidden;
   padding: 0;
   transition: display var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete, opacity var(--fs-modal-duration) var(--fs-modal-timing), overlay var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion) {
   .fs-modal {
     --fs-modal-duration: 0s;
   }
-}
-
-@starting-style {
-  opacity: 0;
 }
 
 .fs-modal[open] {
@@ -52,10 +56,10 @@
 
 .fs-modal-open::backdrop {
   opacity: 1;
-}
 
-@starting-style {
-  opacity: 0;
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 .fs-modal-sr {

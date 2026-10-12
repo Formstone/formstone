@@ -386,7 +386,8 @@ class Background {
     media.ariaHidden = true;
     media.className = `fs-background-media fs-background-image`; // fs-background-layer-${this.layerGuid}`;
     media.style.opacity = 0;
-    media.style.backgroundImage = `url(${source})`;
+    // Quote and escape so URLs with spaces, quotes or parentheses work
+    media.style.backgroundImage = `url("${String(source).replace(/[\\"]/g, '\\$&').replace(/\n/g, '\\a ')}")`;
 
     setAttr(media, 'data-background-layer', this.layerGuid);
 
@@ -650,7 +651,14 @@ class Background {
       let video = select('video', this.container);
 
       if (video.length) {
-        video[0].play();
+        let promise = video[0].play();
+
+        // Playback can be refused (e.g. unmuted autoplay); reflect that instead of an unhandled rejection
+        if (promise && isFn(promise.catch)) {
+          promise.catch(() => {
+            this.playing = false;
+          });
+        }
       }
     }
 

@@ -47,7 +47,7 @@ let LightboxInstance;
  * @property {string} [direction=null] - Content direction ('ltr' or 'rtl'); defaults to `document.dir` when the instance is created
  * @property {string} [customClass=''] - Custom CSS class to add to lightbox dialog
  * @property {string} [label='Gallery'] - Accessibility label for the lightbox
- * @property {RegExp} [fileTypes=/\.(jpg|sjpg|jpeg|png|gif|webp)/i] - Regular expression to match image file extensions
+ * @property {RegExp} [fileTypes=/\.(jpe?g|sjpg|png|gif|webp|avif|svg)(?=$|[?#])/i] - Regular expression to match image file extensions (at the end of the path)
  * @property {number} [threshold=50] - Swipe threshold in pixels for touch navigation
  * @property {boolean} [ordinal=true] - Show gallery position indicator (e.g., "1 of 5")
  * @property {Object} [templates] - HTML templates for lightbox components
@@ -66,7 +66,7 @@ class Lightbox {
     direction: null,
     customClass: '',
     label: 'Gallery',
-    fileTypes: /\.(jpg|sjpg|jpeg|png|gif|webp)/i,
+    fileTypes: /\.(jpe?g|sjpg|png|gif|webp|avif|svg)(?=$|[?#])/i,
     // iframeWidth: '900px',
     // loop: false,
     threshold: 50,
@@ -416,7 +416,7 @@ class Lightbox {
    * @returns {void}
    */
   #buildItems() {
-    this.selector = this.gallery ? `[data-lightbox-gallery="${this.gallery}"]` : `.${this.guidClass}`;
+    this.selector = this.gallery ? `[data-lightbox-gallery="${CSS.escape(this.gallery)}"]` : `.${this.guidClass}`;
 
     let targets = select(this.selector);
 
@@ -432,6 +432,13 @@ class Lightbox {
         let isVideo = (type === 'video') || !!this.#checkVideo(source);
         let isElement = (type === 'element') || (!isImage && !isVideo && (source.indexOf(url) > -1 && hash.substr(0, 1) === '#'));
         let isIframe = (type === 'url') || (!isImage && !isVideo && !isElement && source.substr(0, 4) === 'http');
+
+        // Only load http(s) pages in iframes (never javascript:, data:, etc.)
+        if (isIframe && !/^https?:$/i.test(el.protocol)) {
+          console.warn(`Lightbox: Unsupported URL ${el.href}`, el);
+
+          return;
+        }
 
         let targetEl = isElement ? this.#getTarget(hash) : null;
 
@@ -792,7 +799,10 @@ class Lightbox {
     let media = select('[data-src]', item.el);
 
     iterate(media, (m) => {
-      once(m, 'load', (e) => {
+      let onLoad = () => {
+        off(m, 'error', onError);
+
+        removeClass(item.el, 'fs-lightbox-error');
         addClass(item.el, 'fs-lightbox-loaded');
 
         item.isLoaded = true;
@@ -805,7 +815,21 @@ class Lightbox {
         }
 
         this.#hideLoading();
-      });
+      };
+
+      // Broken media: stop loading and show the item (alt text, caption) instead of a spinner
+      let onError = () => {
+        off(m, 'load', onLoad);
+
+        addClass(item.el, 'fs-lightbox-loaded', 'fs-lightbox-error');
+
+        if (index === this.index) {
+          this.#hideLoading();
+        }
+      };
+
+      once(m, 'load', onLoad);
+      once(m, 'error', onError);
 
       m.src = getAttr(m, 'data-src');
     });
@@ -1082,6 +1106,11 @@ class Lightbox {
    */
   #onKeyDown() {
     return (e) => {
+      // Leave arrow keys to form fields, editable content and shortcuts
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]'))) {
+        return;
+      }
+
       if (e.key === 'ArrowLeft') {
         if (this.isRTL) {
           this.next();

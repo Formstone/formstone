@@ -18,6 +18,7 @@
   "homepage_short": "formstone.dev",
   "demo": "https://formstone.dev/demo/",
   "license": "GPL-3.0",
+  "type": "module",
   "exports": {
     ".": {
       "sass": "./src/scss/index.scss",
@@ -34,6 +35,9 @@
     "./*.scss": "./src/scss/*.scss"
   },
   "browser": "./dist/formstone.js",
+  "engines": {
+    "node": ">=20.19"
+  },
   "main": "./src/js/index.js",
   "author": {
     "name": "Ben Plum",
@@ -41,23 +45,26 @@
     "url": "https://www.benplum.com"
   },
   "devDependencies": {
-    "dayjs": "^1.11.13",
-    "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^8.0.0",
+    "browserslist": "^4.29.3",
+    "gulp": "^5.0.1",
     "gulp-beautify": "^3.0.0",
-    "gulp-clean": "^0.4.0",
-    "gulp-clean-css": "^4.3.0",
-    "gulp-header": "^2.0.9",
+    "gulp-header": "^2.0.12",
     "gulp-less": "^5.0.0",
-    "gulp-remove-empty-lines": "^0.1.0",
-    "gulp-rename": "^2.0.0",
-    "gulp-strip-comments": "^2.6.0",
+    "gulp-rename": "^2.1.0",
     "gulp-strip-css-comments": "^3.0.0",
+    "lightningcss": "^1.33.0",
     "sass": "^1.105.1",
-    "webpack-stream": "^7.0.0"
+    "webpack": "^5.111.1"
   },
   "files": [
     "dist",
     "src"
+  ],
+  "sideEffects": [
+    "./dist/*",
+    "./src/jquery/*.js",
+    "*.css",
+    "*.less",
+    "*.scss"
   ]
 }

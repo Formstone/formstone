@@ -54,6 +54,14 @@
 @fs-modal-button-color: #000;
 
 /**
+ * Locks background scrolling while a modal is open
+ * @selector html:has(.fs-modal[open])
+ */
+html:has(.fs-modal[open]) {
+  overflow: hidden;
+}
+
+/**
  * @selector .fs-modal
  * @description Main modal dialog element. Uses native HTML dialog with custom properties
  * for theming. Supports @starting-style for entry animations and respects prefers-reduced-motion.

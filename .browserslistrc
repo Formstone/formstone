@@ -1,4 +1,8 @@
 # Browsers that we support
+#
+# Formstone's JS needs private class members, <dialog> and inert (about Chrome 102+,
+# Firefox 112+, Safari 15.5+), so browsers that can't run it (IE, Opera Mini, BlackBerry)
+# aren't targeted. Lightning CSS reads this file for vendor prefixes in dist/formstone.css.
 
-> 1%
-last 2 versions
+defaults
+not op_mini all

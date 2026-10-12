@@ -70,7 +70,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | -- | -- | -- | -- |
 | `customClass` | `string` | `''` | Custom CSS class for lightbox dialog |
 | `direction` | `string` | `null` | Content direction (ltr, rtl); falls back to `document.dir` when the instance is created |
-| `fileTypes` | `RegExp` | `/\.(jpg\|sjpg\|jpeg\|png\|gif\|webp)/i` | Supported image file extensions |
+| `fileTypes` | `RegExp` | `/\.(jpe?g\|sjpg\|png\|gif\|webp\|avif\|svg)(?=$\|[?#])/i` | Supported image file extensions, matched at the end of the URL path |
 | `label` | `string` | `'Gallery'` | Accessibility label |
 | `ordinal` | `boolean` | `true` | Show gallery position indicator |
 | `threshold` | `number` | `50` | Swipe threshold in pixels |
@@ -315,6 +315,9 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-lightbox-item` | `element` | Gallery item element |
 | `.fs-lightbox-active` | `modifier` | Indicates active state |
 | `.fs-lightbox-open` | `modifier` | Indicates open state |
+| `.fs-lightbox-error` | `modifier` | Item media failed to load |
+
+The page behind an open lightbox doesn't scroll (`html:has(.fs-lightbox[open])`). `data-lightbox-type="url"` items only load `http` and `https` URLs. Arrow keys don't change items while focus is in a form field or editable content.
 
 
 </div>

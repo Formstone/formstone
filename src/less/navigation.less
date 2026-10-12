@@ -160,10 +160,6 @@
     display: none;
   }
 
-  &-toggle-nav&-open {
-    // display: block;
-  }
-
   /**
    * Handle styles for enabled toggle mode
    * @selector .fs-navigation-toggle-handle.fs-navigation-enabled
@@ -174,8 +170,6 @@
     cursor: pointer;
     display: block;
   }
-
-  &-toggle-handle&-open {}
 
   /**
    * Base offscreen panel styles for push, reveal, and overlay modes
@@ -280,10 +274,6 @@
     z-index: var(--fs-navigation-overlay-zindex);
   }
 
-  &-overlay-left-nav&-enabled {}
-
-  &-overlay-right-nav&-enabled {}
-
   /**
    * Open state for reveal mode
    * @selector .fs-navigation-reveal-nav.fs-navigation-open
@@ -380,12 +370,6 @@
     transition:
       transform var(--fs-navigation-offscreen-duration) var(--fs-navigation-offscreen-timing);
   }
-
-  &-reveal-left-content&-enabled,
-  &-push-left-content&-enabled {}
-
-  &-reveal-right-content&-enabled,
-  &-push-right-content&-enabled {}
 
   /**
    * Open transform for left-side reveal and push content

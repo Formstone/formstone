@@ -40,7 +40,7 @@ class Tabs {
   /**
    * @typedef {Object} TabsOptions
    * @property {string|number} [maxWidth=Infinity] - Maximum viewport width to enable tabs
-   * @property {string|number} [mobileMaxWidth='740px'] - Maximum viewport width for mobile tab mode
+   * @property {string|number} [mobileMaxWidth='740px'] - Maximum viewport width for mobile tab mode (numbers are pixels)
    * @property {boolean} [automatic=true] - Automatically activate focused tabs with keyboard navigation
    * @property {string} [label='Tabs'] - Accessibility label for the tab list
    */
@@ -126,7 +126,12 @@ class Tabs {
     this.guidClass = `fs-tabs-element-${this.guid}`;
     this.guidContent = `fs-tabs-content-${this.guid}`;
 
+    // Numbers are pixels; media queries need units
     let mobileMaxWidth = ((this.mobileMaxWidth === Infinity || this.mobileMaxWidth === 'Infinity') ? '100000px' : this.mobileMaxWidth);
+
+    if (typeof mobileMaxWidth === 'number') {
+      mobileMaxWidth = `${mobileMaxWidth}px`;
+    }
 
     this.mq = `(max-width: ${mobileMaxWidth})`;
 
@@ -225,14 +230,16 @@ class Tabs {
       setAttr(handle, {
         'data-swap-target': `.${this.guidContent}`,
         'data-swap-linked': `${this.guidClass}`,
-        'data-swap-group': `${this.group}`
+        'data-swap-group': this.group || false
       });
 
       on(handle, 'swap:activate', this.listeners.activate);
       on(handle, 'swap:deactivate', this.listeners.deactivate);
-      on(handle, 'swap:enable', this.listeners.enable);
-      on(handle, 'swap:disable', this.listeners.disable);
     });
+
+    // Both linked swaps fire enable/disable, so listen on the desktop tab only
+    on(this.el, 'swap:enable', this.listeners.enable);
+    on(this.el, 'swap:disable', this.listeners.disable);
 
     on(this.el, 'keydown', this.listeners.keydown);
 
@@ -277,6 +284,8 @@ class Tabs {
     removeClass(this.containerEl, 'fs-tabs-container');
 
     off(this.el, 'keydown', this.listeners.keydown);
+    off(this.el, 'swap:enable', this.listeners.enable);
+    off(this.el, 'swap:disable', this.listeners.disable);
 
     this.handleEl.forEach((handle) => {
       removeAttr(handle, [
@@ -287,8 +296,6 @@ class Tabs {
 
       off(handle, 'swap:activate', this.listeners.activate);
       off(handle, 'swap:deactivate', this.listeners.deactivate);
-      off(handle, 'swap:enable', this.listeners.enable);
-      off(handle, 'swap:disable', this.listeners.disable);
 
       if (handle.Swap) {
         handle.Swap.destroy();

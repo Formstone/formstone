@@ -121,17 +121,16 @@ function convert() {
 
 /**
  * Normalizes CSS for comparison
- * Removes comments and whitespace, and evens out Sass serialization differences
- * (double quotes, unquoted identifier attribute values)
+ * Re-serializes through Sass so both sides share nesting, quote and attribute formatting
+ * (e.g. Less keeps nested at-rules like @starting-style nested; Sass bubbles them), then
+ * removes comments and whitespace
  * @param {string} css - CSS source
  * @returns {string} Normalized CSS
  */
 function normalizeCss(css) {
-  return css
+  return sass.compileString(css, { style: 'compressed' }).css
     .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\s+/g, '')
-    .replace(/'([^'"]*)'/g, '"$1"')
-    .replace(/="([a-zA-Z_][\w-]*)"\]/g, '=$1]');
+    .replace(/\s+/g, '');
 }
 
 /**

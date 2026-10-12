@@ -24,6 +24,7 @@ import {
   //
   getAttr,
   setAttr,
+  removeAttr,
 } from './utils.js';
 
 let ModalInstance;
@@ -31,6 +32,7 @@ let ModalInstance;
 /**
  * @typedef {Object} ModalOptions
  * @property {string} [customClass=''] - Custom CSS class for modal dialog
+ * @property {string} [label=null] - Accessible name; defaults to the first heading in the content, then 'Dialog'
  * @property {boolean} [returnFocus=true] - Return focus to trigger after closing
  * @property {Object} [templates] - HTML templates for modal components
  */
@@ -45,10 +47,11 @@ class Modal {
 
   static #_defaults = {
     customClass: '',
+    label: null,
     returnFocus: true,
     templates: {
       container: `
-<dialog class="fs-modal" role="dialog" aria-modal="true">
+<dialog class="fs-modal">
   <div class="fs-modal-container">
     <div class="fs-modal-wrap">
       <button type="button" class="fs-modal-close" autofocus>[close]</button>
@@ -262,6 +265,11 @@ class Modal {
    * @returns {void}
    */
   #cleanUp() {
+    if (this.titleEl) {
+      removeAttr(this.titleEl, 'id');
+      this.titleEl = null;
+    }
+
     this.targetEl.append(...this.frameEl.childNodes);
 
     this.modalEl.remove();
@@ -310,6 +318,8 @@ class Modal {
 
     addClass(this.modalEl, this.customClass);
 
+    this.#setLabel();
+
     once(this.closeEl, 'click', this.listeners.close);
     on(this.containerEl, 'click', this.listeners.container);
     on(this.modalEl, 'cancel', (e) => {
@@ -319,6 +329,30 @@ class Modal {
   }
 
   //
+
+  /**
+   * Names the dialog: the label option, else the first heading in the content, else 'Dialog'
+   * @private
+   * @returns {void}
+   */
+  #setLabel() {
+    let heading = select('h1, h2, h3, h4, h5, h6', this.frameEl)[0];
+
+    if (this.label || !heading) {
+      setAttr(this.modalEl, 'aria-label', this.label || 'Dialog');
+
+      return;
+    }
+
+    if (!heading.id) {
+      heading.id = `${this.guidClass}-title`;
+
+      // Removed again on close
+      this.titleEl = heading;
+    }
+
+    setAttr(this.modalEl, 'aria-labelledby', heading.id);
+  }
 
   /**
    * Returns the element targeted by a hash, without building a selector

@@ -1,31 +1,41 @@
-let autoprefixer = require('gulp-autoprefixer');
-let clean = require('gulp-clean');
 let beautify = require('gulp-beautify');
-let cleanCSS = require('gulp-clean-css');
-let dayjs = require('dayjs');
 let fs = require('fs');
 let gulp = require('gulp');
 let header = require('gulp-header');
 let less = require('gulp-less');
+let path = require('path');
 let rename = require('gulp-rename');
-// let strip = require('gulp-strip-comments');
 let stripCssComments = require('gulp-strip-css-comments').default;
-var removeEmptyLines = require('gulp-remove-empty-lines');
-let webpack = require('webpack-stream');
 
-let scss = require('./tasks/scss.js');
+let css = require('./tasks/css.cjs');
+let js = require('./tasks/js.cjs');
+let scss = require('./tasks/scss.cjs');
 
 // Vars
 let pkg = require('./package.json');
-let date = dayjs().format('YYYY-MM-DD');
+let now = new Date();
+let year = now.getFullYear();
+let date = [year, now.getMonth() + 1, now.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
 let banner = '/*! <%= pkg.name %> v<%= pkg.version %> [<%= filename %>] <%= date %> |' +
   ' <%= pkg.license %> License | <%= pkg.homepage_short %> */\n';
 
 // Clean
 
-gulp.task('clean', () => {
-  return gulp.src(['dist/*', /*, 'docs/*',*/ 'src/css/*', 'src/scss/*' ], { read: false })
-    .pipe(clean());
+gulp.task('clean', (done) => {
+  for (let dir of ['dist', 'src/css', 'src/scss']) {
+    for (let file of fs.readdirSync(dir)) {
+      fs.rmSync(path.join(dir, file), { recursive: true, force: true });
+    }
+  }
+
+  done();
+});
+
+// Keep dist/ CommonJS: the package is "type": "module", but the UMD bundles are loaded with require()
+gulp.task('dist-scope', (done) => {
+  fs.writeFileSync('dist/package.json', JSON.stringify({ type: 'commonjs' }, null, 2) + '\n');
+
+  done();
 });
 
 // Beautify Scripts
@@ -55,17 +65,14 @@ gulp.task('beautify-styles', () => {
     .pipe(gulp.dest('./src/less'));
 });
 
-// Less
+// Less (see tasks/css.cjs)
 gulp.task('bundle-styles', () => {
   return gulp.src('./src/less/index.less')
     .pipe(less({
       // plugins: [ new lessImportNPM() ],
       // globalVars: pkg.src.vars
     }))
-    .pipe(autoprefixer())
-    .pipe(cleanCSS({
-      // compatibility: 'ie10'
-    }))
+    .pipe(css.minify())
     .pipe(header(banner, {
       pkg: pkg,
       date: date
@@ -74,54 +81,38 @@ gulp.task('bundle-styles', () => {
     .pipe(gulp.dest('./dist/'));
 });
 
-// JS
-gulp.task('bundle-scripts', () => {
-  return gulp.src('./src/js/index.js')
-    .pipe(webpack({
-      mode: process.env.NODE_ENV || 'production',
-      entry: './src/js/index.js',
-      output: {
-        path: __dirname + '/dist/js',
-        filename: 'formstone.js',
-        globalObject: 'window',
-        library: {
-          name: 'Formstone',
-          type: 'umd'
-        }
-      }
-    }))
-    .pipe(header(banner, {
-      pkg: pkg,
-      date: date
-    }))
-    .pipe(gulp.dest('./dist'));
-});
+// Adds the banner to a built file in dist/
+let bannerTask = (file) => {
+  return () => {
+    return gulp.src(`./dist/${file}`)
+      .pipe(header(banner, {
+        pkg: pkg,
+        date: date
+      }))
+      .pipe(gulp.dest('./dist'));
+  };
+};
 
-// jQuery
-gulp.task('bundle-scripts-jq', () => {
-  return gulp.src('./src/jquery/index.js')
-    .pipe(webpack({
-      mode: process.env.NODE_ENV || 'production',
-      entry: './src/jquery/index.js',
-      externals: {
-        jquery: 'jQuery'
-      },
-      output: {
-        path: __dirname + '/dist/js',
-        filename: 'formstone.jquery.js',
-        globalObject: 'window',
-        library: {
-          name: 'Formstone',
-          type: 'umd'
-        }
-      }
-    }))
-    .pipe(header(banner, {
-      pkg: pkg,
-      date: date
-    }))
-    .pipe(gulp.dest('./dist'));
-});
+// JS (see tasks/js.cjs)
+gulp.task('bundle-scripts', gulp.series(
+  js.bundle({
+    entry: './src/js/index.js',
+    filename: 'formstone.js'
+  }),
+  bannerTask('formstone.js')
+));
+
+// jQuery (see tasks/js.cjs)
+gulp.task('bundle-scripts-jq', gulp.series(
+  js.bundle({
+    entry: './src/jquery/index.js',
+    filename: 'formstone.jquery.js',
+    externals: {
+      jquery: 'jQuery'
+    }
+  }),
+  bannerTask('formstone.jquery.js')
+));
 
 // Convert Less to CSS
 gulp.task('convert-css', () => {
@@ -131,7 +122,7 @@ gulp.task('convert-css', () => {
       // globalVars: pkg.src.vars
     }))
     .pipe(stripCssComments())
-    .pipe(removeEmptyLines())
+    .pipe(css.removeEmptyLines())
     .pipe(beautify.css({
       indent_size: 2,
     }))
@@ -142,7 +133,7 @@ gulp.task('convert-css', () => {
     .pipe(gulp.dest('./src/css'));
 });
 
-// Convert Less to SCSS (see tasks/scss.js)
+// Convert Less to SCSS (see tasks/scss.cjs)
 gulp.task('convert-scss', () => {
   return gulp.src(['./src/less/**/*.less'])
     .pipe(scss.convert())
@@ -156,7 +147,7 @@ gulp.task('convert-scss', () => {
     .pipe(gulp.dest('./src/scss'));
 });
 
-// Verify SCSS (see tasks/scss.js)
+// Verify SCSS (see tasks/scss.cjs)
 gulp.task('verify-scss', () => {
   return scss.verify('./src/less', './src/scss');
 });
@@ -165,7 +156,7 @@ gulp.task('verify-scss', () => {
 gulp.task('license', function(done) {
   return fs.readFile('tasks/gpl.txt', function(err, data) {
     let content = 'Formstone \n\n' +
-      'Copyright ' + dayjs().format('YYYY') + ' ' + pkg.author.name + ' \n\n' +
+      'Copyright ' + year + ' ' + pkg.author.name + ' \n\n' +
       data;
 
     fs.writeFile('license.txt', content, function() {});
@@ -178,6 +169,7 @@ gulp.task('license', function(done) {
 
 gulp.task('default', gulp.series([
   'clean',
+  'dist-scope',
   'beautify-scripts',
   'beautify-styles',
   'bundle-scripts',

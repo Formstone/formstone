@@ -220,16 +220,18 @@ export function after(node, string) {
 
 /**
  * Converts a value to an iterable array
- * @param {*} target - The target to convert (Element, NodeList, Array, or any value)
+ * @param {*} target - The target to convert (Element, NodeList, HTMLCollection, Array, Set, or any value)
  * @returns {Array} Array of non-falsey items
  */
 export function iterable(target) {
-  if (!['[object NodeList]', '[object Array]'].includes(proto(target))) {
-    target = [target];
-  }
+  // Expand collections (NodeList, HTMLCollection, Array, Set, ...); wrap single values. Strings and
+  // DOM nodes are wrapped too, since <form> and <select> elements are themselves iterable.
+  let isCollection = !falsey(target) &&
+    typeof target !== 'string' &&
+    isFn(target[Symbol.iterator]) &&
+    !(typeof Node !== 'undefined' && target instanceof Node);
 
-  return [...target].filter((item) => {
-    // return item instanceof Element;
+  return [...(isCollection ? target : [target])].filter((item) => {
     return !falsey(item);
   });
 }
@@ -299,7 +301,7 @@ export function off(target, event, cb, options) {
 export function trigger(target, event, detail) {
   iterate(target, (el) => {
     el.dispatchEvent(new CustomEvent(event, {
-      detail: detail || null
+      detail: detail ?? null
     }));
   });
 }
@@ -483,7 +485,7 @@ export function setAttr(target, attr, value) {
   iterate(target, (el) => {
     for (let [a, v] of attr) {
       if (falsey(v)) {
-        removeAttr(target, a);
+        removeAttr(el, a);
       } else {
         el.setAttribute(a, v);
       }

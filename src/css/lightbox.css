@@ -1,4 +1,8 @@
-/*! formstone v2.2.2 [lightbox.css] 2026-10-09 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.2.2 [lightbox.css] 2026-10-12 | GPL-3.0 License | formstone.dev */
+html:has(.fs-lightbox[open]) {
+  overflow: hidden;
+}
+
 .fs-lightbox {
   --fs-lightbox-duration: 0.25s;
   --fs-lightbox-timing: linear;
@@ -29,6 +33,10 @@
   overflow: hidden;
   padding: 0;
   transition: display var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete, opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing), overlay var(--fs-lightbox-duration) var(--fs-lightbox-timing) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion) {
@@ -37,10 +45,6 @@
     --fs-lightbox-loading-duration: 0s;
     --fs-lightbox-item-duration: 0s;
   }
-}
-
-@starting-style {
-  opacity: 0;
 }
 
 .fs-lightbox[open] {
@@ -64,10 +68,10 @@
 
 .fs-lightbox-open::backdrop {
   opacity: 1;
-}
 
-@starting-style {
-  opacity: 0;
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 .fs-lightbox-sr {
@@ -152,6 +156,10 @@
 .fs-lightbox-media_video {
   max-width: 1200px;
   flex-grow: 1;
+}
+
+.fs-lightbox-media_element {
+  touch-action: pan-y;
 }
 
 .fs-lightbox-media_image img {

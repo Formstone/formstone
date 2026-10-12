@@ -169,7 +169,7 @@ class CheckPoint {
    * @returns {void}
    */
   #observe(entry) {
-    let height = this.parentEl ? this.parentEl.innerHeight : window.innerHeight;
+    let height = this.parentEl ? this.parentEl.clientHeight : window.innerHeight;
     let edge = height - (this.percent ? (height * this.percent) : this.edge);
 
     if (entry.isIntersecting || entry.boundingClientRect.top < edge) {

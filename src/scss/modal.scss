@@ -1,4 +1,4 @@
-/*! formstone v2.2.2 [modal.scss] 2026-10-09 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.2.2 [modal.scss] 2026-10-12 | GPL-3.0 License | formstone.dev */
 // Variables
 
 $fs-modal-mobile-max-width: 739px !default;
@@ -50,6 +50,14 @@ $fs-modal-button-color: #000 !default;
  * @description Close button icon color
  */
 /**
+ * Locks background scrolling while a modal is open
+ * @selector html:has(.fs-modal[open])
+ */
+html:has(.fs-modal[open]) {
+  overflow: hidden;
+}
+
+/**
  * @selector .fs-modal
  * @description Main modal dialog element. Uses native HTML dialog with custom properties
  * for theming. Supports @starting-style for entry animations and respects prefers-reduced-motion.
@@ -94,6 +102,11 @@ $fs-modal-button-color: #000 !default;
   overflow: hidden;
   padding: 0;
   transition: display var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete, opacity var(--fs-modal-duration) var(--fs-modal-timing), overlay var(--fs-modal-duration) var(--fs-modal-timing) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+  }
+
   /**
    * @modifier .fs-modal-open
    * @description Open state modifier. Applied after modal is shown to trigger transition.
@@ -130,10 +143,6 @@ $fs-modal-button-color: #000 !default;
   }
 }
 
-@starting-style {
-  opacity: 0;
-}
-
 .fs-modal[open] {
   display: flex;
 }
@@ -155,10 +164,10 @@ $fs-modal-button-color: #000 !default;
 
 .fs-modal-open::backdrop {
   opacity: 1;
-}
 
-@starting-style {
-  opacity: 0;
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 .fs-modal-sr {

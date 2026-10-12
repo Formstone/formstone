@@ -140,7 +140,7 @@ Set global options by passing a valid object to the public [`.defaults()`](#meth
 | -- | -- | -- | -- |
 | `domain` | `string` | `null` | Cookie domain |
 | `expires` | `number` | `604800000` | Expiration time in milliseconds (default 7 days) |
-| `path` | `string` | `null` | Cookie path |
+| `path` | `string` | `'/'` | Cookie path; site-wide by default |
 | `samesite` | `string` | `'Lax'` | SameSite attribute ('Strict', 'Lax', or 'None'); 'None' always adds `secure`, since browsers reject it otherwise |
 | `secure` | `boolean` | `null` | Secure attribute (requires HTTPS) |
 
@@ -245,7 +245,7 @@ if (username) {
 
 ### .delete() {#method-delete}
 
-Deletes a cookie by setting its expiration to the past.
+Deletes a cookie by setting its expiration to the past. Without a `path` option, it also removes a copy scoped to the current directory, which is where cookies set before `path` defaulted to `'/'` (2.3.0) were stored.
 
 #### Parameters
 

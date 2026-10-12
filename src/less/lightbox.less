@@ -124,6 +124,14 @@
 @fs-lightbox-button-color: #fff;
 
 /**
+ * Locks background scrolling while a lightbox is open
+ * @selector html:has(.fs-lightbox[open])
+ */
+html:has(.fs-lightbox[open]) {
+  overflow: hidden;
+}
+
+/**
  * @selector .fs-lightbox
  * @description Main lightbox dialog element. Uses native HTML dialog with custom properties
  * for theming. Supports @starting-style for entry animations and respects prefers-reduced-motion.
@@ -445,6 +453,15 @@
     max-width: 1200px;
 
     flex-grow: 1;
+  }
+
+  /**
+   * @modifier .fs-lightbox-media_element
+   * @description Element media type modifier. Keeps vertical scrolling native and leaves horizontal
+   * gestures to the swipe handler (otherwise the browser cancels the pointer to pan).
+   */
+  &-media_element {
+    touch-action: pan-y;
   }
 
   /**

@@ -15,12 +15,15 @@ Formstone is a library of modular front-end components written in dependency-fre
 | `src/less/*.less` | **Source.** Component styles; `index.less` imports them all | Yes |
 | `src/css/*.css` | Generated from `src/less` by gulp `convert-css` | **No** |
 | `src/scss/*.scss` | Generated from the compiled `src/less` output by gulp `convert-scss`, then checked by `verify-scss` | **No** |
-| `dist/` | Generated UMD bundles (`formstone.js`, `formstone.jquery.js`) and `formstone.css` | **No** |
+| `dist/` | Generated UMD bundles (`formstone.js`, `formstone.jquery.js`), `formstone.css`, and `package.json` (`{"type": "commonjs"}`, so `require()` treats the UMD bundles as CommonJS) | **No** |
 | `docs/<module>/default.md` | Documentation pages, one per module (front-matter + Markdown, rendered by the docs site) | Yes |
 | `demo/*.html` | Manual test pages for the four consumption modes (ES bundle, ES browser, jQuery bundle, jQuery browser) | Yes |
-| `gulpfile.js` | Build pipeline | Yes |
+| `gulpfile.cjs` | Build pipeline (CommonJS, since the package is `"type": "module"`) | Yes |
 | `tasks/gpl.txt` | License template; `license.txt` is generated from it | Template only |
-| `tasks/scss.js` | SCSS generation and verification used by the gulp `convert-scss` / `verify-scss` tasks | Yes |
+| `tasks/css.cjs` | CSS build helpers: Lightning CSS prefixing/minifying for `dist/formstone.css`, empty-line cleanup for `src/css` | Yes |
+| `tasks/js.cjs` | webpack UMD bundling for `dist/formstone.js` and `dist/formstone.jquery.js` | Yes |
+| `tasks/scss.cjs` | SCSS generation and verification used by the gulp `convert-scss` / `verify-scss` tasks | Yes |
+| `.browserslistrc` | Browser targets for CSS prefixes (Lightning CSS) and webpack's output syntax | Yes |
 | `CHANGELOG.md` | Release notes, newest first | Yes |
 
 Components: `Background`, `CheckPoint`, `Cookie`, `Lightbox`, `MediaQuery`, `Modal`, `Navigation`, `Swap`, `Tabs`, plus the `Utils` namespace.
@@ -33,6 +36,8 @@ grep -l "from './swap.js'" src/js/*.js
 
 ## Build
 
+Requires Node ≥20.19 (`engines` in `package.json`; `.nvmrc` pins 24). The toolchain is gulp 5, webpack 5 (through its Node API, `tasks/js.cjs`), `less`, Lightning CSS (`tasks/css.cjs`) and `sass` (for `verify-scss`).
+
 ```sh
 npm run gulp         # development build: beautify, bundle, convert Less → CSS/SCSS, regenerate license
 npm run gulp-build   # production build (NODE_ENV=production); runs automatically on `npm publish` (prepublishOnly)
@@ -42,6 +47,7 @@ npx gulp dev         # build, then watch Less/JS
 Notes:
 - The build **rewrites source files in place**: `beautify-scripts` reformats `src/js` and `src/jquery`, and `beautify-styles` reformats `src/less`. Expect formatting-only diffs after a build.
 - `clean` deletes `dist/*`, `src/css/*` and `src/scss/*` before regenerating them.
+- `dist/formstone.css` is prefixed and minified by Lightning CSS using `.browserslistrc`. Keep that file in line with what the JS actually supports (private class members, `<dialog>`, `inert`); targeting browsers that can't run the JS only adds dead prefixes.
 - Generated file banners include the version from `package.json` and the build date, so every build touches every generated file.
 - Release with `gulp-build` only. Development bundles contain `eval()` and will not run under a strict CSP. `prepublishOnly` enforces this for `npm publish`, and plain `npx gulp` (no `NODE_ENV`) also builds production; commit `dist/` from a production build.
 - `beautify-*` strips the final newline from some files, so a build may show newline-only diffs.
@@ -57,7 +63,9 @@ Notes:
 - `formstone/dist/*` → `dist/*`, and `formstone/package.json`
 - Sass: the `sass` condition on `"."` points at `src/scss/index.scss`, so `@use 'pkg:formstone' with (…)` works with Sass's `NodePackageImporter`. Single modules must include the extension (`pkg:formstone/lightbox.scss`), because `lightbox` alone matches both the `.scss` and `.css` patterns.
 
-Consumers import `src/` directly, so **everything in `src/js` ships as-is**. Do not introduce syntax or APIs that need a transpile step beyond what `.browserslistrc` supports (`> 1%, last 2 versions`).
+The package is `"type": "module"`: every `.js` file is ESM. Build scripts are `.cjs`, and the `dist-scope` build step writes `dist/package.json` to keep the UMD bundles CommonJS. Don't add CommonJS `.js` files outside `dist/`.
+
+Consumers import `src/` directly, so **everything in `src/js` ships as-is**. Do not introduce syntax or APIs that need a transpile step beyond what `.browserslistrc` supports (`defaults, not op_mini all`).
 
 There is no `sideEffects` field; it was removed in 2.2.2 because the jQuery adaptors, the CSS and `background.js` have import-time side effects. If you reintroduce it, use an explicit list of side-effect files, not `false`.
 
@@ -240,7 +248,7 @@ Adaptors must stay thin. All behavior belongs in `src/js`. When you add a compon
   - Document compound selectors with `@selector` and `@modifier` comments.
   - Don't leave empty rulesets.
 - **Reduced motion:** `@media (prefers-reduced-motion: reduce)` sets duration custom properties to `0s`. See the transition rule below; JavaScript must not depend on `transitionend` firing.
-- **SCSS is generated from the compiled CSS, not by translating Less syntax** (`tasks/scss.js`). `convert-scss` compiles each Less file, emits one `$fs-*: <evaluated value> !default;` per Less variable, and points the custom property (or `@media` query) that used it at the Sass variable. `verify-scss` then fails the build unless:
+- **SCSS is generated from the compiled CSS, not by translating Less syntax** (`tasks/scss.cjs`). `convert-scss` compiles each Less file, emits one `$fs-*: <evaluated value> !default;` per Less variable, and points the custom property (or `@media` query) that used it at the Sass variable. `verify-scss` then fails the build unless:
   - each SCSS file, and `index.scss`, compiles to the same CSS as its Less source;
   - every used variable can be configured with `@use … with ()`, both directly and through the index;
   - compiling produces no Sass warnings, deprecations included. Follow the Sass module system: `index.scss` uses `@forward`, never `@import`.
