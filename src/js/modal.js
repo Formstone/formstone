@@ -230,13 +230,13 @@ class Modal {
 
   /**
    * Closes active modal instance
-   * @returns {Promise} Promise that resolves when close transition completes
+   * @returns {Promise} Promise that resolves when the close transition completes (immediately if not open)
    * @example
    * el.Modal.close();
    */
   close() {
     if (!this.isOpen) {
-      return;
+      return Promise.resolve();
     }
 
     // Fixes 'stuck' instance
@@ -265,6 +265,9 @@ class Modal {
    * @returns {void}
    */
   #cleanUp() {
+    // Also covers the 'stuck' path in close(), which skips the transition
+    off(window, 'modal:close', this.listeners.close);
+
     if (this.titleEl) {
       removeAttr(this.titleEl, 'id');
       this.titleEl = null;

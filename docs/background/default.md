@@ -8,6 +8,8 @@ visible: true
 
 Full-frame, responsive image and video backgrounds.
 
+Backgrounds are decorative: the media is rendered as CSS backgrounds and video layers that are hidden from assistive technologies (`aria-hidden="true"`). Put meaningful images and text in the element's content instead, for example an `<img>` with `alt` text.
+
 <div class="docs_menu" markdown="1">
 
 * [Demos](#demo)
@@ -42,8 +44,7 @@ Create a new Background by passing the source image URL at initialization.
 ```html
 <div class="background js-background"
 data-background-options='{
-  "source": "//spaceholder.dev/1600x900/1.jpg",
-  "alt": "Background Image"
+  "source": "//spaceholder.dev/1600x900/1.jpg"
 }'>
   <h1>Lorem Ipsum</h1>
 </div>
@@ -91,8 +92,7 @@ data-background-options='{
   "source": {
     "0": "//spaceholder.dev/800x450/1.jpg",
     "740": "//spaceholder.dev/1600x900/3.jpg"
-  },
-  "alt": "Background Image"
+  }
 }'>
   <h1>Lorem Ipsum</h1>
 </div>
@@ -142,8 +142,7 @@ data-background-options='{
     "mp4": "//spaceholder.dev/video/video.mp4",
     "ogg": "//spaceholder.dev/video/video.ogv",
     "poster": "//spaceholder.dev/video/poster.jpg"
-  },
-  "alt": "Background Video"
+  }
 }'>
   <h1>Lorem Ipsum</h1>
 </div>
@@ -237,7 +236,6 @@ Set instance options by passing a valid object at initialization, or to the publ
 
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
-| `alt` | `string` | `''` | Image `alt` attribute |
 | `autoPlay` | `boolean` | `true` | Autoplay video; turned off when the user prefers reduced motion (`.play()` still plays) |
 | `lazy` | `boolean` | `false` | Lazy load media on scroll |
 | `lazyOffset` | `string` | `'100px'` | Distance from bottom of window for lazy loading |

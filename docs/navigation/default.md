@@ -260,38 +260,14 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-navigation-open` | `modifier` | Indicates open state |
 | `.fs-navigation-closed` | `modifier` | Indicates closed state |
 | `.fs-navigation-animated` | `modifier` | Indicates animated state |
-| `.fs-navigation-toggle-nav` | `modifier` | Toggle-mode navigation panel |
-| `.fs-navigation-toggle-handle` | `modifier` | Toggle-mode navigation handle |
-| `.fs-navigation-push` | `modifier` | Push-mode |
-| `.fs-navigation-push-nav` | `modifier` | Push-mode navigation panel |
-| `.fs-navigation-push-left-nav` | `modifier` | Push-mode gravity |
-| `.fs-navigation-push-right-nav` | `modifier` | Push-mode gravity |
-| `.fs-navigation-push-handle` | `modifier` | Push-mode navigation handle |
-| `.fs-navigation-push-left-handle` | `modifier` | Push-mode gravity |
-| `.fs-navigation-push-right-handle` | `modifier` | Push-mode gravity |
-| `.fs-navigation-push-content` | `modifier` | Push-mode navigation handle |
-| `.fs-navigation-push-left-content` | `modifier` | Push-mode gravity |
-| `.fs-navigation-push-right-content` | `modifier` | Push-mode gravity |
-| `.fs-navigation-reveal` | `modifier` | Reveal-mode |
-| `.fs-navigation-reveal-nav` | `modifier` | Reveal-mode navigation panel |
-| `.fs-navigation-reveal-left-nav` | `modifier` | Reveal-mode gravity |
-| `.fs-navigation-reveal-right-nav` | `modifier` | Reveal-mode gravity |
-| `.fs-navigation-reveal-handle` | `modifier` | Reveal-mode navigation handle |
-| `.fs-navigation-reveal-left-handle` | `modifier` | Reveal-mode gravity |
-| `.fs-navigation-reveal-right-handle` | `modifier` | Reveal-mode gravity |
-| `.fs-navigation-reveal-content` | `modifier` | Reveal-mode navigation handle |
-| `.fs-navigation-reveal-left-content` | `modifier` | Reveal-mode gravity |
-| `.fs-navigation-reveal-right-content` | `modifier` | Reveal-mode gravity |
-| `.fs-navigation-overlay` | `modifier` | Overlay-mode |
-| `.fs-navigation-overlay-nav` | `modifier` | Overlay-mode navigation panel |
-| `.fs-navigation-overlay-left-nav` | `modifier` | Overlay-mode gravity |
-| `.fs-navigation-overlay-right-nav` | `modifier` | Overlay-mode gravity |
-| `.fs-navigation-overlay-handle` | `modifier` | Overlay-mode navigation handle |
-| `.fs-navigation-overlay-left-handle` | `modifier` | Overlay-mode gravity |
-| `.fs-navigation-overlay-right-handle` | `modifier` | Overlay-mode gravity |
-| `.fs-navigation-overlay-content` | `modifier` | Overlay-mode content wrapper |
-| `.fs-navigation-overlay-left-content` | `modifier` | Overlay-mode gravity |
-| `.fs-navigation-overlay-right-content` | `modifier` | Overlay-mode gravity |
+| `.fs-navigation-{type}-nav` | `modifier` | Navigation type on the navigation element (`toggle`, `push`, `reveal` or `overlay`) |
+| `.fs-navigation-{type}-handle` | `modifier` | Navigation type on the handle |
+| `.fs-navigation-{type}-content` | `modifier` | Navigation type on the content element |
+| `.fs-navigation-{type}-{gravity}-nav` | `modifier` | Gravity (`left` or `right`) on the navigation element; not added for `toggle` |
+| `.fs-navigation-{type}-{gravity}-handle` | `modifier` | Gravity on the handle; not added for `toggle` |
+| `.fs-navigation-{type}-{gravity}-content` | `modifier` | Gravity on the content element while open; not added for `toggle` |
+
+For example, `type: 'push', gravity: 'right'` adds `.fs-navigation-push-nav` and `.fs-navigation-push-right-nav` to the navigation, `.fs-navigation-push-handle` and `.fs-navigation-push-right-handle` to the handle, `.fs-navigation-push-content` to the content, and `.fs-navigation-push-right-content` to the content while open.
 
 
 </div>

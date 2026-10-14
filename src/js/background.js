@@ -52,7 +52,6 @@ class Background {
    * @private
    */
   static #_defaults = {
-    // alt: '',
     autoPlay: true,
     lazy: false,
     lazyOffset: '100px',

@@ -8,6 +8,8 @@ visible: true
 
 Simple modal dialogs.
 
+The trigger must be a link to the id of the element holding the modal content (`<a href="#modal-content">`). The element's content is moved into the dialog while it's open and returned when it closes.
+
 <div class="docs_menu" markdown="1">
 
 * [Demos](#demo)
@@ -98,7 +100,7 @@ Closes active modal instance.
 
 | Type | Description |
 | -- | -- |
-| `Promise` | Promise that resolves when close transition completes |
+| `Promise` | Promise that resolves when the close transition completes; resolves immediately if the modal isn't open |
 
 #### Examples
 
@@ -200,8 +202,22 @@ Events are triggered on the window object.
 
 | Name | Description |
 | -- | -- |
-| `modal:open` | Modal opened |
-| `modal:close` | Modal closed |
+| `modal:open` | Modal opened; `detail.el` is the trigger element |
+| `modal:close` | Modal closed; `detail.el` is the trigger element |
+
+### Commands {#events-commands}
+
+Dispatch `modal:close` on the window object to close the open modal, for example from custom controls.
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.trigger(window, 'modal:close');
+```
+</figure>
+
+`modal:close` is both a command and the notification fired once the modal has closed, so a `modal:close` listener also runs when a close is requested. Only the notification has `detail.el`.
+
+Elements inside the modal content with the class `fs-modal-trigger-close` close the modal when clicked.
 
 
 <hr class="divider">

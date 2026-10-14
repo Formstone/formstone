@@ -268,3 +268,109 @@ test.describe('Lightbox and Modal (Low tier)', () => {
     expect(await ev(() => window.errors)).toEqual([]);
   });
 });
+
+test.describe('Lightbox and Modal (docs follow-ups)', () => {
+  test('close() always returns a Promise', async ({ page }) => {
+    await ready(page, 'lightbox-modal-close-loop.html');
+
+    expect(await page.evaluate(async () => {
+      window.L.construct('#g1, #g2, #g3');
+      window.M.construct('#mt');
+
+      let lb = document.getElementById('g1').Lightbox.close();
+      let md = document.getElementById('mt').Modal.close();
+
+      return { lightbox: lb instanceof Promise, modal: md instanceof Promise, resolved: (await Promise.all([lb, md])).length };
+    })).toEqual({ lightbox: true, modal: true, resolved: 2 });
+  });
+
+  test('loop wraps from the last item to the first and back', async ({ page }) => {
+    await ready(page, 'lightbox-modal-close-loop.html');
+
+    expect(await page.evaluate(async () => {
+      new window.L(document.getElementById('g1'), { loop: true });
+      new window.L(document.getElementById('g2'), { loop: true });
+      new window.L(document.getElementById('g3'), { loop: true });
+
+      let lb = document.getElementById('g3').Lightbox;
+
+      lb.open();
+      await window.wait(400);
+
+      let start = window.activeIndex();
+
+      lb.next();
+      await window.wait(100);
+
+      let afterNext = window.activeIndex();
+
+      lb.previous();
+      await window.wait(100);
+
+      let afterPrevious = window.activeIndex();
+
+      await lb.close();
+
+      return { start, afterNext, afterPrevious };
+    })).toEqual({ start: 2, afterNext: 0, afterPrevious: 2 });
+  });
+
+  test('commands control the open lightbox; window listeners are removed on every close path', async ({ page }) => {
+    await ready(page, 'lightbox-modal-close-loop.html');
+
+    expect(await page.evaluate(async () => {
+      window.L.construct('#g1, #g2, #g3');
+
+      let lb = document.getElementById('g1').Lightbox;
+      let closes = [];
+
+      window.addEventListener('lightbox:close', (e) => closes.push(e.detail && e.detail.el ? 'notification' : 'command'));
+
+      lb.open();
+      await window.wait(400);
+      window.U.trigger(window, 'lightbox:next');
+      await window.wait(100);
+
+      let afterNextCommand = window.activeIndex();
+
+      // 'Stuck' path: close() without the open class skips the transition
+      document.querySelector('.fs-lightbox').classList.remove('fs-lightbox-open');
+      await lb.close();
+
+      let index = lb.index;
+
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+      window.U.trigger(window, 'lightbox:next');
+      await window.wait(100);
+
+      return { afterNextCommand, closes, indexUnchangedAfterClose: lb.index === index, isOpen: lb.isOpen, errors: window.errors };
+    })).toEqual({ afterNextCommand: 1, closes: ['notification'], indexUnchangedAfterClose: true, isOpen: false, errors: [] });
+  });
+
+  test('modal:close command and fs-modal-trigger-close close the modal', async ({ page }) => {
+    await ready(page, 'lightbox-modal-close-loop.html');
+
+    expect(await page.evaluate(async () => {
+      window.M.construct('#mt');
+
+      let md = document.getElementById('mt').Modal;
+      let closes = [];
+
+      window.addEventListener('modal:close', (e) => closes.push(e.detail && e.detail.el ? 'notification' : 'command'));
+
+      md.open();
+      await window.wait(300);
+      window.U.trigger(window, 'modal:close');
+      await window.wait(500);
+
+      let afterCommand = md.isOpen;
+
+      md.open();
+      await window.wait(300);
+      document.querySelector('.fs-modal .fs-modal-trigger-close').click();
+      await window.wait(500);
+
+      return { afterCommand, afterTriggerClass: md.isOpen, closes };
+    })).toEqual({ afterCommand: false, afterTriggerClass: false, closes: ['command', 'notification', 'notification'] });
+  });
+});

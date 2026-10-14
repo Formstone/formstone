@@ -72,6 +72,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | `direction` | `string` | `null` | Content direction (ltr, rtl); falls back to `document.dir` when the instance is created |
 | `fileTypes` | `RegExp` | `/\.(jpe?g\|sjpg\|png\|gif\|webp\|avif\|svg)(?=$\|[?#])/i` | Supported image file extensions, matched at the end of the URL path |
 | `label` | `string` | `'Gallery'` | Accessibility label |
+| `loop` | `boolean` | `false` | Loop from the last gallery item to the first (and back) |
 | `ordinal` | `boolean` | `true` | Show gallery position indicator |
 | `threshold` | `number` | `50` | Swipe threshold in pixels |
 | `templates` | `object` | `...` | HTML templates for UI components |
@@ -116,7 +117,7 @@ Closes active lightbox instance.
 
 | Type | Description |
 | -- | -- |
-| `Promise` | Promise that resolves when close transition completes |
+| `Promise` | Promise that resolves when the close transition completes; resolves immediately if the lightbox isn't open |
 
 #### Examples
 
@@ -276,8 +277,38 @@ Events are triggered on the window object.
 
 | Name | Description |
 | -- | -- |
-| `lightbox:open` | Lightbox opened |
-| `lightbox:close` | Lightbox closed |
+| `lightbox:open` | Lightbox opened; `detail.el` is the trigger element |
+| `lightbox:close` | Lightbox closed; `detail.el` is the trigger element |
+
+### Commands {#events-commands}
+
+Dispatch these events on the window object to control the open lightbox, for example from custom controls.
+
+| Name | Description |
+| -- | -- |
+| `lightbox:previous` | Show the previous item |
+| `lightbox:next` | Show the next item |
+| `lightbox:close` | Close the lightbox |
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.trigger(window, 'lightbox:next');
+```
+</figure>
+
+`lightbox:close` is both a command and the notification fired once the lightbox has closed, so a `lightbox:close` listener also runs when a close is requested. Only the notification has `detail.el`:
+
+<figure class="example js-example" markdown="1">
+```js
+window.addEventListener('lightbox:close', (e) => {
+  if (e.detail && e.detail.el) {
+    // Lightbox closed
+  }
+});
+```
+</figure>
+
+Elements inside lightbox content with these classes act as controls when clicked: `fs-lightbox-trigger-previous`, `fs-lightbox-trigger-next` and `fs-lightbox-trigger-close`.
 
 
 <hr class="divider">

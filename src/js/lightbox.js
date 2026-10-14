@@ -49,6 +49,7 @@ let LightboxInstance;
  * @property {string} [label='Gallery'] - Accessibility label for the lightbox
  * @property {RegExp} [fileTypes=/\.(jpe?g|sjpg|png|gif|webp|avif|svg)(?=$|[?#])/i] - Regular expression to match image file extensions (at the end of the path)
  * @property {number} [threshold=50] - Swipe threshold in pixels for touch navigation
+ * @property {boolean} [loop=false] - Loop from the last gallery item to the first (and back)
  * @property {boolean} [ordinal=true] - Show gallery position indicator (e.g., "1 of 5")
  * @property {Object} [templates] - HTML templates for lightbox components
  * @property {Object} [videoProviders] - Video provider patterns and URL formatters for YouTube and Vimeo
@@ -68,7 +69,7 @@ class Lightbox {
     label: 'Gallery',
     fileTypes: /\.(jpe?g|sjpg|png|gif|webp|avif|svg)(?=$|[?#])/i,
     // iframeWidth: '900px',
-    // loop: false,
+    loop: false,
     threshold: 50,
     ordinal: true,
     templates: {
@@ -309,13 +310,13 @@ class Lightbox {
 
   /**
    * Closes active lightbox instance
-   * @returns {Promise} Promise that resolves when close transition completes
+   * @returns {Promise} Promise that resolves when the close transition completes (immediately if not open)
    * @example
    * el.Lightbox.close();
    */
   close() {
     if (!this.isOpen) {
-      return;
+      return Promise.resolve();
     }
 
     // Fixes 'stuck' instance
@@ -327,10 +328,7 @@ class Lightbox {
 
     removeClass(this.lightboxEl, 'fs-lightbox-open');
 
-    off(window, 'keydown', this.listeners.keydown);
-    off(window, 'lightbox:previous', this.listeners.previous);
-    off(window, 'lightbox:next', this.listeners.next);
-    off(window, 'lightbox:close', this.listeners.close);
+    this.#unbindWindow();
 
     return new Promise((resolve) => {
       afterTransition(this.lightboxEl, () => {
@@ -342,11 +340,25 @@ class Lightbox {
   }
 
   /**
+   * Removes the window listeners added while open
+   * @private
+   * @returns {void}
+   */
+  #unbindWindow() {
+    off(window, 'keydown', this.listeners.keydown);
+    off(window, 'lightbox:previous', this.listeners.previous);
+    off(window, 'lightbox:next', this.listeners.next);
+    off(window, 'lightbox:close', this.listeners.close);
+  }
+
+  /**
    * Cleans up lightbox state and restores moved content
    * @private
    * @returns {void}
    */
   #cleanUp() {
+    // Also covers the 'stuck' path in close(), which skips the transition
+    this.#unbindWindow();
 
     iterate(this.items, (item, index) => {
       if (item.isElement) {

@@ -1,0 +1,13 @@
+<!doctype html><html><meta charset="utf-8"><head><link rel="stylesheet" href="/src/css/lightbox.css"><link rel="stylesheet" href="/src/css/modal.css"></head><body>
+<a id="g1" href="/test/fixtures/assets/a.svg" data-lightbox-type="image" data-lightbox-gallery="loop">1</a>
+<a id="g2" href="/test/fixtures/assets/b.svg" data-lightbox-type="image" data-lightbox-gallery="loop">2</a>
+<a id="g3" href="/test/fixtures/assets/c.svg" data-lightbox-type="image" data-lightbox-gallery="loop">3</a>
+<a id="mt" href="#mc">modal</a><div id="mc"><h2>Title</h2><button type="button" class="fs-modal-trigger-close">Done</button></div>
+<script type="module">
+import { Lightbox, Modal, Utils } from '/src/js/index.js';
+window.L = Lightbox; window.M = Modal; window.U = Utils;
+window.wait = (ms) => new Promise((r) => setTimeout(r, ms));
+window.errors = []; addEventListener('error', (e) => errors.push(e.message));
+window.activeIndex = () => [...document.querySelectorAll('.fs-lightbox-item')].findIndex((i) => i.classList.contains('fs-lightbox-active'));
+window.T_READY = true;
+</script></body></html>

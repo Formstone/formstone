@@ -22,7 +22,7 @@ Core utility functions used throughout Formstone.
 
 ## Methods {#methods}
 
-Methods are publicly available as static methods on the `Utils` class.
+Utils is a module of functions, available as the `Utils` export (`import { Utils } from 'formstone'`) or individually (`import { select, on } from 'formstone/utils'`). Most functions that take a target accept an element, a NodeList, an HTMLCollection, an array, a Set or any other iterable collection.
 
 | Name | Description |
 | -- | -- |
@@ -43,10 +43,13 @@ Methods are publicly available as static methods on the `Utils` class.
 | [`.isU()`](#method-isu) | Checks if a value is undefined |
 | [`.iterable()`](#method-iterable) | Normalizes an item into an array for iteration |
 | [`.iterate()`](#method-iterate) | Iterates over items |
+| [`.normalizeAttrs()`](#method-normalizeattrs) | Normalizes attribute arguments into name/value pairs |
+| [`.normalizeClasses()`](#method-normalizeclasses) | Normalizes class name arguments into an array |
 | [`.off()`](#method-off) | Removes event listener(s) |
 | [`.on()`](#method-on) | Adds event listener(s) |
 | [`.once()`](#method-once) | Adds a one-time event listener |
 | [`.prepend()`](#method-prepend) | Inserts HTML at the beginning of a target |
+| [`.proto()`](#method-proto) | Returns the internal type tag of a value |
 | [`.ready()`](#method-ready) | Executes callback when DOM is ready |
 | [`.removeAttr()`](#method-removeattr) | Removes attribute(s) |
 | [`.removeClass()`](#method-removeclass) | Removes class(es) from target(s) |
@@ -107,6 +110,31 @@ Returns the JavaScript type of an item.
 | -- | -- |
 | `string` | The type of the item ('string', 'number', 'boolean', 'object', 'function', 'undefined', 'symbol', 'bigint') |
 
+### .proto() {#method-proto}
+
+Returns the internal type tag of a value, from `Object.prototype.toString`. Useful where `typeof` isn't specific enough.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `item` | `any` | The item to check |
+
+#### Returns
+
+| Type | Description |
+| -- | -- |
+| `string` | The type tag (e.g. `'[object Array]'`, `'[object Object]'`, `'[object NodeList]'`) |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.proto([]); // '[object Array]'
+Utils.proto(null); // '[object Null]'
+```
+</figure>
+
 ### .falsey() {#method-falsey}
 
 Checks if a value is falsey (undefined, false, or null).
@@ -141,7 +169,7 @@ Checks if a value is a function.
 
 ### .isObj() {#method-isobj}
 
-Checks if a value is an object.
+Checks if a value is an object. Returns `false` for `null`.
 
 #### Parameters
 
@@ -369,24 +397,24 @@ Utils.after(item, '<li class="label">End</li>');
 
 ### .iterate() {#method-iterate}
 
-Iterates over a target and executes a callback for each item.
+Iterates over a target and executes a callback for each item. Collections (NodeList, HTMLCollection, array, Set and other iterables) are iterated; a single value, string or DOM node is treated as one item; `null`, `undefined` and `false` items are skipped.
 
 #### Parameters
 
 | Name | Type | Description |
 | -- | -- | -- |
-| `target` | `element|NodeList|array|any` | The target to iterate over |
+| `target` | `element|NodeList|HTMLCollection|array|Set|any` | The target to iterate over |
 | `cb` | `function` | Callback function to execute for each item |
 
 ### .iterable() {#method-iterable}
 
-Converts a value to an iterable array.
+Converts a value to an array for iteration. Collections (NodeList, HTMLCollection, array, Set and other iterables) are expanded; a single value, string or DOM node becomes a one-item array (`<form>` and `<select>` elements are not expanded into their controls). `null`, `undefined` and `false` items are removed.
 
 #### Parameters
 
 | Name | Type | Description |
 | -- | -- | -- |
-| `target` | `any` | The target to convert (Element, NodeList, Array, or any value) |
+| `target` | `any` | The target to convert (element, collection, or any value) |
 
 #### Returns
 
@@ -450,7 +478,7 @@ Removes event listener(s) from element(s).
 
 ### .trigger() {#method-trigger}
 
-Dispatches a custom event on element(s).
+Dispatches a custom event on element(s). `detail` is passed through as-is, including falsy values like `0`, `false` and `''`; it defaults to `null`.
 
 #### Parameters
 
@@ -570,6 +598,32 @@ Checks if an element has a class.
 | `boolean` | True if the element has the class |
 
 
+### .normalizeClasses() {#method-normalizeclasses}
+
+Normalizes class name arguments into an array of single class names. Used by the class helpers, so `addClass()`, `removeClass()` and `hasClass()` accept the same forms.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `...classes` | `string|array` | Class names: separate arguments, space-separated strings, or a single array |
+
+#### Returns
+
+| Type | Description |
+| -- | -- |
+| `array` | Class names, with empty entries removed |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.normalizeClasses('a b', 'c'); // ['a', 'b', 'c']
+Utils.normalizeClasses(['a', 'b c', '']); // ['a', 'b', 'c']
+```
+</figure>
+
+
 <hr class="divider">
 
 
@@ -674,6 +728,33 @@ Restores an attribute to its original value from a data attribute.
 | `els` | `element|NodeList|array` | The target element(s) |
 | `attr` | `string` | The attribute name to restore |
 | `handle` | `string` | The handle used when the attribute was updated |
+
+
+### .normalizeAttrs() {#method-normalizeattrs}
+
+Normalizes attribute arguments into name/value pairs. Used by `setAttr()`, so it accepts either a name and value or an object.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `attr` | `string|object` | Attribute name, or an object of attribute name/value pairs |
+| `value` | `string` (optional) | Attribute value (when `attr` is a string) |
+
+#### Returns
+
+| Type | Description |
+| -- | -- |
+| `array` | Array of `[name, value]` pairs |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.normalizeAttrs('id', 'main'); // [['id', 'main']]
+Utils.normalizeAttrs({ id: 'main', role: 'tab' }); // [['id', 'main'], ['role', 'tab']]
+```
+</figure>
 
 
 <hr class="divider">
