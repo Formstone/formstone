@@ -1,4 +1,4 @@
-/*! formstone v2.2.2 [lightbox.css] 2026-10-12 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.3.0 [lightbox.css] 2026-10-14 | GPL-3.0 License | formstone.dev */
 html:has(.fs-lightbox[open]) {
   overflow: hidden;
 }
@@ -13,6 +13,7 @@ html:has(.fs-lightbox[open]) {
   --fs-lightbox-loading-duration: 0.75s;
   --fs-lightbox-item-duration: 0.25s;
   --fs-lightbox-item-timing: ease;
+  --fs-lightbox-zoom-duration: 0.25s;
   --fs-lightbox-details-bg: rgba(0, 0, 0, 0.6);
   --fs-lightbox-details-color: #fff;
   --fs-lightbox-details-font: 16px / 1.4 sans-serif;
@@ -44,6 +45,7 @@ html:has(.fs-lightbox[open]) {
     --fs-lightbox-duration: 0s;
     --fs-lightbox-loading-duration: 0s;
     --fs-lightbox-item-duration: 0s;
+    --fs-lightbox-zoom-duration: 0s;
   }
 }
 
@@ -171,8 +173,21 @@ html:has(.fs-lightbox[open]) {
   border: none;
   display: block;
   margin: auto;
+  transition: transform var(--fs-lightbox-zoom-duration) var(--fs-lightbox-item-timing);
   user-select: none;
   touch-action: none;
+}
+
+.fs-lightbox-item:has(.fs-lightbox-media_image) {
+  touch-action: none;
+}
+
+.fs-lightbox-zoomed .fs-lightbox-image {
+  cursor: grab;
+}
+
+.fs-lightbox-container.fs-lightbox-touching .fs-lightbox-image {
+  cursor: grabbing;
 }
 
 .fs-lightbox-video {
@@ -232,6 +247,11 @@ html:has(.fs-lightbox[open]) {
   transition-duration: 0s;
 }
 
+.fs-lightbox-zoomed .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .fs-lightbox-close {
   display: flex;
   align-items: center;
@@ -252,6 +272,45 @@ html:has(.fs-lightbox[open]) {
 
 .fs-lightbox-close svg {
   width: 30px;
+}
+
+.fs-lightbox:not(.fs-lightbox-zoomable) .fs-lightbox-zoom {
+  display: none;
+}
+
+.fs-lightbox-zoom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 2;
+  appearance: none;
+  background: var(--fs-lightbox-button-background);
+  border: none;
+  color: var(--fs-lightbox-button-color);
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
+}
+
+.fs-lightbox-zoom_in {
+  right: calc(env(safe-area-inset-right, 0px) + 40px);
+}
+
+.fs-lightbox-zoom_out {
+  right: calc(env(safe-area-inset-right, 0px) + 80px);
+}
+
+.fs-lightbox-zoom svg {
+  width: 28px;
+}
+
+.fs-lightbox-zoom:not([aria-disabled="true"]) {
+  cursor: pointer;
+  opacity: 1;
 }
 
 .fs-lightbox:not(.fs-lightbox-gallery) .fs-lightbox-control {
@@ -310,7 +369,7 @@ html:has(.fs-lightbox[open]) {
   left: 0;
 }
 
-.fs-lightbox-control:not([disabled]) {
+.fs-lightbox-control:not([aria-disabled="true"]) {
   cursor: pointer;
   opacity: 1;
 }

@@ -1,4 +1,4 @@
-/*! formstone v2.2.2 [modal.css] 2026-10-12 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.3.0 [modal.css] 2026-10-14 | GPL-3.0 License | formstone.dev */
 html:has(.fs-modal[open]) {
   overflow: hidden;
 }

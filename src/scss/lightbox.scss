@@ -1,4 +1,4 @@
-/*! formstone v2.2.2 [lightbox.scss] 2026-10-12 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.3.0 [lightbox.scss] 2026-10-14 | GPL-3.0 License | formstone.dev */
 // Variables
 
 $fs-lightbox-mobile-max-width: 739px !default;
@@ -11,6 +11,7 @@ $fs-lightbox-loading-spread: 5px !default;
 $fs-lightbox-loading-duration: 0.75s !default;
 $fs-lightbox-item-duration: 0.25s !default;
 $fs-lightbox-item-timing: ease !default;
+$fs-lightbox-zoom-duration: 0.25s !default;
 $fs-lightbox-details-bg: rgba(0, 0, 0, 0.6) !default;
 $fs-lightbox-details-color: #fff !default;
 $fs-lightbox-details-font: 16px / 1.4 sans-serif !default;
@@ -73,6 +74,11 @@ $fs-lightbox-button-color: #fff !default;
  * @type {string}
  * @default ease
  * @description Item transition timing function
+ */
+/**
+ * @type {number}
+ * @default 0.25s
+ * @description Image zoom transition duration (buttons, keys and double-tap; gestures follow the pointer)
  */
 /**
  * @type {color}
@@ -154,6 +160,8 @@ html:has(.fs-lightbox[open]) {
   --fs-lightbox-item-duration: #{$fs-lightbox-item-duration};
   /** @property {keyword} --fs-lightbox-item-timing - Item transition timing function */
   --fs-lightbox-item-timing: #{$fs-lightbox-item-timing};
+  /** @property {time} --fs-lightbox-zoom-duration - Image zoom transition duration */
+  --fs-lightbox-zoom-duration: #{$fs-lightbox-zoom-duration};
   /**
    * CSS Custom Properties - Details Area (Caption/Ordinal)
    */
@@ -256,6 +264,15 @@ html:has(.fs-lightbox[open]) {
    * @description Image media type modifier. Constrains image dimensions and prevents user interaction.
    */
   /**
+   * @selector .fs-lightbox-item:has(.fs-lightbox-media_image)
+   * @description Image items leave all touch gestures to the lightbox, so a pinch's second finger
+   * can land outside the image without zooming the page.
+   */
+  /**
+   * @selector .fs-lightbox-zoomed .fs-lightbox-image
+   * @description Zoomed image. Drag to pan.
+   */
+  /**
    * @selector .fs-lightbox-video
    * @description Video iframe container. Maintains 16:9 aspect ratio via aspect-ratio property.
    */
@@ -281,8 +298,22 @@ html:has(.fs-lightbox[open]) {
    * @description Details hidden during touch interaction. Improves visibility of content being swiped.
    */
   /**
+   * @selector .fs-lightbox-zoomed .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details
+   * @description Details hidden while zoomed, so they don't cover the image or catch pointers.
+   */
+  /**
    * @selector .fs-lightbox-close
    * @description Close button. Fixed at top-right with safe area offset. Always visible.
+   */
+  /**
+   * @selector .fs-lightbox-zoom
+   * @description Zoom in/out buttons, beside the close button. Shown when the active item is a
+   * loaded image (.fs-lightbox-zoomable).
+   */
+  /**
+   * @selector .fs-lightbox-zoom:not([aria-disabled="true"])
+   * @description Enabled zoom buttons. Full opacity and clickable cursor; unavailable buttons are
+   * dimmed and ignore clicks.
    */
   /**
    * @selector .fs-lightbox-control
@@ -294,8 +325,9 @@ html:has(.fs-lightbox[open]) {
    * @description RTL overrides for navigation buttons. Swaps left/right positioning and flips icons.
    */
   /**
-   * @selector .fs-lightbox-control:not([disabled])
-   * @description Enabled control buttons. Full opacity and clickable cursor.
+   * @selector .fs-lightbox-control:not([aria-disabled="true"])
+   * @description Enabled control buttons. Full opacity and clickable cursor; unavailable buttons
+   * (the ends of a gallery without loop) are dimmed and ignore clicks.
    */
   /**
    * @selector .fs-lightbox-loading
@@ -313,6 +345,7 @@ html:has(.fs-lightbox[open]) {
     --fs-lightbox-duration: 0s;
     --fs-lightbox-loading-duration: 0s;
     --fs-lightbox-item-duration: 0s;
+    --fs-lightbox-zoom-duration: 0s;
   }
 }
 
@@ -448,8 +481,21 @@ html:has(.fs-lightbox[open]) {
   border: none;
   display: block;
   margin: auto;
+  transition: transform var(--fs-lightbox-zoom-duration) var(--fs-lightbox-item-timing);
   user-select: none;
   touch-action: none;
+}
+
+.fs-lightbox-item:has(.fs-lightbox-media_image) {
+  touch-action: none;
+}
+
+.fs-lightbox-zoomed .fs-lightbox-image {
+  cursor: grab;
+}
+
+.fs-lightbox-container.fs-lightbox-touching .fs-lightbox-image {
+  cursor: grabbing;
 }
 
 .fs-lightbox-video {
@@ -509,6 +555,11 @@ html:has(.fs-lightbox[open]) {
   transition-duration: 0s;
 }
 
+.fs-lightbox-zoomed .fs-lightbox-item.fs-lightbox-active .fs-lightbox-details {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .fs-lightbox-close {
   display: flex;
   align-items: center;
@@ -529,6 +580,53 @@ html:has(.fs-lightbox[open]) {
 
 .fs-lightbox-close svg {
   width: 30px;
+}
+
+.fs-lightbox:not(.fs-lightbox-zoomable) .fs-lightbox-zoom {
+  display: none;
+}
+
+.fs-lightbox-zoom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 2;
+  appearance: none;
+  background: var(--fs-lightbox-button-background);
+  border: none;
+  color: var(--fs-lightbox-button-color);
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity var(--fs-lightbox-duration) var(--fs-lightbox-timing);
+  /**
+     * @modifier .fs-lightbox-zoom_in
+     * @description Zoom in button, left of the close button.
+     */
+  /**
+     * @modifier .fs-lightbox-zoom_out
+     * @description Zoom out button, left of the zoom in button.
+     */
+}
+
+.fs-lightbox-zoom_in {
+  right: calc(env(safe-area-inset-right, 0px) + 40px);
+}
+
+.fs-lightbox-zoom_out {
+  right: calc(env(safe-area-inset-right, 0px) + 80px);
+}
+
+.fs-lightbox-zoom svg {
+  width: 28px;
+}
+
+.fs-lightbox-zoom:not([aria-disabled="true"]) {
+  cursor: pointer;
+  opacity: 1;
 }
 
 .fs-lightbox:not(.fs-lightbox-gallery) .fs-lightbox-control {
@@ -595,7 +693,7 @@ html:has(.fs-lightbox[open]) {
   left: 0;
 }
 
-.fs-lightbox-control:not([disabled]) {
+.fs-lightbox-control:not([aria-disabled="true"]) {
   cursor: pointer;
   opacity: 1;
 }

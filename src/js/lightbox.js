@@ -39,6 +39,20 @@ function formatVimeo(parts) {
   return '//player.vimeo.com/video/' + parts[3];
 }
 
+// Zoom step for buttons and keys, and the largest step for one wheel event
+const ZOOM_STEP = 1.5;
+
+/**
+ * Clamps a pan offset; centers (0) when the range is empty because the image doesn't fill the view
+ * @param {number} value - Offset
+ * @param {number} min - Minimum offset
+ * @param {number} max - Maximum offset
+ * @returns {number} Clamped offset
+ */
+function clampPan(value, min, max) {
+  return (min > max) ? 0 : Math.min(Math.max(value, min), max);
+}
+
 let LightboxInstance;
 
 /**
@@ -50,6 +64,8 @@ let LightboxInstance;
  * @property {number} [threshold=50] - Swipe threshold in pixels for touch navigation
  * @property {boolean} [loop=false] - Loop from the last gallery item to the first (and back)
  * @property {boolean} [ordinal=true] - Show gallery position indicator (e.g., "1 of 5")
+ * @property {boolean} [zoom=true] - Allow zooming images (double-tap, pinch, buttons and keys)
+ * @property {number} [zoomMax=4] - Maximum zoom; also capped at the image's full resolution, but always at least 2
  * @property {Object} [templates] - HTML templates for lightbox components
  * @property {Object} [videoProviders] - Video provider patterns and URL formatters for YouTube and Vimeo
  */
@@ -70,11 +86,15 @@ class Lightbox {
     loop: false,
     threshold: 50,
     ordinal: true,
+    zoom: true,
+    zoomMax: 4,
     templates: {
       container: `
 <dialog class="fs-lightbox">
   <div class="fs-lightbox-loading" role="status">[loading]</div>
   <button type="button" class="fs-lightbox-close" autofocus>[close]</button>
+  <button type="button" class="fs-lightbox-zoom fs-lightbox-zoom_out">[zoomOut]</button>
+  <button type="button" class="fs-lightbox-zoom fs-lightbox-zoom_in">[zoomIn]</button>
   <div class="fs-lightbox-container"></div>
   <button type="button" class="fs-lightbox-control fs-lightbox-control_previous">[previous]</button>
   <button type="button" class="fs-lightbox-control fs-lightbox-control_next">[next]</button>
@@ -84,6 +104,8 @@ class Lightbox {
       loading: '<span class="fs-lightbox-sr">Loading</span>',
       previous: `<span class="fs-lightbox-sr">Previous</span><svg viewBox="-5 -5 24 24" fill="currentColor"><path d="M3.414 7.657l3.95 3.95A1 1 0 0 1 5.95 13.02L.293 7.364a.997.997 0 0 1 0-1.414L5.95.293a1 1 0 1 1 1.414 1.414l-3.95 3.95H13a1 1 0 0 1 0 2H3.414z"></path></svg>`,
       next: `<span class="fs-lightbox-sr">Next</span><svg viewBox="-5 -5 24 24" fill="currentColor"><path d="M10.586 5.657l-3.95-3.95A1 1 0 0 1 8.05.293l5.657 5.657a.997.997 0 0 1 0 1.414L8.05 13.021a1 1 0 1 1-1.414-1.414l3.95-3.95H1a1 1 0 1 1 0-2h9.586z"></path></svg>`,
+      zoomIn: `<span class="fs-lightbox-sr">Zoom in</span><svg viewBox="-2 -2 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L20 20M7.5 10.5h6M10.5 7.5v6"></path></svg>`,
+      zoomOut: `<span class="fs-lightbox-sr">Zoom out</span><svg viewBox="-2 -2 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L20 20M7.5 10.5h6"></path></svg>`,
       ordinal: `<span class="current">[current]</span> of <span class="total">[total]</span>`
     },
     videoProviders: {
@@ -110,6 +132,46 @@ class Lightbox {
   static defaults(options) {
     this.#_defaults = extend(true, this.#_defaults, options);
   }
+
+  /**
+   * Zoom state of the active image; `item` is set while it's zoomed in
+   * @type {{ item: Object|null, scale: number, x: number, y: number }}
+   * @private
+   */
+  #zoom = {
+    item: null,
+    scale: 1,
+    x: 0,
+    y: 0
+  };
+
+  /**
+   * Active pointers by id, for swipes, pans and pinches
+   * @type {Map<number, { x: number, y: number }>}
+   * @private
+   */
+  #pointers = new Map();
+
+  /**
+   * Current pointer gesture: null (maybe a tap), 'swipe', 'pan', 'pinch', or 'pinched' (one finger left at 1x)
+   * @type {string|null}
+   * @private
+   */
+  #gesture = null;
+
+  /**
+   * Pointer and zoom state when the current gesture (re)started
+   * @type {Object}
+   * @private
+   */
+  #start = {};
+
+  /**
+   * Last tap, for double-tap zoom
+   * @type {{ x: number, y: number, time: number }|null}
+   * @private
+   */
+  #lastTap = null;
 
   /**
    * @static
@@ -265,6 +327,16 @@ class Lightbox {
 
       this.#checkIndex();
 
+      this.#zoom = {
+        item: null,
+        scale: 1,
+        x: 0,
+        y: 0
+      };
+      this.#pointers.clear();
+      this.#gesture = null;
+      this.#lastTap = null;
+
       this.listeners = {
         'close': this.#onClose(),
         'next': this.#onNext(),
@@ -275,6 +347,10 @@ class Lightbox {
         'pointermove': this.#onPointerMove(),
         'pointerup': this.#onPointerUp(),
         'clickblock': this.#onClickBlock(),
+        'zoomin': this.#onZoomIn(),
+        'zoomout': this.#onZoomOut(),
+        'wheel': this.#onWheel(),
+        'resize': this.#onResize(),
       };
 
       this.#draw();
@@ -289,6 +365,9 @@ class Lightbox {
         addClass(this.lightboxEl, 'fs-lightbox-open');
 
         this.isOpen = true;
+
+        // Images only zoom once open
+        this.#updateZoom();
 
         LightboxInstance = this;
 
@@ -341,6 +420,7 @@ class Lightbox {
     off(window, 'lightbox:previous', this.listeners.previous);
     off(window, 'lightbox:next', this.listeners.next);
     off(window, 'lightbox:close', this.listeners.close);
+    off(window, 'resize', this.listeners.resize);
   }
 
   /**
@@ -351,6 +431,9 @@ class Lightbox {
   #cleanUp() {
     // Also covers the 'stuck' path in close(), which skips the transition
     this.#unbindWindow();
+
+    this.#pointers.clear();
+    this.#gesture = null;
 
     iterate(this.items, (item, index) => {
       if (item.isElement) {
@@ -411,6 +494,35 @@ class Lightbox {
     this.#checkIndex();
 
     this.#setPositions();
+  }
+
+  //
+
+  /**
+   * Zooms the active image in one step, keeping the center of the view in place
+   * @example
+   * el.Lightbox.zoomIn();
+   */
+  zoomIn() {
+    this.#zoomTo(this.#zoom.scale * ZOOM_STEP);
+  }
+
+  /**
+   * Zooms the active image out one step
+   * @example
+   * el.Lightbox.zoomOut();
+   */
+  zoomOut() {
+    this.#zoomTo(this.#zoom.scale / ZOOM_STEP);
+  }
+
+  /**
+   * Resets the active image to its fitted size
+   * @example
+   * el.Lightbox.zoomReset();
+   */
+  zoomReset() {
+    this.#resetZoom();
   }
 
   //
@@ -486,7 +598,9 @@ class Lightbox {
       .replace('[close]', this.templates.close)
       .replace('[loading]', this.templates.loading)
       .replace('[previous]', this.templates.previous)
-      .replace('[next]', this.templates.next);
+      .replace('[next]', this.templates.next)
+      .replace('[zoomIn]', this.templates.zoomIn)
+      .replace('[zoomOut]', this.templates.zoomOut);
 
     let template = element('template');
 
@@ -498,6 +612,8 @@ class Lightbox {
     document.body.append(this.lightboxEl);
 
     this.closeEl = select('.fs-lightbox-close', this.lightboxEl)[0];
+    this.zoomInEl = select('.fs-lightbox-zoom_in', this.lightboxEl)[0];
+    this.zoomOutEl = select('.fs-lightbox-zoom_out', this.lightboxEl)[0];
     this.loadingEl = select('.fs-lightbox-loading', this.lightboxEl)[0];
     this.containerEl = select('.fs-lightbox-container', this.lightboxEl)[0];
     this.statusEl = select('.fs-lightbox-status', this.lightboxEl)[0];
@@ -528,11 +644,26 @@ class Lightbox {
       if (item.isElement) {
         this.#drawElement(item, index);
       }
-
-      if (this.items.length > 1) {
-        on(item.mediaEl, 'pointerdown', this.listeners.pointerdown);
-      }
     });
+
+    // Swipes (galleries) and zoom gestures; a second finger may land outside the image
+    if (this.items.length > 1 || this.zoom) {
+      on(this.containerEl, 'pointerdown', this.listeners.pointerdown);
+    }
+
+    if (this.zoom) {
+      on(this.containerEl, 'wheel', this.listeners.wheel, {
+        passive: false
+      });
+    }
+
+    // Custom container templates may leave the zoom buttons out
+    if (this.zoomInEl) {
+      on(this.zoomInEl, 'click', this.listeners.zoomin);
+    }
+    if (this.zoomOutEl) {
+      on(this.zoomOutEl, 'click', this.listeners.zoomout);
+    }
 
     once(this.closeEl, 'click', this.listeners.close);
     on(this.controlPreviousEl, 'click', this.listeners.previous);
@@ -549,6 +680,7 @@ class Lightbox {
     on(window, 'lightbox:previous', this.listeners.previous);
     on(window, 'lightbox:next', this.listeners.next);
     on(window, 'lightbox:close', this.listeners.close);
+    on(window, 'resize', this.listeners.resize);
   }
 
   //
@@ -587,6 +719,7 @@ class Lightbox {
 
     item.el = itemEl;
     item.mediaEl = mediaEl;
+    item.imageEl = imgEl;
   }
 
   /**
@@ -726,6 +859,8 @@ class Lightbox {
    * @returns {void}
    */
   #setPositions() {
+    this.#resetZoom();
+
     iterate(this.items, (item, index) => {
       removeClass(item.el, 'fs-lightbox-active', 'fs-lightbox-item_previous', 'fs-lightbox-item_next');
 
@@ -763,9 +898,11 @@ class Lightbox {
     });
 
     if (!this.loop) {
-      setAttr(this.controlPreviousEl, 'disabled', (this.index === 0));
-      setAttr(this.controlNextEl, 'disabled', (this.index === this.maxIndex));
+      this.#setDisabled(this.controlPreviousEl, (this.index === 0));
+      this.#setDisabled(this.controlNextEl, (this.index === this.maxIndex));
     }
+
+    this.#updateZoom();
   }
 
   //
@@ -801,6 +938,7 @@ class Lightbox {
         }
 
         this.#hideLoading();
+        this.#updateZoom();
       };
 
       // Broken media: stop loading and show the item (alt text, caption) instead of a spinner
@@ -811,6 +949,7 @@ class Lightbox {
 
         if (index === this.index) {
           this.#hideLoading();
+          this.#updateZoom();
         }
       };
 
@@ -868,6 +1007,206 @@ class Lightbox {
     addClass(this.loadingEl, 'fs-lightbox-visible');
     removeAttr(this.loadingEl, 'aria-hidden');
     setAttr(this.lightboxEl, 'aria-busy', 'true');
+  }
+
+  //
+
+  /**
+   * Checks whether an item is an image that can zoom (loaded, not broken)
+   * @private
+   * @param {Object} [item] - Item data object
+   * @returns {boolean} True when the item can zoom
+   */
+  #canZoom(item) {
+    return !!(this.zoom && this.isOpen && item && item.isImage && item.isLoaded && !hasClass(item.el, 'fs-lightbox-error'));
+  }
+
+  /**
+   * Returns the maximum zoom for an item: `zoomMax`, or the image's full resolution if that's
+   * lower, but at least 2
+   * @private
+   * @param {Object} item - Item data object
+   * @returns {number} Maximum scale
+   */
+  #maxZoom(item) {
+    let ratio = item.imageEl.naturalWidth / item.imageEl.offsetWidth;
+
+    return Math.max(1, Math.min(this.zoomMax, Math.max(2, ratio || 0)));
+  }
+
+  /**
+   * Zooms the active image so the content under `from` moves to `to` (viewport points; both
+   * default to the center of the view)
+   * @private
+   * @param {number} scale - Target scale (clamped to 1 – max)
+   * @param {{ x: number, y: number }} [from] - Point to zoom around
+   * @param {{ x: number, y: number }} [to] - Where that point ends up (pinches move it)
+   * @param {boolean} [animate=true] - Transition to the new zoom
+   * @param {Object} [state] - Zoom state to start from (a pinch starts from its first frame)
+   * @returns {void}
+   */
+  #zoomTo(scale, from, to, animate = true, state = this.#zoom) {
+    let item = this.isOpen ? this.items[this.index] : null;
+
+    if (!this.#canZoom(item)) {
+      return;
+    }
+
+    let bounds = item.el.getBoundingClientRect();
+    let media = item.mediaEl.getBoundingClientRect();
+    let cx = media.left + media.width / 2;
+    let cy = media.top + media.height / 2;
+
+    if (!from) {
+      from = {
+        x: bounds.left + bounds.width / 2,
+        y: bounds.top + bounds.height / 2
+      };
+    }
+
+    to = to || from;
+    scale = Math.min(Math.max(scale, 1), this.#maxZoom(item));
+
+    let ratio = scale / state.scale;
+
+    this.#setZoom(item, scale, to.x - cx - ratio * (from.x - cx - state.x), to.y - cy - ratio * (from.y - cy - state.y), animate);
+  }
+
+  /**
+   * Applies a zoom to an item, keeping a zoomed image covering the view
+   * @private
+   * @param {Object} item - Item data object
+   * @param {number} scale - Scale
+   * @param {number} x - Horizontal offset in pixels
+   * @param {number} y - Vertical offset in pixels
+   * @param {boolean} animate - Transition to the new zoom
+   * @returns {void}
+   */
+  #setZoom(item, scale, x, y, animate) {
+    if (scale <= 1) {
+      this.#resetZoom(animate);
+
+      return;
+    }
+
+    let img = item.imageEl;
+    let bounds = item.el.getBoundingClientRect();
+    let media = item.mediaEl.getBoundingClientRect();
+    let cx = media.left + media.width / 2;
+    let cy = media.top + media.height / 2;
+    let width = img.offsetWidth * scale / 2;
+    let height = img.offsetHeight * scale / 2;
+
+    x = clampPan(x, bounds.right - cx - width, bounds.left - cx + width);
+    y = clampPan(y, bounds.bottom - cy - height, bounds.top - cy + height);
+
+    this.#zoom = {
+      item,
+      scale,
+      x,
+      y
+    };
+
+    img.style.transition = animate ? '' : 'none';
+    img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+
+    this.#updateZoom();
+  }
+
+  /**
+   * Resets the zoomed image, if any, to its fitted size
+   * @private
+   * @param {boolean} [animate=true] - Transition back
+   * @returns {void}
+   */
+  #resetZoom(animate = true) {
+    let item = this.#zoom.item;
+
+    if (item) {
+      item.imageEl.style.transition = animate ? '' : 'none';
+      item.imageEl.style.transform = '';
+    }
+
+    this.#zoom = {
+      item: null,
+      scale: 1,
+      x: 0,
+      y: 0
+    };
+
+    this.#updateZoom();
+  }
+
+  /**
+   * Updates zoom classes and button states for the active item
+   * @private
+   * @returns {void}
+   */
+  #updateZoom() {
+    if (!this.lightboxEl) {
+      return;
+    }
+
+    let item = this.items[this.index];
+    let zoomable = this.#canZoom(item);
+    let scale = this.#zoom.scale;
+
+    if (zoomable) {
+      addClass(this.lightboxEl, 'fs-lightbox-zoomable');
+    } else {
+      removeClass(this.lightboxEl, 'fs-lightbox-zoomable');
+    }
+
+    if (scale > 1) {
+      addClass(this.lightboxEl, 'fs-lightbox-zoomed');
+    } else {
+      removeClass(this.lightboxEl, 'fs-lightbox-zoomed');
+    }
+
+    this.#setDisabled(this.zoomInEl, (!zoomable || scale >= this.#maxZoom(item)));
+    this.#setDisabled(this.zoomOutEl, (!zoomable || scale <= 1));
+  }
+
+  /**
+   * Marks a control button as unavailable with `aria-disabled` rather than `disabled`, so it keeps
+   * focus (a focused `disabled` button drops focus to the page); clicks are ignored in its handler
+   * @private
+   * @param {Element} [el] - Button (custom templates may leave it out)
+   * @param {boolean} disabled - Unavailable
+   * @returns {void}
+   */
+  #setDisabled(el, disabled) {
+    if (el) {
+      setAttr(el, 'aria-disabled', disabled ? 'true' : false);
+    }
+  }
+
+  /**
+   * Checks whether an event comes from a control button marked unavailable
+   * @private
+   * @param {Event} e - Event
+   * @returns {boolean} True when the event's button is aria-disabled
+   */
+  #isDisabled(e) {
+    let el = e && e.currentTarget;
+
+    return !!(el && el.nodeType === 1 && getAttr(el, 'aria-disabled') === 'true');
+  }
+
+  /**
+   * Pans the zoomed image
+   * @private
+   * @param {number} dx - Horizontal distance in pixels
+   * @param {number} dy - Vertical distance in pixels
+   * @param {boolean} animate - Transition to the new position
+   * @returns {void}
+   */
+  #panBy(dx, dy, animate) {
+    let zoom = this.#zoom;
+
+    if (zoom.item) {
+      this.#setZoom(zoom.item, zoom.scale, zoom.x + dx, zoom.y + dy, animate);
+    }
   }
 
   //
@@ -1065,6 +1404,11 @@ class Lightbox {
    */
   #onPrevious() {
     return (e) => {
+      // Buttons at the ends of a gallery; commands dispatched on the window always run
+      if (this.#isDisabled(e)) {
+        return;
+      }
+
       this.previous();
     };
   }
@@ -1076,6 +1420,11 @@ class Lightbox {
    */
   #onNext() {
     return (e) => {
+      // Buttons at the ends of a gallery; commands dispatched on the window always run
+      if (this.#isDisabled(e)) {
+        return;
+      }
+
       this.next();
     };
   }
@@ -1087,8 +1436,48 @@ class Lightbox {
    */
   #onKeyDown() {
     return (e) => {
-      // Leave arrow keys to form fields, editable content and shortcuts
-      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]'))) {
+      // Leave keys to form fields, editable content and shortcuts (Ctrl/Cmd + and - zoom the page)
+      if (e.altKey || e.ctrlKey || e.metaKey || (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]'))) {
+        return;
+      }
+
+      if (this.#canZoom(this.items[this.index])) {
+        let pan = {
+          ArrowLeft: [1, 0],
+          ArrowRight: [-1, 0],
+          ArrowUp: [0, 1],
+          ArrowDown: [0, -1]
+        } [e.key];
+
+        if (e.key === '+' || e.key === '=') {
+          this.zoomIn();
+
+          return;
+        }
+        if (e.key === '-') {
+          this.zoomOut();
+
+          return;
+        }
+        if (e.key === '0') {
+          this.zoomReset();
+
+          return;
+        }
+
+        // Arrow keys pan a zoomed image instead of changing items
+        if (pan && this.#zoom.scale > 1) {
+          let bounds = this.items[this.index].el.getBoundingClientRect();
+
+          e.preventDefault();
+
+          this.#panBy(pan[0] * bounds.width / 10, pan[1] * bounds.height / 10, true);
+
+          return;
+        }
+      }
+
+      if (e.shiftKey) {
         return;
       }
 
@@ -1112,48 +1501,140 @@ class Lightbox {
   //
 
   /**
-   * Returns pointerdown handler for swipe navigation
+   * Returns pointerdown handler for swipes, pans and pinches
    * @private
    * @returns {(e: PointerEvent) => void} Event handler function
    */
   #onPointerDown() {
     return (e) => {
+      let item = this.items[this.index];
+
       // A new gesture clears any click blocker left by a drag that produced no click
       off(this.containerEl, 'click', this.listeners.clickblock, true);
 
-      if (
-        hasClass(e.target, 'fs-lightbox-trigger-previous') ||
-        hasClass(e.target, 'fs-lightbox-trigger-next') ||
-        hasClass(e.target, 'fs-lightbox-trigger-close') ||
-        e.target.closest('a, button, input, select, textarea, label, [contenteditable]') // don't act on interactive elements
-      ) {
+      if (this.#pointers.has(e.pointerId) || this.#pointers.size >= 2) {
         return;
       }
 
-      this.isTouching = true;
-      this.isDragging = false;
-      this.pointerStartX = e.clientX;
-      this.pointerStartY = e.clientY;
+      if (this.#pointers.size) {
+        // A second finger pinches; it may land outside the image
+        if (!this.#canZoom(item)) {
+          return;
+        }
+      } else {
+        if (
+          e.button > 0 ||
+          !item.mediaEl.contains(e.target) ||
+          hasClass(e.target, 'fs-lightbox-trigger-previous') ||
+          hasClass(e.target, 'fs-lightbox-trigger-next') ||
+          hasClass(e.target, 'fs-lightbox-trigger-close') ||
+          e.target.closest('a, button, input, select, textarea, label, [contenteditable]') // don't act on interactive elements
+        ) {
+          return;
+        }
 
-      on(this.containerEl, 'pointermove', this.listeners.pointermove);
-      on(this.containerEl, 'pointerup', this.listeners.pointerup);
-      on(this.containerEl, 'pointercancel', this.listeners.pointerup);
+        // Galleries swipe; images zoom
+        if (this.items.length < 2 && !this.#canZoom(item)) {
+          return;
+        }
+
+        on(this.containerEl, 'pointermove', this.listeners.pointermove);
+        on(this.containerEl, 'pointerup', this.listeners.pointerup);
+        on(this.containerEl, 'pointercancel', this.listeners.pointerup);
+      }
+
+      this.#pointers.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY
+      });
+
+      this.isTouching = true;
+
+      this.#startGesture();
     }
   }
 
   /**
-   * Returns pointermove handler for swipe drag updates
+   * Records where the current gesture starts, whenever a pointer is added or removed
+   * @private
+   * @returns {void}
+   */
+  #startGesture() {
+    let points = [...this.#pointers.values()];
+    let zoom = this.#zoom;
+
+    this.#start = {
+      x: points[0].x,
+      y: points[0].y,
+      state: {
+        scale: zoom.scale,
+        x: zoom.x,
+        y: zoom.y
+      }
+    };
+
+    if (points.length > 1) {
+      // Pinch from the midpoint; a pinch replaces a swipe in progress
+      this.#start.x = (points[0].x + points[1].x) / 2;
+      this.#start.y = (points[0].y + points[1].y) / 2;
+      this.#start.distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y) || 1;
+
+      if (this.#gesture === 'swipe') {
+        this.items[this.index].el.style.transform = null;
+      }
+
+      this.#gesture = 'pinch';
+      this.isDragging = true;
+
+      addClass(this.containerEl, 'fs-lightbox-touching');
+    } else if (this.#gesture === 'pinch') {
+      // One finger left: keep panning a zoomed image, but don't start swiping
+      this.#gesture = (zoom.scale > 1) ? 'pan' : 'pinched';
+    }
+  }
+
+  /**
+   * Returns pointermove handler for swipes, pans and pinches
    * @private
    * @returns {(e: PointerEvent) => void} Event handler function
    */
   #onPointerMove() {
     return (e) => {
+      if (!this.#pointers.has(e.pointerId)) {
+        return;
+      }
+
+      this.#pointers.set(e.pointerId, {
+        x: e.clientX,
+        y: e.clientY
+      });
+
       let item = this.items[this.index];
-      let diff = -(this.pointerStartX - e.clientX);
+      let start = this.#start;
+
+      if (this.#gesture === 'pinch') {
+        let points = [...this.#pointers.values()];
+        let to = {
+          x: (points[0].x + points[1].x) / 2,
+          y: (points[0].y + points[1].y) / 2
+        };
+        let distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
+
+        this.#zoomTo(start.state.scale * distance / start.distance, start, to, false, start.state);
+
+        return;
+      }
+
+      let dx = e.clientX - start.x;
+      let dy = e.clientY - start.y;
 
       // Only capture once the pointer has moved, so taps still click their target
-      if (!this.isDragging) {
-        if (Math.abs(diff) < 10) {
+      if (!this.#gesture) {
+        if (this.#zoom.scale > 1 && Math.hypot(dx, dy) >= 10) {
+          this.#gesture = 'pan';
+        } else if (this.#zoom.scale === 1 && this.items.length > 1 && Math.abs(dx) >= 10) {
+          this.#gesture = 'swipe';
+        } else {
           return;
         }
 
@@ -1164,58 +1645,116 @@ class Lightbox {
         addClass(this.containerEl, 'fs-lightbox-touching');
       }
 
-      item.el.style.transform = `translate3d(${diff}px, 0, 0)`;
+      if (this.#gesture === 'pan') {
+        this.#setZoom(item, start.state.scale, start.state.x + dx, start.state.y + dy, false);
+      }
+
+      if (this.#gesture === 'swipe') {
+        item.el.style.transform = `translate3d(${dx}px, 0, 0)`;
+      }
     }
   }
 
   /**
-   * Returns pointerup handler for completing swipe gestures
+   * Returns pointerup handler for completing swipes, pans, pinches and double-taps
    * @private
    * @returns {(e: PointerEvent) => void} Event handler function
    */
   #onPointerUp() {
     return (e) => {
+      if (!this.#pointers.has(e.pointerId)) {
+        return;
+      }
+
       let item = this.items[this.index];
+      let start = this.#start;
+      let gesture = this.#gesture;
+
+      this.#pointers.delete(e.pointerId);
+
+      if (this.#pointers.size) {
+        this.#startGesture();
+
+        return;
+      }
 
       off(this.containerEl, 'pointermove', this.listeners.pointermove);
       off(this.containerEl, 'pointerup', this.listeners.pointerup);
       off(this.containerEl, 'pointercancel', this.listeners.pointerup);
 
       this.isTouching = false;
-
-      if (!this.isDragging) {
-        return;
-      }
-
       this.isDragging = false;
+      this.#gesture = null;
 
       removeClass(this.containerEl, 'fs-lightbox-touching');
 
-      let diff = this.pointerStartX - e.clientX;
+      if (!gesture) {
+        if (e.type === 'pointerup' && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 10) {
+          this.#checkDoubleTap(e);
+        }
 
-      item.el.style.transform = null;
+        return;
+      }
 
-      if (e.type === 'pointerup' && Math.abs(diff) > this.threshold) {
-        if (diff < 0) {
-          if (this.isRTL) {
-            this.next();
-          } else {
-            this.previous();
+      if (gesture === 'swipe') {
+        let diff = start.x - e.clientX;
+
+        item.el.style.transform = null;
+
+        if (e.type === 'pointerup' && Math.abs(diff) > this.threshold) {
+          if (diff < 0) {
+            if (this.isRTL) {
+              this.next();
+            } else {
+              this.previous();
+            }
+          }
+          if (diff > 0) {
+            if (this.isRTL) {
+              this.previous();
+            } else {
+              this.next();
+            }
           }
         }
-        if (diff > 0) {
-          if (this.isRTL) {
-            this.previous();
-          } else {
-            this.next();
-          }
-        }
+      } else if (this.#zoom.scale < 1.05) {
+        // A pinch that ends near the fitted size snaps back to it
+        this.#resetZoom();
       }
 
       // The drag captured the pointer, so its click targets the container (which closes); block it
       if (e.type === 'pointerup') {
         on(this.containerEl, 'click', this.listeners.clickblock, true);
       }
+    }
+  }
+
+  /**
+   * Toggles zoom at the tap point when a tap follows another one closely
+   * @private
+   * @param {PointerEvent} e - Pointerup event
+   * @returns {void}
+   */
+  #checkDoubleTap(e) {
+    let last = this.#lastTap;
+    let tap = {
+      x: e.clientX,
+      y: e.clientY,
+      time: e.timeStamp
+    };
+
+    this.#lastTap = tap;
+
+    if (!last || tap.time - last.time > 300 || Math.hypot(tap.x - last.x, tap.y - last.y) > 30) {
+      return;
+    }
+
+    this.#lastTap = null;
+
+    if (this.#zoom.scale > 1) {
+      this.#resetZoom();
+    } else {
+      this.#zoomTo(2, tap);
     }
   }
 
@@ -1230,6 +1769,81 @@ class Lightbox {
 
       off(this.containerEl, 'click', this.listeners.clickblock, true);
     }
+  }
+
+  //
+
+  /**
+   * Returns wheel handler: Ctrl + wheel (and trackpad pinch) zooms, wheel pans a zoomed image
+   * @private
+   * @returns {(e: WheelEvent) => void} Event handler function
+   */
+  #onWheel() {
+    return (e) => {
+      if (!this.#canZoom(this.items[this.index])) {
+        return;
+      }
+
+      // Line-based deltas (Firefox mouse wheels) are roughly 16px each
+      let unit = (e.deltaMode === 1) ? 16 : 1;
+
+      if (e.ctrlKey) {
+        let point = {
+          x: e.clientX,
+          y: e.clientY
+        };
+        let delta = Math.min(Math.max(e.deltaY * unit, -50), 50);
+
+        e.preventDefault();
+
+        this.#zoomTo(this.#zoom.scale * Math.pow(ZOOM_STEP, -delta / 50), point, point, false);
+      } else if (this.#zoom.scale > 1) {
+        e.preventDefault();
+
+        this.#panBy(-e.deltaX * unit, -e.deltaY * unit, false);
+      }
+    }
+  }
+
+  /**
+   * Returns zoom in button handler
+   * @private
+   * @returns {(e: MouseEvent) => void} Event handler function
+   */
+  #onZoomIn() {
+    return (e) => {
+      if (this.#isDisabled(e)) {
+        return;
+      }
+
+      this.zoomIn();
+    };
+  }
+
+  /**
+   * Returns zoom out button handler
+   * @private
+   * @returns {(e: MouseEvent) => void} Event handler function
+   */
+  #onZoomOut() {
+    return (e) => {
+      if (this.#isDisabled(e)) {
+        return;
+      }
+
+      this.zoomOut();
+    };
+  }
+
+  /**
+   * Returns resize handler; the fitted size changes, so zoom resets
+   * @private
+   * @returns {(e: Event) => void} Event handler function
+   */
+  #onResize() {
+    return (e) => {
+      this.#resetZoom(false);
+    };
   }
 
 };
