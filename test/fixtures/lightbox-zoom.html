@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/src/css/lightbox.css"></head><body>
+<!-- 3000x2250: fits the 1000x800 view at 1000x750, so full resolution is 3x -->
+<a id="single" href="/test/fixtures/assets/big.svg">single</a>
+<a id="g1" href="/test/fixtures/assets/big.svg" data-lightbox-gallery="g">g1</a><a id="g2" href="/test/fixtures/assets/big.svg?2" data-lightbox-gallery="g">g2</a><a id="g3" href="#content" data-lightbox-gallery="g">g3</a>
+<div id="content"><p style="width:300px;height:200px">Element item</p></div>
+<!-- 10x10, shown at the 200px min-width: zoom still reaches 2x -->
+<a id="small" href="/test/fixtures/assets/img.svg">small</a>
+<a id="max" href="/test/fixtures/assets/big.svg?max" data-lightbox-options='{"zoomMax":1.5}'>max</a>
+<a id="off" href="/test/fixtures/assets/big.svg?off" data-lightbox-options='{"zoom":false}'>off</a>
+<script type="module">
+import { Lightbox } from '/src/js/index.js';
+Lightbox.construct('a');
+window.wait = (ms) => new Promise((r) => setTimeout(r, ms));
+window.errors = [];
+addEventListener('error', (e) => errors.push(e.message));
+// Opens a lightbox and waits for the image to load
+window.openBox = async (id) => {
+  document.getElementById(id).Lightbox.open();
+  await new Promise((r) => addEventListener('lightbox:open', r, { once: true }));
+  for (let i = 0; i < 50 && !document.querySelector('.fs-lightbox-active.fs-lightbox-loaded'); i++) {
+    await wait(20);
+  }
+  await wait(300);
+};
+window.closeBox = async () => {
+  for (let el of document.querySelectorAll('a')) {
+    if (el.Lightbox && el.Lightbox.isOpen) {
+      await el.Lightbox.close();
+    }
+  }
+};
+// Zoom state of the active image, from its inline transform
+window.zoom = () => {
+  let box = document.querySelector('dialog.fs-lightbox');
+  let img = document.querySelector('.fs-lightbox-active .fs-lightbox-image');
+  let m = img ? img.style.transform.match(/translate\((-?[\d.e-]+)px, (-?[\d.e-]+)px\) scale\(([\d.e-]+)\)/) : null;
+  let zoomIn = box.querySelector('.fs-lightbox-zoom_in');
+  return {
+    open: box.open,
+    scale: m ? Math.round(Number(m[3]) * 1000) / 1000 : 1,
+    x: m ? Math.round(Number(m[1])) : 0,
+    y: m ? Math.round(Number(m[2])) : 0,
+    zoomable: box.classList.contains('fs-lightbox-zoomable'),
+    zoomed: box.classList.contains('fs-lightbox-zoomed'),
+    buttons: getComputedStyle(zoomIn).display !== 'none',
+    inDisabled: zoomIn.getAttribute('aria-disabled') === 'true',
+    outDisabled: box.querySelector('.fs-lightbox-zoom_out').getAttribute('aria-disabled') === 'true',
+    index: [...document.querySelectorAll('.fs-lightbox-item')].indexOf(document.querySelector('.fs-lightbox-active')),
+  };
+};
+window.T_READY = true;
+</script></body></html>

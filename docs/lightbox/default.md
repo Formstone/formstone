@@ -375,6 +375,8 @@ Set instance options by passing a valid object at initialization, or to the publ
 | `loop` | `boolean` | `false` | Loop from the last gallery item to the first (and back) |
 | `ordinal` | `boolean` | `true` | Show gallery position indicator |
 | `threshold` | `number` | `50` | Swipe threshold in pixels |
+| `zoom` | `boolean` | `true` | Allow zooming images (see [Zoom](#zoom)) |
+| `zoomMax` | `number` | `4` | Maximum zoom; also capped at the image's full resolution, but always at least `2` |
 | `templates` | `object` | `...` | HTML templates for UI components |
 | `videoProviders` | `object` | `...` | Video provider patterns and formatters |
 
@@ -407,6 +409,9 @@ Methods are publicly available to all active instances, unless otherwise stated.
 | [`.next()`](#method-next) | Advances to next gallery item |
 | [`.open()`](#method-open) | Opens lightbox at specified index |
 | [`.previous()`](#method-previous) | Goes back to previous gallery item |
+| [`.zoomIn()`](#method-zoomIn) | Zooms the active image in one step |
+| [`.zoomOut()`](#method-zoomOut) | Zooms the active image out one step |
+| [`.zoomReset()`](#method-zoomReset) | Resets the active image to its fitted size |
 
 
 ### .close() {#method-close}
@@ -568,6 +573,58 @@ el.Lightbox.previous();
 </figure>
 
 
+### .zoomIn() {#method-zoomIn}
+
+Zooms the active image in one step (1.5×), keeping the center of the view in place. Does nothing unless the active item is a loaded image and `zoom` is enabled.
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+el.Lightbox.zoomIn();
+```
+</figure>
+
+### .zoomOut() {#method-zoomOut}
+
+Zooms the active image out one step.
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+el.Lightbox.zoomOut();
+```
+</figure>
+
+### .zoomReset() {#method-zoomReset}
+
+Resets the active image to its fitted size.
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+el.Lightbox.zoomReset();
+```
+</figure>
+
+### Zoom {#zoom}
+
+Images can be zoomed once loaded:
+
+| Input | Action |
+| -- | -- |
+| Double-tap or double-click | Zoom to 2× at that point, or back to the fitted size |
+| Pinch, or Ctrl + wheel (trackpad pinch) | Zoom around the fingers or pointer |
+| Drag, or wheel | Pan a zoomed image (swipes don't change items while zoomed) |
+| Zoom buttons, `+` and `-` keys | Zoom in or out one step |
+| `0` key | Reset to the fitted size |
+| Arrow keys | Pan a zoomed image (otherwise they change items) |
+
+Zoom resets when the item changes, the window resizes or the lightbox closes. Set `zoom: false` to turn it off. A custom `templates.container` needs `<button type="button" class="fs-lightbox-zoom fs-lightbox-zoom_in">[zoomIn]</button>` and the matching `fs-lightbox-zoom_out` / `[zoomOut]` button to show zoom buttons; gestures and keys work without them.
+
+
 <hr class="divider">
 
 
@@ -629,6 +686,7 @@ CSS custom properties are used to modify default styles.
 | `--fs-lightbox-loading-duration` | `0.75s` | Loading spinner animation duration |
 | `--fs-lightbox-item-duration` | `0.25s` | Content transition duration |
 | `--fs-lightbox-item-timing` | `ease` | Content transition timing |
+| `--fs-lightbox-zoom-duration` | `0.25s` | Image zoom transition duration |
 | `--fs-lightbox-details-bg` | `rgba(0, 0, 0, 0.6)` | Details area background |
 | `--fs-lightbox-details-color` | `#fff` | Details area text color |
 | `--fs-lightbox-details-font` | `16px / 1.4 sans-serif` | Details area font stack |
@@ -647,8 +705,12 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-lightbox-active` | `modifier` | Indicates active state |
 | `.fs-lightbox-open` | `modifier` | Indicates open state |
 | `.fs-lightbox-error` | `modifier` | Item media failed to load |
+| `.fs-lightbox-zoomable` | `modifier` | The active item is an image that can zoom (shows the zoom buttons) |
+| `.fs-lightbox-zoomed` | `modifier` | The active image is zoomed in |
 
 The page behind an open lightbox doesn't scroll (`html:has(.fs-lightbox[open])`). `data-lightbox-type="url"` items only load `http` and `https` URLs. Arrow keys don't change items while focus is in a form field or editable content. Escape, the close button, or a click outside the content closes the lightbox.
+
+Buttons that can't act right now (previous and next at the ends of a gallery without `loop`, zoom in at the maximum, zoom out at the fitted size) get `aria-disabled="true"` rather than `disabled`, so they keep keyboard focus. They're dimmed and ignore clicks; style them with `[aria-disabled="true"]`.
 
 
 </div>

@@ -101,3 +101,41 @@ export async function touchDrag(page, x, y, dx) {
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await page.waitForTimeout(500);
 }
+
+/**
+ * Dispatches a two-finger pinch with Chromium's DevTools protocol, symmetric around a point
+ * @param {import('@playwright/test').Page} page - Page
+ * @param {number} x - Center x
+ * @param {number} y - Center y
+ * @param {number} from - Starting distance between the fingers
+ * @param {number} to - Ending distance between the fingers
+ * @returns {Promise<void>}
+ */
+export async function touchPinch(page, x, y, from, to) {
+  let cdp = await page.context().newCDPSession(page);
+  let points = (d) => [{ x: x - d / 2, y, id: 0 }, { x: x + d / 2, y, id: 1 }];
+
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: points(from) });
+
+  for (let i = 1; i <= 10; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: points(from + (to - from) * i / 10) });
+    await page.waitForTimeout(16);
+  }
+
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(400);
+}
+
+/**
+ * Dispatches a touch tap with Chromium's DevTools protocol
+ * @param {import('@playwright/test').Page} page - Page
+ * @param {number} x - x
+ * @param {number} y - y
+ * @returns {Promise<void>}
+ */
+export async function touchTap(page, x, y) {
+  let cdp = await page.context().newCDPSession(page);
+
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+}

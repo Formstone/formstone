@@ -2,6 +2,18 @@
 
 <!-- -->
 
+### 2.3.0
+
+* Added zoom to Lightbox (double-tap, pinch, buttons and keys)
+* Added play, pause, mute and unmute events to Background
+* Added label option to Modal
+* Fixed accessibility issues in Lightbox, Modal, Navigation and Tabs
+* Fixed issues with lingering listeners and media queries
+* Fixed issue with Cookie values
+* Fixed issue with reduce motion in Background
+* Fixed issue with SCSS conversion
+* Updated tooling, documentation, and demos
+
 ### 2.2.2
 
 * Fixed issue with tree shaking
