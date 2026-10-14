@@ -21,9 +21,7 @@ Responsive media query events.
 
 ## Demos {#demo}
 
-Demos coming soon.
-
-<!-- <div class="docs_menu" markdown="1">
+<div class="docs_menu" markdown="1">
 
 * [Basic](#demo-basic)
 
@@ -31,27 +29,53 @@ Demos coming soon.
 
 ### Basic {#demo-basic}
 
-Bind to media query changes.
+Run callbacks when a media query starts or stops matching. Resize the result to see it change.
 
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -- >
+<p class="demo_status">
+  The viewport is <strong class="js-status">…</strong>
+</p>
 ```
 
 ```js
-import { MediaQuery, Utils } from 'Formstone';
+import { MediaQuery, Utils } from 'formstone';
 
 Utils.ready(() => {
-  // Demo coming soon
+  let status = document.querySelector('.js-status');
+
+  MediaQuery.bind('demo', '(min-width: 600px)', {
+    enter: () => {
+      status.textContent = 'at least 600px wide';
+      document.body.classList.add('is-wide');
+    },
+    leave: () => {
+      status.textContent = 'narrower than 600px';
+      document.body.classList.remove('is-wide');
+    },
+  });
 });
 ```
 
 ```css
-/* Demo coming soon */
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_status {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  padding: 20px;
+}
+
+.is-wide .demo_status {
+  background: var(--color-blue);
+}
 ```
 
-</figure> -->
+</figure>
 
 
 <hr class="divider">

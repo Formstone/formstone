@@ -452,6 +452,12 @@ Events are triggered on the target instance's element, unless otherwise stated.
 | Name | Description |
 | -- | -- |
 | `background:loaded` | Background media loaded |
+| `background:play` | Video started playing (including autoplay) |
+| `background:pause` | Video stopped playing (paused, ended without `loop`, or replaced by a new source) |
+| `background:mute` | Video muted with `.mute()` |
+| `background:unmute` | Video unmuted with `.unmute()` |
+
+`background:play` and `background:pause` follow the media's actual playback state, for `<video>` and YouTube sources, so they can keep a custom play/pause control in sync. They fire once per change; a refused `.play()` (for example, unmuted autoplay blocked by the browser) doesn't fire `background:play`.
 
 
 <hr class="divider">

@@ -8,7 +8,7 @@ visible: true
 
 Simple modal dialogs.
 
-The trigger must be a link to the id of the element holding the modal content (`<a href="#modal-content">`). The element's content is moved into the dialog while it's open and returned when it closes.
+The trigger must be a link to the id of the element holding the modal content (`<a href="#modal-content">`). The element's content is moved into the dialog while it's open and returned when it closes. Escape, the close button, or a click outside the content closes the modal.
 
 <div class="docs_menu" markdown="1">
 
@@ -26,9 +26,7 @@ The trigger must be a link to the id of the element holding the modal content (`
 
 ## Demos {#demo}
 
-Demos coming soon.
-
-<!-- <div class="docs_menu" markdown="1">
+<div class="docs_menu" markdown="1">
 
 * [Basic](#demo-basic)
 
@@ -36,27 +34,58 @@ Demos coming soon.
 
 ### Basic {#demo-basic}
 
-Open an element in a modal.
+Link to an element's id to show its content in a modal dialog. The first heading names the dialog for assistive technologies, and buttons with the `fs-modal-trigger-close` class close it.
 
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -- >
+<a href="#modal-content" class="demo_button js-modal">Open Modal</a>
+
+<div class="demo_hidden" id="modal-content">
+  <div class="demo_content">
+    <h2>Adipiscing Vulputate Elit</h2>
+    <p>Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum. Maecenas faucibus mollis interdum.</p>
+    <button type="button" class="demo_button fs-modal-trigger-close">Close</button>
+  </div>
+</div>
 ```
 
 ```js
-import { Modal, Utils } from 'Formstone';
+import { Modal, Utils } from 'formstone';
 
 Utils.ready(() => {
-  // Demo coming soon
+  Modal.construct('.js-modal');
 });
 ```
 
 ```css
-/* Demo coming soon */
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_button {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+.demo_hidden {
+  display: none;
+}
+
+.demo_content {
+  max-width: 500px;
+  padding: 10px;
+}
 ```
 
-</figure> -->
+</figure>
 
 
 <hr class="divider">
@@ -198,7 +227,7 @@ el.Modal.open();
 
 ## Events {#events}
 
-Events are triggered on the window object.
+Events are triggered on the trigger element and on the window object.
 
 | Name | Description |
 | -- | -- |

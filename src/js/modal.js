@@ -4,7 +4,6 @@
  * Updated with work by @nhall
  */
 
-// import MediaQuery from './mediaquery.js';
 import {
   extend,
   //
@@ -221,7 +220,8 @@ class Modal {
 
         ModalInstance = this;
 
-        trigger(window, 'modal:open', {
+        // On the trigger element (like other components) and the window
+        trigger([this.el, window], 'modal:open', {
           el: this.el
         });
       }, 10);
@@ -283,7 +283,8 @@ class Modal {
       this.el.focus();
     }
 
-    trigger(window, 'modal:close', {
+    // On the trigger element (like other components) and the window
+    trigger([this.el, window], 'modal:close', {
       el: this.el
     });
 
@@ -310,14 +311,12 @@ class Modal {
 
     document.body.append(this.modalEl);
 
-    this.overlayEl = select('.fs-modal-overlay', this.modalEl)[0];
     this.closeEl = select('.fs-modal-close', this.modalEl)[0];
     this.containerEl = select('.fs-modal-container', this.modalEl)[0];
     this.wrapEl = select('.fs-modal-wrap', this.modalEl)[0];
     this.frameEl = select('.fs-modal-frame', this.modalEl)[0];
 
     this.frameEl.append(...this.targetEl.childNodes);
-    this.wrapEl.append(this.frameEl);
 
     addClass(this.modalEl, this.customClass);
 
@@ -325,7 +324,11 @@ class Modal {
 
     once(this.closeEl, 'click', this.listeners.close);
     on(this.containerEl, 'click', this.listeners.container);
+    // Escape: keep the dialog modal through the close transition instead of the native instant
+    // close (if the browser makes cancel non-cancelable, close() still cleans up after it)
     on(this.modalEl, 'cancel', (e) => {
+      e.preventDefault();
+
       this.close();
     });
     on(window, 'modal:close', this.listeners.close);
@@ -435,14 +438,6 @@ class Modal {
       this.close();
     };
   }
-
-  // #onKeyDown() {
-  //   return (e) => {
-  //     if (e.key === 'Escape') {
-  //       this.close();
-  //     }
-  //   };
-  // }
 
 };
 

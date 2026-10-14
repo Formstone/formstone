@@ -81,3 +81,26 @@ test.describe('Background and Swap (Low tier)', () => {
     expect(r.B4_playRejected).toEqual({ playing: false });
   });
 });
+
+test.describe('Background events', () => {
+  test('play, pause, mute and unmute follow the actual state', async ({ page }) => {
+    let r = await result(page, 'background-events.html');
+
+    expect(r.errors).toEqual([]);
+    // Autoplay reports play once; pause()/play() report each change
+    expect(r.videoAutoplay).toEqual(['play']);
+    expect(r.videoPauseThenPlay).toEqual(['play', 'pause', 'play']);
+    // Muted by default: mute() is no change; repeated unmute() fires once
+    expect(r.videoMuteSequence).toEqual(['play', 'pause', 'play', 'unmute', 'mute']);
+    // Loading a new source stops the video
+    expect(r.videoSourceChange).toEqual(['play', 'pause', 'play', 'unmute', 'mute', 'pause']);
+    // Nothing after destroy()
+    expect(r.videoAfterDestroy).toEqual(r.videoSourceChange);
+    // YouTube: duplicate PLAYING ignored; ENDED without loop is a pause
+    expect(r.youtubeStates).toEqual(['play', 'pause', 'play', 'pause']);
+    // A replaced player's events are ignored; the new player's are reported
+    expect(r.youtubeReplacedIgnored).toEqual(['play', 'pause', 'play', 'pause', 'play']);
+    // With loop, ENDED is followed by a replay, not a pause
+    expect(r.youtubeLoopEnded).toEqual(['play']);
+  });
+});

@@ -24,37 +24,337 @@ Accessible lightbox for images, videos, and elements.
 
 ## Demos {#demo}
 
-Demos coming soon.
-
-<!-- <div class="docs_menu" markdown="1">
+<div class="docs_menu" markdown="1">
 
 * [Basic](#demo-basic)
+* [Gallery](#demo-gallery)
+* [Loop](#demo-loop)
+* [Video](#demo-video)
+* [Inline Content & URLs](#demo-inline)
 
 </div>
 
 ### Basic {#demo-basic}
 
-Open an image in a lightbox.
+Open an image in a lightbox. The `title` (or `data-lightbox-caption`) becomes the caption.
 
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -- >
+<div class="demo_set">
+  <a href="https://spaceholder.dev/1600x900/1.jpg" class="demo_thumb js-lightbox"
+    title="Ultricies Ipsum Purus Vulputate"
+  >
+    <img src="https://spaceholder.dev/400x300/1.jpg" alt="Ultricies Ipsum Purus Vulputate">
+  </a>
+  <a href="https://spaceholder.dev/1600x900/2.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-caption="Nulla vitae elit libero, a pharetra augue."
+  >
+    <img src="https://spaceholder.dev/400x300/2.jpg" alt="Nulla vitae elit libero, a pharetra augue.">
+  </a>
+</div>
 ```
 
 ```js
-import { Lightbox, Utils } from 'Formstone';
+import { Lightbox, Utils } from 'formstone';
 
 Utils.ready(() => {
-  // Demo coming soon
+  Lightbox.construct('.js-lightbox');
 });
 ```
 
 ```css
-/* Demo coming soon */
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.demo_thumb {
+  box-sizing: border-box;
+  flex: 0 0 calc(33.333% - 14px);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  overflow: hidden;
+}
+
+.demo_thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 ```
 
-</figure> -->
+</figure>
+
+### Gallery {#demo-gallery}
+
+Group links with `data-lightbox-gallery` to page through them with the controls, arrow keys or swipes.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_set">
+  <a href="https://spaceholder.dev/1600x900/7.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="gallery"
+    title="Duis mollis, est non commodo luctus"
+  >
+    <img src="https://spaceholder.dev/400x300/7.jpg" alt="Duis mollis, est non commodo luctus">
+  </a>
+  <a href="https://spaceholder.dev/900x900/8.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="gallery"
+    title="Nullam id dolor id nibh ultricies vehicula"
+  >
+    <img src="https://spaceholder.dev/400x300/8.jpg" alt="Nullam id dolor id nibh ultricies vehicula">
+  </a>
+  <a href="https://spaceholder.dev/1600x900/9.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="gallery"
+    title="Etiam porta sem malesuada magna mollis euismod"
+  >
+    <img src="https://spaceholder.dev/400x300/9.jpg" alt="Etiam porta sem malesuada magna mollis euismod">
+  </a>
+</div>
+```
+
+```js
+import { Lightbox, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Lightbox.construct('.js-lightbox');
+});
+```
+
+```css
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.demo_thumb {
+  box-sizing: border-box;
+  flex: 0 0 calc(33.333% - 14px);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  overflow: hidden;
+}
+
+.demo_thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+```
+
+</figure>
+
+### Loop {#demo-loop}
+
+Set `loop` to go from the last item back to the first.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_set">
+  <a href="https://spaceholder.dev/1600x900/4.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="loop"
+  >
+    <img src="https://spaceholder.dev/400x300/4.jpg" alt="Gallery image 1">
+  </a>
+  <a href="https://spaceholder.dev/1600x900/5.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="loop"
+  >
+    <img src="https://spaceholder.dev/400x300/5.jpg" alt="Gallery image 2">
+  </a>
+  <a href="https://spaceholder.dev/1600x900/6.jpg" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="loop"
+  >
+    <img src="https://spaceholder.dev/400x300/6.jpg" alt="Gallery image 3">
+  </a>
+</div>
+```
+
+```js
+import { Lightbox, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Lightbox.construct('.js-lightbox', {
+    loop: true,
+  });
+});
+```
+
+```css
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.demo_thumb {
+  box-sizing: border-box;
+  flex: 0 0 calc(33.333% - 14px);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  overflow: hidden;
+}
+
+.demo_thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+```
+
+</figure>
+
+### Video {#demo-video}
+
+YouTube and Vimeo links open as embedded players. The video stops when the lightbox closes or moves to another item.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_set">
+  <a href="https://www.youtube.com/watch?v=Ga6RYejo6Hk" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="video"
+    data-lightbox-caption="YouTube"
+  >
+    <img src="https://spaceholder.dev/400x300/1.jpg" alt="Play YouTube video">
+  </a>
+  <a href="https://vimeo.com/115041822" class="demo_thumb js-lightbox"
+    data-lightbox-gallery="video"
+    data-lightbox-caption="Vimeo"
+  >
+    <img src="https://spaceholder.dev/400x300/2.jpg" alt="Play Vimeo video">
+  </a>
+</div>
+```
+
+```js
+import { Lightbox, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Lightbox.construct('.js-lightbox');
+});
+```
+
+```css
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.demo_thumb {
+  box-sizing: border-box;
+  flex: 0 0 calc(33.333% - 14px);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  overflow: hidden;
+}
+
+.demo_thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+```
+
+</figure>
+
+### Inline Content & URLs {#demo-inline}
+
+Link to an element's id to show its content, or set `data-lightbox-type="url"` to load a page in an iframe. Buttons with the `fs-lightbox-trigger-previous`, `fs-lightbox-trigger-next` and `fs-lightbox-trigger-close` classes control the lightbox.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_set">
+  <a href="#lightbox-inline" class="demo_button js-lightbox"
+    data-lightbox-gallery="inline"
+    data-lightbox-caption="Inline Content"
+  >
+    Inline Content
+  </a>
+  <a href="https://maps.google.com/maps?q=1700%20South%20Rd&amp;z=14&amp;output=embed" class="demo_button js-lightbox"
+    data-lightbox-gallery="inline"
+    data-lightbox-type="url"
+    data-lightbox-caption="Google Map"
+  >
+    Google Map
+  </a>
+</div>
+
+<div class="demo_hidden" id="lightbox-inline">
+  <div class="demo_content">
+    <h2>Adipiscing Vulputate Elit</h2>
+    <p>Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras mattis consectetur purus sit amet fermentum.</p>
+    <button type="button" class="demo_button fs-lightbox-trigger-next">Next</button>
+    <button type="button" class="demo_button fs-lightbox-trigger-close">Close</button>
+  </div>
+</div>
+```
+
+```js
+import { Lightbox, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Lightbox.construct('.js-lightbox');
+});
+```
+
+```css
+body {
+  padding: 5vh 5vw;
+}
+
+.demo_set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.demo_button {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+.demo_hidden {
+  display: none;
+}
+
+.demo_content {
+  background: var(--color-white);
+  max-width: 500px;
+  padding: 30px;
+}
+```
+
+</figure>
 
 
 <hr class="divider">
@@ -273,7 +573,7 @@ el.Lightbox.previous();
 
 ## Events {#events}
 
-Events are triggered on the window object.
+Events are triggered on the trigger element and on the window object.
 
 | Name | Description |
 | -- | -- |
@@ -348,7 +648,7 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-lightbox-open` | `modifier` | Indicates open state |
 | `.fs-lightbox-error` | `modifier` | Item media failed to load |
 
-The page behind an open lightbox doesn't scroll (`html:has(.fs-lightbox[open])`). `data-lightbox-type="url"` items only load `http` and `https` URLs. Arrow keys don't change items while focus is in a form field or editable content.
+The page behind an open lightbox doesn't scroll (`html:has(.fs-lightbox[open])`). `data-lightbox-type="url"` items only load `http` and `https` URLs. Arrow keys don't change items while focus is in a form field or editable content. Escape, the close button, or a click outside the content closes the lightbox.
 
 
 </div>

@@ -374,3 +374,42 @@ test.describe('Lightbox and Modal (docs follow-ups)', () => {
     })).toEqual({ afterCommand: false, afterTriggerClass: false, closes: ['command', 'notification', 'notification'] });
   });
 });
+
+test.describe('Escape', () => {
+  for (let which of ['modal', 'lightbox']) {
+    test(`Escape closes the ${which} with the same transition, staying modal until it ends`, async ({ page }) => {
+      await ready(page, 'lightbox-modal-close-loop.html');
+      await page.evaluate((w) => {
+        window.L.construct('#g1, #g2, #g3');
+        window.M.construct('#mt');
+        window.closes = 0;
+        window.addEventListener(`${w}:close`, (e) => {
+          if (e.detail && e.detail.el) {
+            window.closes++;
+          }
+        });
+        (w === 'modal' ? document.getElementById('mt').Modal : document.getElementById('g1').Lightbox).open();
+      }, which);
+      await page.waitForTimeout(500);
+
+      await page.keyboard.press('Escape');
+
+      let duringFade = await page.evaluate((w) => {
+        let d = document.querySelector(`dialog.fs-${w}`);
+
+        return { open: d.open, modal: d.matches(':modal') };
+      }, which);
+
+      expect(duringFade).toEqual({ open: true, modal: true });
+
+      await page.waitForTimeout(700);
+
+      expect(await page.evaluate((w) => ({
+        removed: !document.querySelector(`dialog.fs-${w}`),
+        isOpen: (w === 'modal' ? document.getElementById('mt').Modal : document.getElementById('g1').Lightbox).isOpen,
+        contentBack: !!document.querySelector('#mc h2'),
+        closes: window.closes,
+      }), which)).toEqual({ removed: true, isOpen: false, contentBack: true, closes: 1 });
+    });
+  }
+});

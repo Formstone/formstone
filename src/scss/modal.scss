@@ -1,4 +1,4 @@
-/*! formstone v2.2.2 [modal.scss] 2026-10-12 | GPL-3.0 License | formstone.dev */
+/*! formstone v2.2.2 [modal.scss] 2026-10-14 | GPL-3.0 License | formstone.dev */
 // Variables
 
 $fs-modal-mobile-max-width: 739px !default;
@@ -126,10 +126,6 @@ html:has(.fs-modal[open]) {
    * @selector .fs-modal-wrap
    * @description Content wrapper with background and scrolling behavior. Constrains to viewport
    * dimensions and provides white background by default.
-   */
-  /**
-   * @selector .fs-modal-frame
-   * @description Content frame that holds the inline page content moved into the modal.
    */
   /**
    * @selector .fs-modal-close

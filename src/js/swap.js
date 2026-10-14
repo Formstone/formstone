@@ -20,8 +20,6 @@ import {
   hasAttr,
 } from './utils.js';
 
-// TODO look into events
-
 /**
  * Swap class for responsive state toggling across linked and grouped elements
  * @class
@@ -129,12 +127,14 @@ class Swap {
     this.guidTarget = `fs-swap-target-${this.guid}`;
 
     this.enabled = false;
-    // this.active = el.dataset.swapActive || false;
     this.group = dataset.swapGroup ? `[data-swap-group="${CSS.escape(dataset.swapGroup)}"]` : false;
     this.linked = dataset.swapLinked ? `[data-swap-linked="${CSS.escape(dataset.swapLinked)}"]` : false;
     this.target = dataset.swapTarget || null;
     this.targetEl = select(this.target);
-    // this = extend(true, this.constructor.#_defaults, options || {}, optionsData);
+
+    if (this.target && !this.targetEl.length) {
+      console.warn(`Swap: Target ${this.target} not found`, el);
+    }
 
     // Numbers are pixels; media queries need units
     let px = (v) => (typeof v === 'number') ? `${v}px` : v;

@@ -37,7 +37,6 @@ class CheckPoint {
    * @private
    */
   static #_defaults = {
-    // intersect: 'bottom',
     offset: '0px',
     reverse: false
   };
@@ -110,7 +109,7 @@ class CheckPoint {
 
     this.enabled = false;
     this.active = false;
-    this.hasActived = false;
+    this.hasActivated = false;
     this.parent = dataset.checkpointParent || null;
     this.parentEl = this.parent ? select(this.parent)[0] : null;
     this.trigger = dataset.checkpointTrigger || dataset.checkpointContainer || null;
@@ -120,7 +119,6 @@ class CheckPoint {
     this.target = this.trigger || `.${this.guidClass}`;
     this.targetEl = select(this.target);
 
-    // this.intersect = dataset.checkpointIntersect || this.intersect;
     this.offset = dataset.checkpointOffset || this.offset;
 
     this.margin = `0px 0px -${this.offset} 0px`;
@@ -214,7 +212,7 @@ class CheckPoint {
 
     // Reset state; deactivate() is a no-op for non-reverse instances that already activated
     this.active = false;
-    this.hasActived = false;
+    this.hasActivated = false;
 
     this.enabled = false;
 
@@ -239,10 +237,10 @@ class CheckPoint {
     }
 
     this.active = true;
-    this.hasActived = true;
+    this.hasActivated = true;
 
     addClass(this.el, 'fs-checkpoint-active');
-    trigger(this.el, 'checkpoint:activate', {});
+    trigger(this.el, 'checkpoint:activate');
   }
 
   /**
@@ -252,14 +250,14 @@ class CheckPoint {
    * el.CheckPoint.deactivate();
    */
   deactivate() {
-    if (!this.enabled || !this.active || (!this.reverse && this.hasActived)) {
+    if (!this.enabled || !this.active || (!this.reverse && this.hasActivated)) {
       return;
     }
 
     this.active = false;
 
     removeClass(this.el, 'fs-checkpoint-active');
-    trigger(this.el, 'checkpoint:deactivate', {});
+    trigger(this.el, 'checkpoint:deactivate');
   }
 
 };

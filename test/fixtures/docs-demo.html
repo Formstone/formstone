@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Docs demo</title>
+  <!--
+    Runs one docs demo the way the docs site's CodePen embeds do:
+    - `formstone` is import-mapped to the library source (CodePen: jsDelivr src/js/index.js)
+    - dist/formstone.css is loaded (CodePen: jsDelivr dist/formstone.css)
+    - the demo's css, html and js fences become a <style>, the body and a module script
+    Usage: docs-demo.html?page=lightbox&demo=0 (0-based index of the page's js-editor figures)
+  -->
+  <link rel="stylesheet" href="/dist/formstone.css">
+  <style>
+    /* Stand-ins for the theme's demo.css variables */
+    :root {
+      --color-red: #FF2700;
+      --color-yellow: #FFF000;
+      --color-blue: #00ADFF;
+      --color-white: #fff;
+      --color-black: #000;
+      --color-gray-5: #F7F7F7;
+      --color-gray-10: #EAEAEA;
+      --color-gray-20: #CCCCCC;
+      --color-gray-30: #B2B2B2;
+      --border-size: 3px;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+    }
+  </style>
+  <script>
+    (() => {
+      let params = new URLSearchParams(location.search);
+      let xhr = new XMLHttpRequest();
+
+      xhr.open('GET', `/docs/${params.get('page')}/default.md`, false);
+      xhr.send();
+
+      // Demos inside HTML comments are disabled; ignore them
+      let md = xhr.responseText.replace(/<!--[\s\S]*?-->/g, '');
+      let figures = [...md.matchAll(/<figure class="demo js-editor[^"]*"[^>]*>([\s\S]*?)<\/figure>/g)].map((m) => m[1]);
+      let fence = (body, lang) => (body.match(new RegExp('```' + lang + '\\n([\\s\\S]*?)\\n```')) || [null, ''])[1];
+      let demo = figures[Number(params.get('demo') || 0)] || '';
+
+      window.DEMO = {
+        count: figures.length,
+        html: fence(demo, 'html'),
+        js: fence(demo, 'js'),
+        css: fence(demo, 'css'),
+      };
+
+      document.write('<script type="importmap">{ "imports": { "formstone": "/src/js/index.js" } }<\/script>');
+      document.write('<style>' + window.DEMO.css + '</style>');
+    })();
+  </script>
+</head>
+<body>
+  <script>
+    document.write(window.DEMO.html);
+
+    let script = document.createElement('script');
+
+    script.type = 'module';
+    script.textContent = window.DEMO.js + '\n;window.DEMO_READY = true;';
+    document.body.append(script);
+  </script>
+</body>
+</html>

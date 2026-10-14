@@ -24,37 +24,394 @@ Responsive navigation menus.
 
 ## Demos {#demo}
 
-Demos coming soon.
+<div class="docs_menu" markdown="1">
 
-<!-- <div class="docs_menu" markdown="1">
-
-* [Basic](#demo-basic)
+* [Toggle](#demo-toggle)
+* [Overlay](#demo-overlay)
+* [Push](#demo-push)
+* [Reveal](#demo-reveal)
 
 </div>
 
-### Basic {#demo-basic}
+### Toggle {#demo-toggle}
 
-Simple responsive navigation.
+The handle shows and hides the navigation in place. These demos set `maxWidth: Infinity` so they're always enabled; by default navigation is only enabled below 980px.
 
 <figure class="demo js-editor" markdown="1">
 
 ```html
-<!-- Demo coming soon -- >
+<div class="demo_page">
+  <button type="button" class="demo_button" id="toggle-handle">Menu</button>
+
+  <nav class="demo_nav js-navigation"
+    data-navigation-handle="#toggle-handle"
+  >
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+  </nav>
+
+  <p>Page content.</p>
+</div>
 ```
 
 ```js
-import { Navigation, Utils } from 'Formstone';
+import { Navigation, Utils } from 'formstone';
 
 Utils.ready(() => {
-  // Demo coming soon
+  Navigation.construct('.js-navigation', {
+    type: 'toggle',
+    maxWidth: Infinity, // Always enabled in this demo (default: below 980px)
+  });
 });
 ```
 
 ```css
-/* Demo coming soon */
+body {
+  margin: 0;
+}
+
+.demo_button {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+/* Theme off-canvas navigation; set on both the navigation and the content */
+.demo_nav,
+.demo_page {
+  --fs-navigation-offscreen-width: 260px;
+  --fs-navigation-offscreen-background: var(--color-white);
+}
+
+.demo_page {
+  background: var(--color-gray-10);
+  min-height: 100vh;
+  padding: 5vh 5vw;
+}
+
+.demo_nav {
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.demo_nav a {
+  background: var(--color-blue);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  text-decoration: none;
+}
+
+.fs-navigation-handle.fs-navigation-open {
+  background: var(--color-red);
+}
 ```
 
-</figure> -->
+</figure>
+
+### Overlay {#demo-overlay}
+
+The navigation slides in over the page content. While open, the rest of the page is inert; click outside or press Escape to close.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_page" id="overlay-content">
+  <button type="button" class="demo_button" id="overlay-left-handle">Menu Left</button>
+  <button type="button" class="demo_button" id="overlay-right-handle">Menu Right</button>
+  <p>Page content.</p>
+</div>
+
+<nav class="demo_nav js-navigation"
+  data-navigation-handle="#overlay-left-handle"
+  data-navigation-content="#overlay-content"
+  data-navigation-options='{"gravity":"left"}'
+>
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+</nav>
+
+<nav class="demo_nav js-navigation"
+  data-navigation-handle="#overlay-right-handle"
+  data-navigation-content="#overlay-content"
+  data-navigation-options='{"gravity":"right"}'
+>
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+</nav>
+```
+
+```js
+import { Navigation, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Navigation.construct('.js-navigation', {
+    type: 'overlay',
+    maxWidth: Infinity, // Always enabled in this demo (default: below 980px)
+  });
+});
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.demo_button {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+/* Theme off-canvas navigation; set on both the navigation and the content */
+.demo_nav,
+.demo_page {
+  --fs-navigation-offscreen-width: 260px;
+  --fs-navigation-offscreen-background: var(--color-white);
+}
+
+.demo_page {
+  background: var(--color-gray-10);
+  min-height: 100vh;
+  padding: 5vh 5vw;
+}
+
+.demo_nav {
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.demo_nav a {
+  background: var(--color-blue);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  text-decoration: none;
+}
+
+.fs-navigation-handle.fs-navigation-open {
+  background: var(--color-red);
+}
+```
+
+</figure>
+
+### Push {#demo-push}
+
+The navigation slides in and pushes the page content aside.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_page" id="push-content">
+  <button type="button" class="demo_button" id="push-left-handle">Menu Left</button>
+  <button type="button" class="demo_button" id="push-right-handle">Menu Right</button>
+  <p>Page content.</p>
+</div>
+
+<nav class="demo_nav js-navigation"
+  data-navigation-handle="#push-left-handle"
+  data-navigation-content="#push-content"
+  data-navigation-options='{"gravity":"left"}'
+>
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+</nav>
+
+<nav class="demo_nav js-navigation"
+  data-navigation-handle="#push-right-handle"
+  data-navigation-content="#push-content"
+  data-navigation-options='{"gravity":"right"}'
+>
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+</nav>
+```
+
+```js
+import { Navigation, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Navigation.construct('.js-navigation', {
+    type: 'push',
+    maxWidth: Infinity, // Always enabled in this demo (default: below 980px)
+  });
+});
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.demo_button {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+/* Theme off-canvas navigation; set on both the navigation and the content */
+.demo_nav,
+.demo_page {
+  --fs-navigation-offscreen-width: 260px;
+  --fs-navigation-offscreen-background: var(--color-white);
+}
+
+.demo_page {
+  background: var(--color-gray-10);
+  min-height: 100vh;
+  padding: 5vh 5vw;
+}
+
+.demo_nav {
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.demo_nav a {
+  background: var(--color-blue);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  text-decoration: none;
+}
+
+.fs-navigation-handle.fs-navigation-open {
+  background: var(--color-red);
+}
+```
+
+</figure>
+
+### Reveal {#demo-reveal}
+
+The page content slides aside to reveal the navigation underneath.
+
+<figure class="demo js-editor" markdown="1">
+
+```html
+<div class="demo_page" id="reveal-content">
+  <button type="button" class="demo_button" id="reveal-left-handle">Menu Left</button>
+  <button type="button" class="demo_button" id="reveal-right-handle">Menu Right</button>
+  <p>Page content.</p>
+</div>
+
+<nav class="demo_nav js-navigation"
+  data-navigation-handle="#reveal-left-handle"
+  data-navigation-content="#reveal-content"
+  data-navigation-options='{"gravity":"left"}'
+>
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+</nav>
+
+<nav class="demo_nav js-navigation"
+  data-navigation-handle="#reveal-right-handle"
+  data-navigation-content="#reveal-content"
+  data-navigation-options='{"gravity":"right"}'
+>
+    <a href="#">One</a>
+    <a href="#">Two</a>
+    <a href="#">Three</a>
+</nav>
+```
+
+```js
+import { Navigation, Utils } from 'formstone';
+
+Utils.ready(() => {
+  Navigation.construct('.js-navigation', {
+    type: 'reveal',
+    maxWidth: Infinity, // Always enabled in this demo (default: below 980px)
+  });
+});
+```
+
+```css
+body {
+  margin: 0;
+}
+
+.demo_button {
+  background: var(--color-yellow);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  cursor: pointer;
+  display: inline-block;
+  font: inherit;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+
+/* Theme off-canvas navigation; set on both the navigation and the content */
+.demo_nav,
+.demo_page {
+  --fs-navigation-offscreen-width: 260px;
+  --fs-navigation-offscreen-background: var(--color-white);
+}
+
+.demo_page {
+  background: var(--color-gray-10);
+  min-height: 100vh;
+  padding: 5vh 5vw;
+}
+
+.demo_nav {
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.demo_nav a {
+  background: var(--color-blue);
+  border: var(--border-size) solid var(--color-black);
+  border-radius: var(--border-size);
+  color: var(--color-black);
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  text-decoration: none;
+}
+
+.fs-navigation-handle.fs-navigation-open {
+  background: var(--color-red);
+}
+```
+
+</figure>
 
 
 <hr class="divider">
@@ -234,7 +591,7 @@ Events are triggered on the target instance's element, unless otherwise stated.
 
 ## Styles {#styles}
 
-CSS custom properties are used to modify default styles.
+CSS custom properties are used to modify default styles. Set the `--fs-navigation-offscreen-*` properties on both the navigation and the content element, since the content uses the same width to move aside.
 
 | Property | Default | Description |
 | -- | -- | -- |

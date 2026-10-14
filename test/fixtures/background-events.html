@@ -1,0 +1,57 @@
+<!doctype html><html><meta charset="utf-8"><head>
+<script type="text/plain" src="https://www.youtube.com/iframe_api"></script>
+<script>
+  // Stub YouTube API (loaded): records players so the test can drive state changes
+  window.players = [];
+  window.YT = { PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2 }, Player: class {
+    constructor(id, cfg) { this.cfg = cfg; players.push(this); }
+    playVideo() {} pauseVideo() {} mute() {} unMute() {} destroy() {}
+  } };
+</script>
+<link rel="stylesheet" href="/src/css/background.css"></head><body>
+<div id="vid" style="width:64px;height:64px"></div>
+<div id="yt" style="width:64px;height:64px"></div>
+<div id="ytloop" style="width:64px;height:64px"></div>
+<script type="module">
+import Background from '/src/js/background.js';
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const $ = (id) => document.getElementById(id);
+const r = { errors: [] };
+addEventListener('error', (e) => r.errors.push(e.message));
+const log = (el) => { const l = []; for (const n of ['play', 'pause', 'mute', 'unmute']) el.addEventListener('background:' + n, () => l.push(n)); return l; };
+
+// Video: real playback of a tiny looping WebM
+const v = log($('vid'));
+new Background($('vid'), { source: { webm: '/test/fixtures/assets/blue.webm' } });
+await wait(800);
+r.videoAutoplay = [...v];
+const bg = $('vid').Background;
+bg.pause(); await wait(200); bg.play(); await wait(400);
+r.videoPauseThenPlay = [...v];
+bg.mute(); bg.unmute(); bg.unmute(); bg.mute(); await wait(100);
+r.videoMuteSequence = [...v];
+bg.load('/test/fixtures/assets/a.svg'); await wait(300);
+r.videoSourceChange = [...v];
+bg.destroy(); await wait(300);
+r.videoAfterDestroy = [...v];
+
+// YouTube: state changes from the (stub) player
+const y = log($('yt'));
+new Background($('yt'), { source: { youtube: 'https://youtu.be/abcdefghijk' }, loop: false });
+const p1 = players[players.length - 1];
+for (const data of [1, 1, 2, 1, 0]) p1.cfg.events.onStateChange({ target: p1, data });
+r.youtubeStates = [...y];
+$('yt').Background.load({ youtube: 'https://youtu.be/bcdefghijkl' });
+const p2 = players[players.length - 1];
+p1.cfg.events.onStateChange({ target: p1, data: 1 }); // replaced player
+p2.cfg.events.onStateChange({ target: p2, data: 1 });
+r.youtubeReplacedIgnored = [...y];
+
+const yl = log($('ytloop'));
+new Background($('ytloop'), { source: { youtube: 'https://youtu.be/cdefghijklm' } });
+const p3 = players[players.length - 1];
+for (const data of [1, 0, 1]) p3.cfg.events.onStateChange({ target: p3, data });
+r.youtubeLoopEnded = [...yl];
+
+window.R = JSON.stringify(r);
+</script></body></html>

@@ -83,7 +83,7 @@ class Tabs {
   static construct(selector, options) {
     let targets = select(selector);
 
-    targets.forEach((el) => {
+    iterate(targets, (el) => {
       if (!el.Tabs) {
         new Tabs(el, options);
       }
@@ -174,9 +174,8 @@ class Tabs {
 
     this.contentEl.parentNode.insertBefore(this.mobileEl, this.contentEl);
 
-    // Aria
+    // Aria (generated ids are removed in destroy())
 
-    // SHOULD BE IN ENABLE / DISABLE?
     this.originalId = getAttr(el, 'id');
 
     if (this.originalId) {
@@ -207,7 +206,6 @@ class Tabs {
       this.hashGroup = this.group && (select(`[data-tabs-group="${CSS.escape(this.group)}"][href$="${CSS.escape(hash)}"]`).length > 0);
     }
 
-    // SHOULD BE IN ENABLE / DISABLE?
     if (this.hashActive) {
       setAttr(this.handleEl, 'data-swap-active', 'true');
     } else if (this.hashGroup) {
@@ -226,7 +224,7 @@ class Tabs {
       keydown: this.#onKeyDown(this)
     };
 
-    this.handleEl.forEach((handle) => {
+    iterate(this.handleEl, (handle) => {
       setAttr(handle, {
         'data-swap-target': `.${this.guidContent}`,
         'data-swap-linked': `${this.guidClass}`,
@@ -287,7 +285,7 @@ class Tabs {
     off(this.el, 'swap:enable', this.listeners.enable);
     off(this.el, 'swap:disable', this.listeners.disable);
 
-    this.handleEl.forEach((handle) => {
+    iterate(this.handleEl, (handle) => {
       removeAttr(handle, [
         'data-swap-target',
         'data-swap-linked',
@@ -303,6 +301,15 @@ class Tabs {
     });
 
     this.mobileEl.remove();
+
+    // Remove generated ids
+    if (!this.originalId) {
+      removeAttr(this.el, 'id');
+    }
+
+    if (!this.originalContentId) {
+      removeAttr(this.contentEl, 'id');
+    }
 
     this.el.Tabs = null;
 
@@ -386,28 +393,6 @@ class Tabs {
       }
 
       trigger(this.el, 'tabs:enable');
-
-      // setAttr(this.el, 'aria-label', this.label);
-
-      // if (!this.isToggle) {
-      //   setAttr(this.el, {
-      //     'role': 'dialog',
-      //     'aria-modal': 'true'
-      //   });
-      // }
-
-      // setAttr(this.handle, 'aria-controls', this.elId);
-
-      // if (this.isToggle) {
-      //   setAttr(this.handle, 'aria-expanded', 'false');
-      // }
-
-      // addClass(this.content, 'fs-navigation-enabled');
-
-      // setTimeout(() => {
-      //   addClass(this.el, 'fs-navigation-animated');
-      //   addClass(this.content, 'fs-navigation-animated');
-      // }, 0);
     };
   }
 
@@ -425,14 +410,6 @@ class Tabs {
       removeAttr(this.containerEl, ['role', 'aria-label']);
 
       trigger(this.el, 'tabs:disable');
-
-      // SHOULD BE IN ENABLE / DISABLE
-      // setAttr(this.el, {
-      //   'role': this.originalRole || false,
-      //   'aria-label': this.originaLabel || false,
-      //   'aria-modal': this.originaModal || false,
-      //   'id': this.originalId || false
-      // });
     };
   }
 

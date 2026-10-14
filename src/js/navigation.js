@@ -127,7 +127,6 @@ class Navigation {
     this.guid = this.constructor.#_guid++;
     this.guidClass = `fs-navigation-element-${this.guid}`;
     this.guidHandle = `fs-navigation-handle-${this.guid}`;
-    // this = extend(true, this.constructor.#_defaults, options || {}, optionsData);
     this.isOpen = false;
 
     this.handleEl = dataset.navigationHandle ? select(dataset.navigationHandle) : [];
@@ -161,7 +160,6 @@ class Navigation {
 
     //
 
-    // this.originalTabindex = getAttr(this.el, 'tabindex');
     this.originalRole = getAttr(this.el, 'role');
     this.originalHidden = getAttr(this.el, 'aria-hidden');
     this.originalLabel = getAttr(this.el, 'aria-label');
@@ -323,8 +321,6 @@ class Navigation {
         'aria-haspopup': this.isToggle ? false : 'dialog'
       });
 
-      // this.el.tabIndex = -1;
-
       this.#hideFocusables();
 
       addClass(this.contentEl, 'fs-navigation-enabled');
@@ -352,12 +348,6 @@ class Navigation {
         'aria-modal': this.originalModal || false,
         'id': this.originalId || false
       });
-
-      // if (this.originalTabindex) {
-      //   this.el.tabIndex = this.originalTabindex;
-      // } else {
-      //   removeAttr(this.el, 'tabindex');
-      // }
 
       this.#showFocusables();
 

@@ -13,6 +13,7 @@ import {
   select,
   iterate,
   //
+  on,
   once,
   trigger,
   afterTransition,
@@ -35,6 +36,13 @@ class Background {
    * @private
    */
   static #_guid = 1;
+
+  /**
+   * Last playback state reported with background:play / background:pause
+   * @type {boolean}
+   * @private
+   */
+  #isPlaying = false;
 
   /**
    * @typedef {Object} BackgroundOptions
@@ -162,7 +170,6 @@ class Background {
           this.#observe(entry);
         });
       }, {
-        // root: this.parentEl || null,
         root: null,
         threshold: 0,
         rootMargin: `0px 0px ${this.lazyOffset} 0px`
@@ -289,6 +296,10 @@ class Background {
 
     if (source !== this.source) {
       this.#unbindSources();
+
+      // The current video stops when the source changes
+      this.#setPlaying(false);
+      this.videoEl = null;
 
       this.source = source;
       this.responsive = false;
@@ -421,6 +432,21 @@ class Background {
     let media = element('div');
     let video = element('video');
 
+    this.videoEl = video;
+
+    // Report actual playback (autoplay, refused play, end of video); ignore replaced videos
+    on(video, 'playing', () => {
+      if (video === this.videoEl) {
+        this.#setPlaying(true);
+      }
+    });
+
+    on(video, 'pause', () => {
+      if (video === this.videoEl) {
+        this.#setPlaying(false);
+      }
+    });
+
     media.ariaHidden = true;
     media.className = 'fs-background-media fs-background-video';
     media.style.opacity = 0;
@@ -552,7 +578,6 @@ class Background {
       version: 3,
       playerapiid: guid,
       loop: (this.loop) ? 1 : 0,
-      // autoplay: 1,
       mute: 1,
       origin: `${window.location.protocol}//${window.location.host}`
     }, this.youtubeOptions, {
@@ -565,8 +590,6 @@ class Background {
       playerVars: options,
       events: {
         onReady: (e) => {
-          // console.log('onReady', e);
-
           let iframe = select('iframe', this.container);
 
           setAttr(iframe, {
@@ -575,7 +598,6 @@ class Background {
           });
 
           this.playerReady = true;
-          // data.player.setPlaybackQuality('highres');
 
           if (this.muted) {
             this.player.mute();
@@ -586,18 +608,18 @@ class Background {
           } else {
             this.player.pauseVideo();
           }
-
-          // TODO trigger ready event?
         },
         onStateChange: (e) => {
-          // console.log('onStateChange', e);
+          // Ignore players replaced by a newer load()
+          if (e.target && e.target !== this.player) {
+            return;
+          }
 
           // -1 = unstarted
           //  0 = ended
           //  1 = playing
           //  2 = paused
           //  3 = buffering
-          //  4 =
           //  5 = cued
 
           if (!this.playing && e.data === window.YT.PlayerState.PLAYING) {
@@ -609,21 +631,13 @@ class Background {
             this.player.playVideo();
           }
 
-          // Fix for Safari's overly secure security settings
-          // this.el.find(Classes.embed)
-          //   .addClass(RawClasses.ready);
-        },
-        onPlaybackQualityChange: (e) => {
-          // console.log('onPlaybackQualityChange', e);
-        },
-        onPlaybackRateChange: (e) => {
-          // console.log('onPlaybackRateChange', e);
-        },
-        onError: (e) => {
-          // console.log('onError', e);
-        },
-        onApiChange: (e) => {
-          // console.log('onApiChange', e);
+          let state = window.YT.PlayerState;
+
+          if (e.data === state.PLAYING) {
+            this.#setPlaying(true);
+          } else if (e.data === state.PAUSED || (e.data === state.ENDED && !this.loop)) {
+            this.#setPlaying(false);
+          }
         }
       }
     });
@@ -647,10 +661,8 @@ class Background {
         return;
       }
     } else if (this.isVideo) {
-      let video = select('video', this.container);
-
-      if (video.length) {
-        let promise = video[0].play();
+      if (this.videoEl) {
+        let promise = this.videoEl.play();
 
         // Playback can be refused (e.g. unmuted autoplay); reflect that instead of an unhandled rejection
         if (promise && isFn(promise.catch)) {
@@ -660,8 +672,6 @@ class Background {
         }
       }
     }
-
-    // TODO trigger play event?
 
     this.playing = true;
   }
@@ -682,14 +692,10 @@ class Background {
         return;
       }
     } else if (this.isVideo) {
-      let video = select('video', this.container);
-
-      if (video.length) {
-        video[0].pause();
+      if (this.videoEl) {
+        this.videoEl.pause();
       }
     }
-
-    // TODO trigger pause event?
 
     this.playing = false;
   }
@@ -700,23 +706,22 @@ class Background {
    * el.Background.mute();
    */
   mute() {
+    let changed = !this.muted;
+
     if (this.isYouTube && this.playerReady) {
       this.player.mute();
-      // this.player.setVolume(0);
     } else if (this.isVideo) {
-      let video = select('video', this.container);
-
-      if (video.length) {
-        video[0].muted = true;
+      if (this.videoEl) {
+        this.videoEl.muted = true;
       }
     }
 
-    // TODO trigger mute event?
-
     this.muted = true;
-  }
 
-  // Mute / Unmute is now blocked unless the user interacts with the video
+    if (changed) {
+      trigger(this.el, 'background:mute');
+    }
+  }
 
   /**
    * Unmutes current video
@@ -726,29 +731,44 @@ class Background {
   unmute() {
     if (this.isYouTube && this.playerReady) {
       this.player.unMute();
-      // this.player.setVolume(100);
 
       if (this.playing) {
         this.player.playVideo();
       }
     } else if (this.isVideo) {
-      let video = select('video', this.container);
-
-      if (video.length) {
-        video[0].muted = false;
+      if (this.videoEl) {
+        this.videoEl.muted = false;
       }
     }
 
-    // TODO trigger unmute event?
+    let changed = this.muted;
 
     this.muted = false;
+
+    if (changed) {
+      trigger(this.el, 'background:unmute');
+    }
   }
 
-  // TODO unload method and event?
-
-  // TODO set background video volume and event?
-
   //
+
+  /**
+   * Updates the playback state and fires background:play or background:pause when it changes
+   * @private
+   * @param {boolean} playing - Whether media is playing
+   * @returns {void}
+   * @fires background:play
+   * @fires background:pause
+   */
+  #setPlaying(playing) {
+    if (this.destroyed || playing === this.#isPlaying) {
+      return;
+    }
+
+    this.#isPlaying = playing;
+
+    trigger(this.el, playing ? 'background:play' : 'background:pause');
+  }
 
   /**
    * Handles media load completion
@@ -776,8 +796,6 @@ class Background {
     });
 
     media.style.opacity = 1;
-
-    // TODO handle errors and trigger events?
 
     trigger(this.el, 'background:loaded');
   }

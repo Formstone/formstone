@@ -72,6 +72,7 @@ npx playwright test --ui   # debug browser tests
   - `window.T` phases `setup()` / `wide()` / `narrow()` run at 500 → 1000 → 500px, with `phases()`.
 
   Specs that need real input use `ready()` plus `page.mouse` / `page.keyboard` / `touchDrag()`.
+- **Docs demos:** `test/fixtures/docs-demo.html?page=<page>&demo=<n>` runs a docs demo the way the CodePen embeds do (`formstone` import-mapped to `src/js/index.js`, `dist/formstone.css`, the demo's fences as style, body and module script). `docs-demos.spec.js` runs every demo in `docs/*/default.md`, fails on JS errors, and runs the interaction checks keyed by `page › title`. Headless browsers can't render CodePen's result frame, so check the live embeds by hand.
 - **Requests outside localhost are blocked** (`offline()`), so tests never depend on the network. Fake external APIs (see the `YT` stub in the Background fixtures) instead of loading them.
 - **Node tests** cover packaging, from a throwaway consumer project linked to the repo:
   - every `exports` path resolves;
@@ -288,7 +289,12 @@ Adaptors must stay thin. All behavior belongs in `src/js`. When you add a compon
 ## Documentation
 
 - `docs/<module>/default.md` has YAML front-matter (`title`, `published`, `visible`), a `docs_menu` table of contents, then **Demos**, **Options**, **Methods**, **Events** and **Styles** sections.
-- Demos are `<figure class="demo js-editor" markdown="1">` blocks containing `html`, `js` and `css` fences. JS demos import from `'formstone'` and wrap setup in `Utils.ready(…)`.
+- Demos are `<figure class="demo js-editor" markdown="1">` blocks containing `html`, `js` and `css` fences. The docs site (formstone-grav) turns each into a CodePen embed, so demos must be self-contained:
+  - **JS** imports from `'formstone'` (import-mapped to jsDelivr's `src/js/index.js`, pinned to the version the site's `bin/formstone` submodule reports), and wraps setup in `Utils.ready(…)`. A demo can only use features in that published version.
+  - **CSS:** the embed loads the theme's `demo.css`, which only provides base styles and variables (`--color-*`, `--border-size`), plus `dist/formstone.css`. Each demo styles its own markup (`.demo_*` classes).
+  - **Media** must be hosted (spaceholder.dev images, YouTube/Vimeo).
+  - Off-canvas Navigation demos set `maxWidth: Infinity` so they work at any embed width.
+  - Every demo runs in `test/browser/docs-demos.spec.js` (see **Testing**); add an interaction check there for new demos.
 - Any change to options, methods, events, data attributes or generated classes must update the docs page in the same change. Docs must match the code exactly: default values, return types, and what dispatches on which target.
 
 ## Changelog and versioning
