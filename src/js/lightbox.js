@@ -27,6 +27,7 @@ import {
   getAttr,
   setAttr,
   removeAttr,
+  accessibleName,
 } from './utils.js';
 
 // Formatters
@@ -59,7 +60,9 @@ let LightboxInstance;
  * @typedef {Object} LightboxOptions
  * @property {string} [direction=null] - Content direction ('ltr' or 'rtl'); defaults to `document.dir` when the instance is created
  * @property {string} [customClass=''] - Custom CSS class to add to lightbox dialog
- * @property {string} [label='Gallery'] - Accessibility label for the lightbox
+ * @property {string} [label=null] - Accessible name for the dialog; when not set, galleries use `galleryLabel` and single items use the first heading in element content, then the caption, then the trigger's name, then `galleryLabel`
+ * @property {string} [galleryLabel='Gallery'] - Accessible name for gallery dialogs (and status announcements) when `label` is not set
+ * @property {string} [triggerLabel='Open Lightbox'] - Accessible name for triggers with no text, image `alt` or label of their own (after `data-lightbox-caption`)
  * @property {RegExp} [fileTypes=/\.(jpe?g|sjpg|png|gif|webp|avif|svg)(?=$|[?#])/i] - Regular expression to match image file extensions (at the end of the path)
  * @property {number} [threshold=50] - Swipe threshold in pixels for touch navigation
  * @property {boolean} [loop=false] - Loop from the last gallery item to the first (and back)
@@ -81,7 +84,9 @@ class Lightbox {
   static #_defaults = {
     direction: null,
     customClass: '',
-    label: 'Gallery',
+    label: null,
+    galleryLabel: 'Gallery',
+    triggerLabel: 'Open Lightbox',
     fileTypes: /\.(jpe?g|sjpg|png|gif|webp|avif|svg)(?=$|[?#])/i,
     loop: false,
     threshold: 50,
@@ -254,11 +259,11 @@ class Lightbox {
       'aria-haspopup': 'dialog'
     });
 
-    if (!getAttr(this.el, 'aria-label') && !getAttr(this.el, 'aria-labelledby')) {
-      let img = select('img', this.el)[0];
-      let label = dataset.lightboxCaption || (img ? getAttr(img, 'alt') : null) || 'Open Lightbox';
+    // Only name triggers that have no name of their own; aria-label would replace their content
+    this.hasOwnName = !!accessibleName(this.el);
 
-      setAttr(this.el, 'aria-label', label);
+    if (!this.hasOwnName) {
+      setAttr(this.el, 'aria-label', dataset.lightboxCaption || this.triggerLabel);
     }
 
     on(this.el, 'click', this.#onClick);
@@ -434,6 +439,11 @@ class Lightbox {
 
     this.#pointers.clear();
     this.#gesture = null;
+
+    if (this.titleEl) {
+      removeAttr(this.titleEl, 'id');
+      this.titleEl = null;
+    }
 
     iterate(this.items, (item, index) => {
       if (item.isElement) {
@@ -621,7 +631,6 @@ class Lightbox {
     this.controlNextEl = select('.fs-lightbox-control_next', this.lightboxEl)[0];
 
     addClass(this.lightboxEl, this.customClass);
-    setAttr(this.lightboxEl, 'aria-label', this.label);
 
     if (this.isRTL) {
       addClass(this.lightboxEl, `fs-lightbox-rtl`);
@@ -645,6 +654,8 @@ class Lightbox {
         this.#drawElement(item, index);
       }
     });
+
+    this.#setLabel();
 
     // Swipes (galleries) and zoom gestures; a second finger may land outside the image
     if (this.items.length > 1 || this.zoom) {
@@ -1298,13 +1309,51 @@ class Lightbox {
   }
 
   /**
+   * Names the dialog: the label option; for galleries, galleryLabel; for single items, the first
+   * heading in element content, then the caption, then the trigger's own name, then galleryLabel
+   * @private
+   * @returns {void}
+   */
+  #setLabel() {
+    let item = this.items[0];
+    let heading = (!this.label && this.items.length === 1 && item.isElement) ?
+      select('h1, h2, h3, h4, h5, h6', item.frameEl)[0] :
+      null;
+
+    if (heading) {
+      if (!heading.id) {
+        heading.id = `${this.guidClass}-title`;
+
+        // Removed again on close
+        this.titleEl = heading;
+      }
+
+      this.dialogLabel = accessibleName(heading);
+
+      setAttr(this.lightboxEl, 'aria-labelledby', heading.id);
+
+      return;
+    }
+
+    if (this.label) {
+      this.dialogLabel = this.label;
+    } else if (this.items.length > 1) {
+      this.dialogLabel = this.galleryLabel;
+    } else {
+      this.dialogLabel = item.caption || (this.hasOwnName ? accessibleName(this.el) : '') || this.galleryLabel;
+    }
+
+    setAttr(this.lightboxEl, 'aria-label', this.dialogLabel);
+  }
+
+  /**
    * Updates status text for the active item
    * @private
    * @returns {void}
    */
   #updateStatus() {
     if (this.statusEl) {
-      this.statusEl.textContent = `${this.label}: ${this.index + 1} of ${this.items.length}`;
+      this.statusEl.textContent = `${this.dialogLabel}: ${this.index + 1} of ${this.items.length}`;
     }
   }
 
@@ -1375,15 +1424,31 @@ class Lightbox {
    * @returns {void}
    */
   #checkClick(e) {
-    if (hasClass(e.target, 'fs-lightbox-trigger-previous')) {
+    if (this.#isTrigger(e, 'previous')) {
       this.previous();
     }
-    if (hasClass(e.target, 'fs-lightbox-trigger-next')) {
+    if (this.#isTrigger(e, 'next')) {
       this.next();
     }
-    if (hasClass(e.target, 'fs-lightbox-trigger-close')) {
+    if (this.#isTrigger(e, 'close')) {
       this.close();
     }
+  }
+
+  /**
+   * Checks if an event came from (or from inside) an action trigger in this lightbox
+   * @private
+   * @param {Event} e - Event
+   * @param {string} [action] - 'previous', 'next' or 'close'; any of them when omitted
+   * @returns {boolean} True if the target is inside a matching trigger
+   */
+  #isTrigger(e, action) {
+    let selector = action ?
+      `.fs-lightbox-trigger-${action}` :
+      '.fs-lightbox-trigger-previous, .fs-lightbox-trigger-next, .fs-lightbox-trigger-close';
+    let triggerEl = e.target.closest ? e.target.closest(selector) : null;
+
+    return !!triggerEl && this.lightboxEl.contains(triggerEl);
   }
 
   /**
@@ -1525,9 +1590,7 @@ class Lightbox {
         if (
           e.button > 0 ||
           !item.mediaEl.contains(e.target) ||
-          hasClass(e.target, 'fs-lightbox-trigger-previous') ||
-          hasClass(e.target, 'fs-lightbox-trigger-next') ||
-          hasClass(e.target, 'fs-lightbox-trigger-close') ||
+          this.#isTrigger(e) ||
           e.target.closest('a, button, input, select, textarea, label, [contenteditable]') // don't act on interactive elements
         ) {
           return;

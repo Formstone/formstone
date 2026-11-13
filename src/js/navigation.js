@@ -167,15 +167,6 @@ class Navigation {
 
     //
 
-    this.originalId = getAttr(this.el, 'id');
-
-    if (this.originalId) {
-      this.elId = this.originalId;
-    } else {
-      this.elId = this.guidClass;
-      setAttr(this.el, 'id', this.elId);
-    }
-
     this.listeners = {
       open: this.#onOpen(this),
       close: this.#onClose(this),
@@ -202,7 +193,9 @@ class Navigation {
       on(handle, 'swap:disable', this.listeners.disable);
     });
 
+    // Swap keeps aria-controls (with a generated id) and aria-expanded in step while enabled
     Swap.construct(`.${this.guidHandle}`, {
+      aria: true,
       classes: {
         enabled: 'fs-navigation-enabled',
         active: 'fs-navigation-open',
@@ -315,11 +308,7 @@ class Navigation {
         });
       }
 
-      setAttr(this.handleEl, {
-        'aria-controls': this.elId,
-        'aria-expanded': 'false',
-        'aria-haspopup': this.isToggle ? false : 'dialog'
-      });
+      setAttr(this.handleEl, 'aria-haspopup', this.isToggle ? false : 'dialog');
 
       this.#hideFocusables();
 
@@ -345,17 +334,12 @@ class Navigation {
         'role': this.originalRole || false,
         'aria-hidden': this.originalHidden || false,
         'aria-label': this.originalLabel || false,
-        'aria-modal': this.originalModal || false,
-        'id': this.originalId || false
+        'aria-modal': this.originalModal || false
       });
 
       this.#showFocusables();
 
-      removeAttr(this.handleEl, [
-        'aria-controls',
-        'aria-expanded',
-        'aria-haspopup'
-      ]);
+      removeAttr(this.handleEl, 'aria-haspopup');
 
       removeClass(this.el, 'fs-navigation-animated');
       removeClass(this.contentEl, 'fs-navigation-enabled', 'fs-navigation-animated', this.contentOpenClasses);
@@ -378,8 +362,6 @@ class Navigation {
       if (!this.isToggle) {
         this.#hideSiblings();
       }
-
-      setAttr(this.handleEl, 'aria-expanded', 'true');
 
       // On document, not body: clicks on inert content target <html>
       on(document, 'keydown', this.listeners.keydown);
@@ -419,8 +401,6 @@ class Navigation {
       if (!this.isToggle) {
         this.#showSiblings();
       }
-
-      setAttr(this.handleEl, 'aria-expanded', 'false');
 
       off(document, 'click', this.listeners.body);
       off(document, 'keydown', this.listeners.keydown);

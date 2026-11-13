@@ -26,6 +26,7 @@ Utils is a module of functions, available as the `Utils` export (`import { Utils
 
 | Name | Description |
 | -- | -- |
+| [`.accessibleName()`](#method-accessiblename) | Returns an element's accessible name (approximately) |
 | [`.addClass()`](#method-addclass) | Adds class(es) to target(s) |
 | [`.after()`](#method-after) | Inserts HTML after a target |
 | [`.afterTransition()`](#method-aftertransition) | Executes callback once an element's transition completes |
@@ -666,6 +667,30 @@ Gets an attribute value from an element.
 | Type | Description |
 | -- | -- |
 | `string|null` | The attribute value or null if not present |
+
+### .accessibleName() {#method-accessiblename}
+
+Returns an element's accessible name, approximately: the text of its `aria-labelledby` targets, else its `aria-label`, else its text and image `alt` content (skipping `aria-hidden="true"` subtrees), else its `title`. Whitespace is collapsed. Used by Lightbox and Modal to decide whether a trigger needs a fallback label.
+
+#### Parameters
+
+| Name | Type | Description |
+| -- | -- | -- |
+| `target` | `element` | The target element |
+
+#### Returns
+
+| Type | Description |
+| -- | -- |
+| `string` | The accessible name, or an empty string if there is none |
+
+#### Examples
+
+<figure class="example js-example" markdown="1">
+```js
+Utils.accessibleName(button); // 'Open menu'
+```
+</figure>
 
 ### .hasAttr() {#method-hasattr}
 

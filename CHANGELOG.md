@@ -2,6 +2,15 @@
 
 <!-- -->
 
+### 2.4.0
+
+* Added aria option to Swap
+* Added galleryLabel and triggerLabel options to Lightbox, and triggerLabel to Modal
+* Added accessibleName utility method
+* Fixed accessibility issues in Lightbox, Modal, Navigation and Tabs
+* Fixed issue with Lightbox handles
+* Fixed issue with Navigation aria-controls
+
 ### 2.3.0
 
 * Added zoom to Lightbox (double-tap, pinch, buttons and keys)

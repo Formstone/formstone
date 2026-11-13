@@ -16,15 +16,15 @@ Formstone is a library of modular front-end components written in dependency-fre
 | `src/css/*.css` | Generated from `src/less` by gulp `convert-css` | **No** |
 | `src/scss/*.scss` | Generated from the compiled `src/less` output by gulp `convert-scss`, then checked by `verify-scss` | **No** |
 | `dist/` | Generated UMD bundles (`formstone.js`, `formstone.jquery.js`), `formstone.css`, and `package.json` (`{"type": "commonjs"}`, so `require()` treats the UMD bundles as CommonJS) | **No** |
-| `docs/<module>/default.md` | Documentation pages, one per module (front-matter + Markdown, rendered by the docs site) | Yes |
-| `demo/*.html` | Manual test pages for the four consumption modes (ES bundle, ES browser, jQuery bundle, jQuery browser) | Yes |
+| `docs/<module>/default.md` | Documentation pages, one per module plus `utils` (front-matter + Markdown, rendered by the docs site); `docs/default.md` is the section index | Yes |
+| `demo/*.html` | Manual test pages: `index.html` links the four consumption modes (ES bundle, ES browser, jQuery bundle, jQuery browser); shared styles in `demo/css/demo.css` | Yes |
 | `gulpfile.cjs` | Build pipeline (CommonJS, since the package is `"type": "module"`) | Yes |
 | `tasks/gpl.txt` | License template; `license.txt` is generated from it | Template only |
 | `tasks/css.cjs` | CSS build helpers: Lightning CSS prefixing/minifying for `dist/formstone.css`, empty-line cleanup for `src/css` | Yes |
 | `tasks/js.cjs` | webpack UMD bundling for `dist/formstone.js` and `dist/formstone.jquery.js` | Yes |
 | `tasks/scss.cjs` | SCSS generation and verification used by the gulp `convert-scss` / `verify-scss` tasks | Yes |
 | `.browserslistrc` | Browser targets for CSS prefixes (Lightning CSS) and webpack's output syntax | Yes |
-| `test/` | Tests: `browser/*.spec.js` (Playwright), `node/*.test.js` (`node:test`), `fixtures/*.html` (pages the browser specs load), `server.js` (static server for fixtures) | Yes |
+| `test/` | Tests: `browser/*.spec.js` (Playwright), `node/*.test.js` (`node:test`), `fixtures/*.html` (pages the browser specs load) with local media in `fixtures/assets/`, `server.js` (static server for fixtures) | Yes |
 | `playwright.config.js` | Playwright config: Chromium, runs `test/server.js` on port 8765 | Yes |
 | `.github/workflows/test.yml` | CI: production build, build-output check, `npm test` | Yes |
 | `CHANGELOG.md` | Release notes, newest first | Yes |
@@ -71,7 +71,7 @@ npx playwright test --ui   # debug browser tests
   - an `#out` element, read with `out()`;
   - `window.T` phases `setup()` / `wide()` / `narrow()` run at 500 → 1000 → 500px, with `phases()`.
 
-  Specs that need real input use `ready()` plus `page.mouse` / `page.keyboard` / `touchDrag()`.
+  Specs that need real input use `ready()` plus `page.mouse` / `page.keyboard` / `touchDrag()` / `touchPinch()` / `touchTap()`.
 - **Docs demos:** `test/fixtures/docs-demo.html?page=<page>&demo=<n>` runs a docs demo the way the CodePen embeds do (`formstone` import-mapped to `src/js/index.js`, `dist/formstone.css`, the demo's fences as style, body and module script). `docs-demos.spec.js` runs every demo in `docs/*/default.md`, fails on JS errors, and runs the interaction checks keyed by `page › title`. Headless browsers can't render CodePen's result frame, so check the live embeds by hand.
 - **Requests outside localhost are blocked** (`offline()`), so tests never depend on the network. Fake external APIs (see the `YT` stub in the Background fixtures) instead of loading them.
 - **Node tests** cover packaging, from a throwaway consumer project linked to the repo:
@@ -99,7 +99,7 @@ The package is `"type": "module"`: every `.js` file is ESM. Build scripts are `.
 
 Consumers import `src/` directly, so **everything in `src/js` ships as-is**. Do not introduce syntax or APIs that need a transpile step beyond what `.browserslistrc` supports (`defaults, not op_mini all`).
 
-There is no `sideEffects` field; it was removed in 2.2.2 because the jQuery adaptors, the CSS and `background.js` have import-time side effects. If you reintroduce it, use an explicit list of side-effect files, not `false`.
+`sideEffects` is an explicit list of the files with import-time side effects: `dist/*`, the jQuery adaptors (which register on a global `jQuery` when imported) and the stylesheets. Everything else in `src/js` must stay side-effect free so it can be tree-shaken. If a module gains an import-time side effect, add it to the list. Never set `sideEffects: false`; that broke tree shaking in 2.2.2.
 
 ---
 
@@ -216,7 +216,7 @@ export default Name;
 - **Event handlers** are private methods named `#on<Event>` (`#onClick`, `#onKeyDown`). Handlers attached to an element read the instance via `this.<ClassName>`, because `this` is the element. Private methods are stable references, so `off()` works with them. **Never pass an inline arrow or `.bind()` result to `on()` unless you store it for `off()`.**
 - **Events:**
   - Custom events are namespaced `name:action` (`swap:activate`, `tabs:enable`) and dispatched with `trigger(el, 'name:action', detail)`.
-  - Widgets dispatch on their element. Modal and Lightbox currently dispatch on `window`, which is a known inconsistency; don't copy it.
+  - Widgets dispatch on their element. Modal and Lightbox also dispatch `open`/`close` on `window` for backward compatibility (and listen there for `modal:close` and `lightbox:close` / `previous` / `next`); don't copy that in new components.
 - **CSS classes:**
   - All generated classes are prefixed `fs-<name>-`. State modifiers are `fs-<name>-enabled`, `-active`, `-open`, `-loaded`, etc.
   - `fs-` classes are owned by the library: components add and remove them, and they are **never** required in (or documented for) consumer markup. Consumers select elements with their own classes (`js-…`) and `data-*` attributes. Styles must not hide or transform content unless a component-added `fs-` class is present, so content is visible without JS and after `destroy()`.
@@ -230,17 +230,14 @@ Use `src/js/utils.js` helpers instead of raw DOM APIs, for consistency and NodeL
 
 - `select`, `iterate`, `iterable`, `element`, `siblings`
 - `on`, `once`, `off`, `trigger`
+- `afterTransition`, `transitionTime`
 - `addClass`, `removeClass`, `hasClass`
 - `getAttr`, `setAttr`, `removeAttr`, `hasAttr`, `updateAttr`, `restoreAttr`
-- `prepend`, `append`, `before`, `after`
-- `extend`, `isFn`, `isObj`, `isU`, `falsey`, `ready`, `camelCase`
+- `accessibleName` (check it before adding a fallback `aria-label`, which would replace an element's own text)
+- `prepend`, `append`, `before`, `after` (these take an HTML string, so never pass user-controlled content; see standard 3)
+- `extend`, `isFn`, `isObj`, `isU`, `type`, `falsey`, `ready`, `camelCase`
 
-Most helpers accept a single element, a NodeList or an Array.
-
-Known utils gotchas until they are fixed:
-- `isObj(null)` returns `true`.
-- `extend(true, …)` only merges one level deep.
-- `off()` ignores listener options, so capture listeners can't be removed through it.
+Most helpers accept a single element, a NodeList or an Array. `extend(true, …)` merges plain objects at any depth and replaces arrays. To remove a capture listener, pass the same `capture` option to `off()` that you passed to `on()`.
 
 ### jQuery adaptors
 

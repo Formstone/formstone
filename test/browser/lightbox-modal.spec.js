@@ -413,3 +413,68 @@ test.describe('Escape', () => {
     });
   }
 });
+
+test.describe('Trigger and dialog names', () => {
+  test('FS-1: triggers keep their own text; the fallback name only applies when they have none', async ({ page }) => {
+    let r = await out(page, 'lightbox-fs1-fs2-names.html');
+
+    expect(r.error).toBeUndefined();
+    expect(r.triggers).toEqual({
+      t1: null, // visually hidden text
+      t2: null, // image alt
+      t3: 'Open Lightbox', // alt="" and no text
+      t4: 'A caption', // data-lightbox-caption before the fallback
+      t5: null,
+      t7: 'Ouvrir', // triggerLabel option
+      t8: 'Labelled trigger', // existing aria-label untouched
+      g1: null,
+      m1: null, // Modal: own text
+      m2: 'Open Modal', // Modal: aria-hidden content doesn't count
+      m3: 'Réglages', // Modal: triggerLabel option
+    });
+    // destroy() removes only what was added
+    expect(r.afterDestroy).toEqual({ t3: null, t1: null, m2: null });
+  });
+
+  test('FS-2: single items are named after their content; only galleries use galleryLabel', async ({ page }) => {
+    let r = await out(page, 'lightbox-fs1-fs2-names.html');
+
+    expect(r.dialogs).toEqual({
+      t1: { label: 'View photo' }, // trigger text
+      t2: { label: 'A pear' }, // trigger image alt
+      t3: { label: 'Gallery' }, // nothing else: galleryLabel
+      t4: { label: 'A caption' }, // caption
+      t5: { labelledby: 'Find things' }, // first heading in element content
+      t6: { label: 'Custom' }, // label option wins over the heading
+      t7: { label: 'Gallery' }, // triggerLabel is not used as the dialog name
+      t8: { label: 'Labelled trigger' }, // trigger aria-label
+      g1: { label: 'Gallery' },
+    });
+    expect(r.galleryStatus).toBe('Gallery: 1 of 2');
+    // A generated heading id is removed again on close
+    expect(r.headingIdWhileOpen).toMatch(/^fs-lightbox-element-\d+-title$/);
+    expect(r.headingIdAfterClose).toBe('');
+  });
+
+  test('FS-4: clicks on elements inside trigger-close/next/previous buttons work', async ({ page }) => {
+    await ready(page, 'lightbox-fs4-trigger-children.html');
+
+    let state = () => page.evaluate(() => window.state());
+
+    await page.click('#e1');
+    await page.waitForTimeout(400);
+    expect(await state()).toEqual({ open: true, index: 0 });
+
+    await page.click('#next-inner');
+    await page.waitForTimeout(400);
+    expect(await state()).toEqual({ open: true, index: 1 });
+
+    await page.click('#previous-inner');
+    await page.waitForTimeout(400);
+    expect(await state()).toEqual({ open: true, index: 0 });
+
+    await page.click('#close-inner');
+    await page.waitForTimeout(800);
+    expect((await state()).open).toBe(false);
+  });
+});

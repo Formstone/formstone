@@ -371,10 +371,12 @@ Set instance options by passing a valid object at initialization, or to the publ
 | `customClass` | `string` | `''` | Custom CSS class for lightbox dialog |
 | `direction` | `string` | `null` | Content direction (ltr, rtl); falls back to `document.dir` when the instance is created |
 | `fileTypes` | `RegExp` | `/\.(jpe?g\|sjpg\|png\|gif\|webp\|avif\|svg)(?=$\|[?#])/i` | Supported image file extensions, matched at the end of the URL path |
-| `label` | `string` | `'Gallery'` | Accessibility label |
+| `galleryLabel` | `string` | `'Gallery'` | Accessible name for gallery dialogs and their position announcements, when `label` isn't set |
+| `label` | `string` | `null` | Accessible name for the dialog (see [Accessibility](#accessibility)) |
 | `loop` | `boolean` | `false` | Loop from the last gallery item to the first (and back) |
 | `ordinal` | `boolean` | `true` | Show gallery position indicator |
 | `threshold` | `number` | `50` | Swipe threshold in pixels |
+| `triggerLabel` | `string` | `'Open Lightbox'` | Accessible name for triggers with no text, image `alt` or label of their own, when there's no `data-lightbox-caption` |
 | `zoom` | `boolean` | `true` | Allow zooming images (see [Zoom](#zoom)) |
 | `zoomMax` | `number` | `4` | Maximum zoom; also capped at the image's full resolution, but always at least `2` |
 | `templates` | `object` | `...` | HTML templates for UI components |
@@ -665,7 +667,7 @@ window.addEventListener('lightbox:close', (e) => {
 ```
 </figure>
 
-Elements inside lightbox content with these classes act as controls when clicked: `fs-lightbox-trigger-previous`, `fs-lightbox-trigger-next` and `fs-lightbox-trigger-close`.
+Elements inside lightbox content with these classes act as controls when clicked (including clicks on their child elements, such as icons): `fs-lightbox-trigger-previous`, `fs-lightbox-trigger-next` and `fs-lightbox-trigger-close`.
 
 
 <hr class="divider">
@@ -711,6 +713,19 @@ Classes allow deeper customization and indicate the current state of a specific 
 The page behind an open lightbox doesn't scroll (`html:has(.fs-lightbox[open])`). `data-lightbox-type="url"` items only load `http` and `https` URLs. Arrow keys don't change items while focus is in a form field or editable content. Escape, the close button, or a click outside the content closes the lightbox.
 
 Buttons that can't act right now (previous and next at the ends of a gallery without `loop`, zoom in at the maximum, zoom out at the fitted size) get `aria-disabled="true"` rather than `disabled`, so they keep keyboard focus. They're dimmed and ignore clicks; style them with `[aria-disabled="true"]`.
+
+### Accessibility {#accessibility}
+
+Triggers get `role="button"` and `aria-haspopup="dialog"`. A trigger keeps its own accessible name (its text, including visually hidden text, an image's `alt`, or an existing `aria-label` or `aria-labelledby`). Only a trigger with none of these gets an `aria-label`: its `data-lightbox-caption`, else `triggerLabel`.
+
+The dialog is named by, in order:
+
+1. the `label` option, when set;
+2. for galleries, `galleryLabel`;
+3. for a single element item, the first heading in its content (`aria-labelledby`);
+4. the item's caption;
+5. the trigger's own accessible name;
+6. `galleryLabel`.
 
 
 </div>

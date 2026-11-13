@@ -454,6 +454,58 @@ export function getAttr(target, attr) {
 }
 
 /**
+ * Returns an element's accessible name, approximately: the text of its `aria-labelledby` targets,
+ * else its `aria-label`, else its text and image `alt` content (skipping `aria-hidden` subtrees),
+ * else its `title`. Whitespace is collapsed.
+ * @param {Element} target - The target element
+ * @returns {string} The accessible name, or an empty string if there is none
+ * @example
+ * accessibleName(button); // 'Open menu'
+ */
+export function accessibleName(target) {
+  let clean = (text) => (text || '').replace(/\s+/g, ' ').trim();
+
+  let ids = clean(getAttr(target, 'aria-labelledby'));
+
+  if (ids) {
+    let text = clean(ids.split(' ').map((id) => {
+      let el = document.getElementById(id);
+
+      return el ? el.textContent : '';
+    }).join(' '));
+
+    if (text) {
+      return text;
+    }
+  }
+
+  let label = clean(getAttr(target, 'aria-label'));
+
+  if (label) {
+    return label;
+  }
+
+  let parts = [];
+  let walk = (node) => {
+    iterate(node.childNodes, (child) => {
+      if (child.nodeType === 3) {
+        parts.push(child.textContent);
+      } else if (child.nodeType === 1 && getAttr(child, 'aria-hidden') !== 'true') {
+        if (child.tagName === 'IMG') {
+          parts.push(` ${getAttr(child, 'alt') || ''} `);
+        } else {
+          walk(child);
+        }
+      }
+    });
+  };
+
+  walk(target);
+
+  return clean(parts.join('')) || clean(getAttr(target, 'title'));
+}
+
+/**
  * Normalizes attributes into an array of entries
  * @param {string|Object} attr - Attribute name or object of attribute key-value pairs
  * @param {string} [value] - Attribute value (when attr is a string)

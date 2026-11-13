@@ -24,6 +24,7 @@ import {
   getAttr,
   setAttr,
   removeAttr,
+  accessibleName,
 } from './utils.js';
 
 let ModalInstance;
@@ -33,6 +34,7 @@ let ModalInstance;
  * @property {string} [customClass=''] - Custom CSS class for modal dialog
  * @property {string} [label=null] - Accessible name; defaults to the first heading in the content, then 'Dialog'
  * @property {boolean} [returnFocus=true] - Return focus to trigger after closing
+ * @property {string} [triggerLabel='Open Modal'] - Accessible name for triggers with no text, image `alt` or label of their own
  * @property {Object} [templates] - HTML templates for modal components
  */
 
@@ -48,6 +50,7 @@ class Modal {
     customClass: '',
     label: null,
     returnFocus: true,
+    triggerLabel: 'Open Modal',
     templates: {
       container: `
 <dialog class="fs-modal">
@@ -142,8 +145,9 @@ class Modal {
       'aria-haspopup': 'dialog'
     });
 
-    if (!getAttr(this.el, 'aria-label') && !getAttr(this.el, 'aria-labelledby')) {
-      setAttr(this.el, 'aria-label', 'Open Modal');
+    // Only name triggers that have no name of their own; aria-label would replace their content
+    if (!accessibleName(this.el)) {
+      setAttr(this.el, 'aria-label', this.triggerLabel);
     }
 
     on(this.el, 'click', this.#onClick);

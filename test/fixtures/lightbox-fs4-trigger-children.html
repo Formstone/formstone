@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/src/css/lightbox.css">
+<style>.trigger { display: inline-block; padding: 20px; } .trigger span { display: inline-block; width: 60px; height: 30px; background: #ccc; }</style>
+</head><body>
+<a id="e1" href="#c1" data-lightbox-gallery="g">one</a>
+<a id="e2" href="#c2" data-lightbox-gallery="g">two</a>
+<div hidden>
+  <div id="c1">
+    <button type="button" class="trigger fs-lightbox-trigger-next"><span id="next-inner">Next</span></button>
+    <button type="button" class="trigger fs-lightbox-trigger-close"><span id="close-inner">Close</span></button>
+  </div>
+  <div id="c2">
+    <button type="button" class="trigger fs-lightbox-trigger-previous"><span id="previous-inner">Previous</span></button>
+  </div>
+</div>
+<script type="module">
+import { Lightbox } from '/src/js/index.js';
+Lightbox.construct('#e1, #e2');
+window.state = () => ({
+  open: !!document.querySelector('dialog.fs-lightbox[open]'),
+  index: document.getElementById('e1').Lightbox.index
+});
+window.T_READY = true;
+</script></body></html>

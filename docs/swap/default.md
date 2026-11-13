@@ -307,6 +307,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 
 | Name | Type | Default | Description |
 | -- | -- | -- | -- |
+| `aria` | `boolean` | `false` | Set `aria-controls` and `aria-expanded` on the handle while enabled (see [Accessibility](#accessibility)) |
 | `classes` | `object` | `...` | State classes applied by the instance |
 | `classes.enabled` | `string` | `'fs-swap-enabled'` | Class applied when instance is enabled |
 | `classes.active` | `string` | `'fs-swap-active'` | Class applied when instance is active |
@@ -508,6 +509,12 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-swap-enabled` | `modifier` | Indicates enabled state |
 | `.fs-swap-active` | `modifier` | Indicates active state |
 | `.fs-swap-inactive` | `modifier` | Indicates inactive state |
+
+### Accessibility {#accessibility}
+
+Swap only swaps classes by default. For disclosures (accordions, show/hide toggles), set `aria: true`. While the instance is enabled, the handle gets `aria-controls` pointing at its `data-swap-target` element(s) and an `aria-expanded` that follows the active state, including group and linked changes. Targets without an `id` get a generated one. When the instance is disabled (by `minWidth`/`maxWidth` or `disable()`) or destroyed, the generated ids are removed and the handle's original `aria-controls` and `aria-expanded` are restored.
+
+Use a `<button type="button">` as the handle, so it's keyboard and screen reader operable. With `aria: true`, other handles log a console warning; Swap doesn't add roles or key handling. For a heading, put the button inside it.
 
 
 </div>

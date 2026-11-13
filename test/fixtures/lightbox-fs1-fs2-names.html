@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/src/css/lightbox.css"><link rel="stylesheet" href="/src/css/modal.css"></head><body>
+<a id="t1" href="/test/fixtures/assets/img.svg?1" data-lightbox-type="image"><span style="position:absolute;clip:rect(0 0 0 0)">View photo</span></a>
+<a id="t2" href="/test/fixtures/assets/img.svg?2" data-lightbox-type="image"><img src="/test/fixtures/assets/img.svg" alt="A pear" width="20"></a>
+<a id="t3" href="/test/fixtures/assets/img.svg?3" data-lightbox-type="image"><img src="/test/fixtures/assets/img.svg" alt="" width="20"></a>
+<a id="t4" href="/test/fixtures/assets/img.svg?4" data-lightbox-type="image" data-lightbox-caption="A caption"><img src="/test/fixtures/assets/img.svg" alt="" width="20"></a>
+<a id="t5" href="#c5">Search</a>
+<a id="t6" href="#c6" data-lightbox-options='{"label":"Custom"}'>Six</a>
+<a id="t7" href="/test/fixtures/assets/img.svg?7" data-lightbox-type="image" data-lightbox-options='{"triggerLabel":"Ouvrir"}'></a>
+<a id="t8" href="#c8" aria-label="Labelled trigger"><svg width="10" height="10"></svg></a>
+<a id="g1" href="/test/fixtures/assets/img.svg?g1" data-lightbox-type="image" data-lightbox-gallery="g">g1</a>
+<a id="g2" href="/test/fixtures/assets/img.svg?g2" data-lightbox-type="image" data-lightbox-gallery="g">g2</a>
+<a id="m1" href="#mc">Settings</a>
+<a id="m2" href="#mc"><span aria-hidden="true">⚙</span></a>
+<a id="m3" href="#mc" data-modal-options='{"triggerLabel":"Réglages"}'></a>
+<div hidden>
+  <div id="c5"><h2>Find things</h2><input></div>
+  <div id="c6"><h2>Ignored heading</h2></div>
+  <div id="c8"><p>No heading</p></div>
+  <div id="mc"><p>Modal content</p></div>
+</div>
+<pre id="out">pending</pre>
+<script type="module">
+import { Lightbox, Modal } from '/src/js/index.js';
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const $ = (id) => document.getElementById(id);
+const r = {};
+try {
+  Lightbox.construct('#t1, #t2, #t3, #t4, #t5, #t6, #t7, #t8, #g1, #g2');
+  Modal.construct('#m1, #m2, #m3');
+
+  r.triggers = {};
+  for (const id of ['t1', 't2', 't3', 't4', 't5', 't7', 't8', 'g1', 'm1', 'm2', 'm3']) {
+    r.triggers[id] = $(id).getAttribute('aria-label');
+  }
+
+  const dialogName = () => {
+    const d = document.querySelector('dialog.fs-lightbox');
+    const by = d.getAttribute('aria-labelledby');
+    return by ? { labelledby: document.getElementById(by).textContent } : { label: d.getAttribute('aria-label') };
+  };
+
+  r.dialogs = {};
+  for (const id of ['t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 'g1']) {
+    $(id).Lightbox.open();
+    await wait(300);
+    r.dialogs[id] = dialogName();
+    if (id === 'g1') {
+      r.galleryStatus = document.querySelector('.fs-lightbox-status').textContent;
+    }
+    if (id === 't5') {
+      r.headingIdWhileOpen = document.querySelector('dialog.fs-lightbox h2').id;
+    }
+    await $(id).Lightbox.close();
+  }
+
+  r.headingIdAfterClose = document.querySelector('#c5 h2').id;
+
+  $('t3').Lightbox.destroy();
+  $('t1').Lightbox.destroy();
+  $('m2').Modal.destroy();
+  r.afterDestroy = { t3: $('t3').getAttribute('aria-label'), t1: $('t1').getAttribute('aria-label'), m2: $('m2').getAttribute('aria-label') };
+} catch (e) { r.error = String(e); }
+$('out').textContent = JSON.stringify(r);
+</script></body></html>

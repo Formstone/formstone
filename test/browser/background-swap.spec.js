@@ -104,3 +104,46 @@ test.describe('Background events', () => {
     expect(r.youtubeLoopEnded).toEqual(['play']);
   });
 });
+
+test.describe('Swap aria option', () => {
+  test('FS-3: aria-controls and aria-expanded follow toggles, groups, links, breakpoints and destroy()', async ({ page }) => {
+    let r = await phases(page, 'swap-fs3-aria.html');
+
+    // Only the non-button handle warns
+    expect(r.warnings).toEqual(['Swap: Handle is not a <button>, so it may not be keyboard or screen reader operable']);
+
+    expect(r.s1).toEqual([
+      { controls: 'p1', expanded: 'false' },
+      { controls: 'p1', expanded: 'true' },
+      { controls: 'p1', expanded: 'false' },
+    ]);
+
+    // Targets without ids get one each; destroy() removes them and restores the original aria-expanded
+    expect(r.s2.controls).toBe(r.s2.ids.join(' '));
+    expect(r.s2Resolved).toEqual([true, true]);
+    expect(r.s2Destroyed).toEqual({ controls: null, expanded: 'false', ids: ['', ''] });
+
+    expect(r.group1).toEqual(['true', 'false']);
+    expect(r.group2).toEqual(['false', 'true']);
+    expect(r.linked).toEqual([{ controls: 'lp', expanded: 'true' }, { controls: 'lp', expanded: 'true' }]);
+
+    // Off by default
+    expect(r.s4).toEqual({ controls: null, expanded: null });
+
+    // Removed while disabled by the breakpoint, added back when enabled again
+    expect(r.s3Narrow.controls).toBe(r.s3Narrow.targetId);
+    expect(r.s3Narrow.expanded).toBe('false');
+    expect(r.s3Wide).toEqual({ controls: null, expanded: null, targetId: '', enabled: false });
+    expect(r.s3NarrowAgain.controls).toBe(r.s3NarrowAgain.targetId);
+  });
+
+  test('FS-3: Navigation uses Swap aria; aria-controls still resolves after crossing the breakpoint', async ({ page }) => {
+    let r = await phases(page, 'swap-fs3-aria.html');
+
+    expect(r.navNarrow).toMatchObject({ expanded: 'false', resolves: true });
+    expect(r.navWide).toEqual({ controls: null, expanded: null, navId: '' });
+    expect(r.navNarrowAgain).toMatchObject({ expanded: 'false', resolves: true });
+    expect([r.navOpen, r.navClosed]).toEqual(['true', 'false']);
+    expect(r.navDestroyed).toEqual({ controls: null, expanded: null, navId: '' });
+  });
+});

@@ -1,0 +1,89 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/src/css/navigation.css"></head><body>
+<button type="button" id="s1" data-swap-target="#p1">s1</button><div id="p1">p1</div>
+<button type="button" id="s2" data-swap-target=".p2" aria-expanded="false">s2</button><div class="p2">p2a</div><div class="p2">p2b</div>
+<button type="button" id="g1" data-swap-target="#gp1" data-swap-group="grp">g1</button><div id="gp1">gp1</div>
+<button type="button" id="g2" data-swap-target="#gp2" data-swap-group="grp">g2</button><div id="gp2">gp2</div>
+<button type="button" id="s3" data-swap-target=".p3">s3</button><div class="p3">p3</div>
+<button type="button" id="s4" data-swap-target="#p4">s4</button><div id="p4">p4</div>
+<h3 id="h" data-swap-target="#ph">heading handle</h3><div id="ph">ph</div>
+<button type="button" id="l1" data-swap-target="#lp" data-swap-linked="lnk">l1</button>
+<button type="button" id="l2" data-swap-target="#lp" data-swap-linked="lnk">l2</button><div id="lp">lp</div>
+<button type="button" id="nh">Menu</button>
+<nav class="js-nav" data-navigation-handle="#nh"><a href="#">One</a></nav>
+<script type="module">
+import { Swap, Navigation } from '/src/js/index.js';
+const $ = (id) => document.getElementById(id);
+const N = () => document.querySelector('.js-nav');
+const aria = (id) => ({ controls: $(id).getAttribute('aria-controls'), expanded: $(id).getAttribute('aria-expanded') });
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+const warnings = [];
+const warn = console.warn;
+console.warn = (...args) => { warnings.push(String(args[0])); warn(...args); };
+
+const r = {};
+
+window.T = {
+  setup() {
+    new Swap($('s1'), { aria: true });
+    new Swap($('s2'), { aria: true });
+    Swap.construct('#g1, #g2', { aria: true });
+    new Swap($('s3'), { aria: true, maxWidth: 800 });
+    new Swap($('s4'));
+    new Swap($('h'), { aria: true });
+    Swap.construct('#l1, #l2', { aria: true });
+    new Navigation(N(), { maxWidth: 800 });
+
+    r.warnings = warnings.filter((w) => w.startsWith('Swap:'));
+
+    // Plain toggle
+    r.s1 = [aria('s1')];
+    $('s1').click();
+    r.s1.push(aria('s1'));
+    $('s1').click();
+    r.s1.push(aria('s1'));
+
+    // Several targets without ids
+    const p2 = document.querySelectorAll('.p2');
+    r.s2 = { ...aria('s2'), ids: [p2[0].id, p2[1].id] };
+    r.s2Resolved = r.s2.controls.split(' ').map((id) => !!document.getElementById(id));
+    $('s2').Swap.destroy();
+    r.s2Destroyed = { ...aria('s2'), ids: [p2[0].id, p2[1].id] };
+
+    // Groups close the other member
+    $('g1').click();
+    r.group1 = [aria('g1').expanded, aria('g2').expanded];
+    $('g2').click();
+    r.group2 = [aria('g1').expanded, aria('g2').expanded];
+
+    // Linked handles stay in step
+    $('l1').click();
+    r.linked = [aria('l1'), aria('l2')];
+
+    // Off by default
+    $('s4').click();
+    r.s4 = aria('s4');
+
+    // Breakpoint: enabled below 800px
+    r.s3Narrow = { ...aria('s3'), targetId: document.querySelector('.p3').id };
+    r.navNarrow = { ...aria('nh'), resolves: document.getElementById($('nh').getAttribute('aria-controls')) === N() };
+  },
+  async wide() {
+    await wait(300);
+    r.s3Wide = { ...aria('s3'), targetId: document.querySelector('.p3').id, enabled: $('s3').Swap.enabled };
+    r.navWide = { ...aria('nh'), navId: N().id };
+  },
+  async narrow() {
+    await wait(300);
+    r.s3NarrowAgain = { ...aria('s3'), targetId: document.querySelector('.p3').id };
+    r.navNarrowAgain = { ...aria('nh'), resolves: document.getElementById($('nh').getAttribute('aria-controls')) === N() };
+    $('nh').click();
+    r.navOpen = aria('nh').expanded;
+    N().Navigation.close();
+    r.navClosed = aria('nh').expanded;
+    N().Navigation.destroy();
+    r.navDestroyed = { ...aria('nh'), navId: N().id };
+    return JSON.stringify(r);
+  }
+};
+window.T_READY = true;
+</script></body></html>

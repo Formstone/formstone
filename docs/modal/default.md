@@ -102,6 +102,7 @@ Set instance options by passing a valid object at initialization, or to the publ
 | `customClass` | `string` | `''` | Custom CSS class for modal dialog |
 | `label` | `string` | `null` | Accessible name for the dialog; when not set, the first heading in the content is used, then `'Dialog'` |
 | `returnFocus` | `boolean` | `true` | Return focus to trigger after closing |
+| `triggerLabel` | `string` | `'Open Modal'` | Accessible name for triggers with no text, image `alt` or label of their own |
 | `templates` | `object` | `...` | HTML templates for modal components |
 
 
@@ -277,6 +278,8 @@ Classes allow deeper customization and indicate the current state of a specific 
 | `.fs-modal-open` | `modifier` | Indicates open state |
 
 The page behind an open modal doesn't scroll (`html:has(.fs-modal[open])`).
+
+Triggers get `role="button"` and `aria-haspopup="dialog"`. A trigger keeps its own accessible name (its text, including visually hidden text, an image's `alt`, or an existing `aria-label` or `aria-labelledby`); only a trigger with none of these gets `triggerLabel` as its `aria-label`.
 
 
 </div>

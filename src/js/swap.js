@@ -18,6 +18,9 @@ import {
   removeClass,
   //
   hasAttr,
+  getAttr,
+  setAttr,
+  removeAttr,
 } from './utils.js';
 
 /**
@@ -34,6 +37,7 @@ class Swap {
 
   /**
    * @typedef {Object} SwapOptions
+   * @property {boolean} [aria=false] - Manage `aria-controls` and `aria-expanded` on the handle while enabled (disclosure pattern); handles should be `<button>` elements
    * @property {Object} [classes] - CSS classes for enabled, active, and inactive states
    * @property {string} [classes.enabled='fs-swap-enabled'] - Enabled state class
    * @property {string} [classes.active='fs-swap-active'] - Active state class
@@ -48,6 +52,7 @@ class Swap {
    * @private
    */
   static #_defaults = {
+    aria: false,
     classes: {
       enabled: 'fs-swap-enabled',
       active: 'fs-swap-active',
@@ -136,6 +141,19 @@ class Swap {
       console.warn(`Swap: Target ${this.target} not found`, el);
     }
 
+    if (this.aria) {
+      // Restored when disabled
+      this.originalAria = {
+        'aria-controls': getAttr(el, 'aria-controls'),
+        'aria-expanded': getAttr(el, 'aria-expanded')
+      };
+      this.ariaIds = [];
+
+      if (el.tagName !== 'BUTTON' && getAttr(el, 'role') !== 'button') {
+        console.warn('Swap: Handle is not a <button>, so it may not be keyboard or screen reader operable', el);
+      }
+    }
+
     // Numbers are pixels; media queries need units
     let px = (v) => (typeof v === 'number') ? `${v}px` : v;
     let maxWidth = ((this.maxWidth === Infinity || this.maxWidth === 'Infinity') ? '100000px' : px(this.maxWidth));
@@ -194,6 +212,8 @@ class Swap {
 
     addClass(this.toggleEl, this.classes.enabled, this.classes.inactive);
 
+    this.#setAria();
+
     on(this.el, 'click', this.#onClick);
 
     if (!this.collapse && this.group) {
@@ -239,6 +259,8 @@ class Swap {
 
     removeClass(this.toggleEl, this.classes.enabled, this.classes.active, this.classes.inactive);
 
+    this.#restoreAria();
+
     off(this.el, 'click', this.#onClick);
 
     trigger(this.toggleEl, 'swap:disable');
@@ -270,6 +292,8 @@ class Swap {
 
     removeClass(this.toggleEl, this.classes.inactive);
     addClass(this.toggleEl, this.classes.active);
+
+    this.#setExpanded();
 
     // Deactivate group members first, as full deactivations (with events), so their
     // swap:deactivate handlers run before this instance's swap:activate handlers
@@ -311,6 +335,8 @@ class Swap {
     removeClass(this.toggleEl, this.classes.active);
     addClass(this.toggleEl, this.classes.inactive);
 
+    this.#setExpanded();
+
     if (!internal) {
       trigger(this.toggleEl, 'swap:deactivate');
 
@@ -322,6 +348,68 @@ class Swap {
         });
       }
     }
+  }
+
+  //
+
+  /**
+   * Points the handle at its targets with aria-controls (giving targets without an id one) and
+   * sets aria-expanded, when the aria option is on
+   * @private
+   * @returns {void}
+   */
+  #setAria() {
+    if (!this.aria || !this.targetEl.length) {
+      return;
+    }
+
+    let ids = [];
+
+    iterate(this.targetEl, (target, index) => {
+      if (!target.id) {
+        target.id = `${this.guidTarget}${index ? `-${index}` : ''}`;
+
+        // Removed again when disabled
+        this.ariaIds.push(target);
+      }
+
+      ids.push(target.id);
+    });
+
+    setAttr(this.el, 'aria-controls', ids.join(' '));
+
+    this.#setExpanded();
+  }
+
+  /**
+   * Keeps aria-expanded in step with the active state, when the aria option is on
+   * @private
+   * @returns {void}
+   */
+  #setExpanded() {
+    if (this.aria && this.targetEl.length) {
+      setAttr(this.el, 'aria-expanded', this.active ? 'true' : 'false');
+    }
+  }
+
+  /**
+   * Restores the handle's original aria attributes and removes generated target ids
+   * @private
+   * @returns {void}
+   */
+  #restoreAria() {
+    if (!this.aria || !this.targetEl.length) {
+      return;
+    }
+
+    setAttr(this.el, {
+      'aria-controls': this.originalAria['aria-controls'] || false,
+      'aria-expanded': this.originalAria['aria-expanded'] || false
+    });
+
+    removeAttr(this.ariaIds, 'id');
+
+    this.ariaIds = [];
   }
 
   //
